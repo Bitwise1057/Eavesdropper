@@ -6,7 +6,7 @@ local L;
 
 ---@class ED.Locale.enUS
 L = {
-	WELCOMEMSG_VERSION = "Listening with profile |cnGREEN_FONT_COLOR:%s|r (|cnWHITE_FONT_COLOR:%s|r)!",
+	WELCOMEMSG_VERSION = "Listening with profile |cnGREEN_FONT_COLOR:%s|r (|cnGOLD_FONT_COLOR:%s|r)!",
 	WELCOMEMSG_OPTIONS = "Options available through |cnGREEN_FONT_COLOR:/ed|r & |cnGREEN_FONT_COLOR:/ed help|r",
 
 	SLASH_COMMAND_ED = "Show Options, Eavesdropper unhides during",

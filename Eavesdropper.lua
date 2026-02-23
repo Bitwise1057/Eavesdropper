@@ -56,7 +56,7 @@ function ED.Init()
 			ED.Minimap:SetupMinimapButtons();
 
 			if ED.Database:GetGlobalSetting("WelcomeMessage") then
-				ED.Utils.Write(ED.Localization.WELCOMEMSG_VERSION:format(ED.Database:GetProfileName(), "|cnGOLD_FONT_COLOR:" .. ED.Globals.addon_version .. "|r"));
+				ED.Utils.Write(ED.Localization.WELCOMEMSG_VERSION:format(ED.Database:GetProfileName(), ED.Globals.addon_version));
 				ED.Utils.Write(ED.Localization.WELCOMEMSG_OPTIONS);
 			end
 		end);
