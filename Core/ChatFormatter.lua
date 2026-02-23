@@ -261,7 +261,10 @@ function ChatFormatter:GetFormattedName(entry)
 		end
 	end
 
-	return strtrim(name), applyRPName, strtrim(firstName);
+	local trimmedName = strtrim(name);
+	local trimmedFirstName = firstName and strtrim(firstName) or trimmedName;
+
+	return trimmedName, applyRPName, trimmedFirstName;
 end
 
 ---Formats a chat entry for display
