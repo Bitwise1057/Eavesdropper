@@ -360,12 +360,14 @@ function Database:GetSetting(key)
 	if not defaults then return nil; end
 	if not profile then return defaults[key]; end
 
-	local value = profile[key];
-	if value ~= nil then
-		return value;
+	if profile[key] == nil then
+		local def = defaults[key];
+		if type(def) == "table" then
+			profile[key] = ED.Utils.ShallowCopy(def);
+		end
 	end
 
-	return defaults[key];
+	return profile[key] or defaults[key];
 end
 
 ---Sets a value in the current profile.
@@ -376,9 +378,14 @@ function Database:SetSetting(key, value)
 	local profile = self.currentProfile;
 	if not profile then return; end
 
+	local def = self.defaults[key];
+
 	if type(value) == "table" then
-		profile[key] = value;
-	elseif value == self.defaults[key] then
+		profile[key] = profile[key] or {};
+		for k, v in pairs(value) do
+			profile[key][k] = v;
+		end
+	elseif value == def then
 		profile[key] = nil;
 	else
 		profile[key] = value;
@@ -396,36 +403,41 @@ end
 
 ---Gets a value from the global database, falling back to defaults.
 ---@param key EavesdropperGlobalSettingKey
----@return any settingValue Value of the Global setting, or nil
+---@return any
 function Database:GetGlobalSetting(key)
-	local defaults = self.globalDefaults;
-	if not defaults then return nil; end
-
-	if not EavesdropperDB or not EavesdropperDB.global then
-		local def = defaults[key];
-		return type(def) == "table" and ED.Utils.ShallowCopy(def) or def;
-	end
+	if not EavesdropperDB then EavesdropperDB = {}; end
+	if not EavesdropperDB.global then EavesdropperDB.global = {}; end
 
 	local value = EavesdropperDB.global[key];
-	if value ~= nil then
-		return value;
+	if value == nil then
+		local def = self.globalDefaults[key];
+		if type(def) == "table" then
+			-- initialize the table and store it
+			value = ED.Utils.ShallowCopy(def);
+			EavesdropperDB.global[key] = value;
+		else
+			value = def;
+		end
 	end
 
-	local def = defaults[key];
-	return type(def) == "table" and ED.Utils.ShallowCopy(def) or def;
+	return value;
 end
 
 ---Sets a value in the global database.
 ---@param key EavesdropperGlobalSettingKey
 ---@param value any
 function Database:SetGlobalSetting(key, value)
-	if not EavesdropperDB or not EavesdropperDB.global then
-		return;
-	end
+	if not EavesdropperDB then EavesdropperDB = {}; end
+	if not EavesdropperDB.global then EavesdropperDB.global = {}; end
+
+	local def = self.globalDefaults[key];
 
 	if type(value) == "table" then
-		EavesdropperDB.global[key] = value;
-	elseif value == self.globalDefaults[key] then
+		EavesdropperDB.global[key] = EavesdropperDB.global[key] or {};
+		for k, v in pairs(value) do
+			EavesdropperDB.global[key][k] = v;
+		end
+	elseif value == def then
 		EavesdropperDB.global[key] = nil;
 	else
 		EavesdropperDB.global[key] = value;
