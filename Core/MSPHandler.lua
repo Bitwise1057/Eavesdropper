@@ -13,6 +13,21 @@ MSP.cache = {
 	time = 0;
 };
 
+---@param data string?[]
+---@return boolean
+local function HasValidMSPData(data)
+	if not data then
+		return false;
+	end
+
+	return (data[1] and data[1] ~= "")
+		or (data[2] and data[2] ~= "")
+		or data[3]
+		or (data[4] and data[4] ~= "")
+		or (data[5] and data[5] ~= "")
+		or (data[6] and data[6] ~= "");
+end
+
 ---@param name string
 ---@return string
 local function StripTitle(name)
@@ -165,10 +180,14 @@ function MSP.TryGetMSPData(playerName, playerGUID)
 
 	local now = GetTime();
 
-	-- Return cached result if same GUID and still valid
-	if MSP.cache.guid == playerGUID and MSP.cache.data and (now - MSP.cache.time) <= Constants.MSP.CACHE_RESET_TIME then
+	-- Return cached result if same GUID, still valid, and has meaningful data
+	if MSP.cache.guid == playerGUID
+		and MSP.cache.data
+		and (now - MSP.cache.time) <= Constants.MSP.CACHE_RESET_TIME
+		and HasValidMSPData(MSP.cache.data)
+	then
 		local cached = MSP.cache.data;
-		return strtrim(cached[1]), strtrim(cached[2]), cached[3], strtrim(cached[4]), strtrim(cached[5]), strtrim(cached[6]);
+		return strtrim(cached[1] or ""), strtrim(cached[2] or ""), cached[3], strtrim(cached[4] or ""), strtrim(cached[5] or ""), strtrim(cached[6] or "");
 	end
 
 	local fullName, firstName, nameColor, lastName, className, raceName;
