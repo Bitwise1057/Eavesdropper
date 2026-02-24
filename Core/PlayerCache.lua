@@ -106,6 +106,7 @@ function PlayerCache:InsertAndRetrieve(sender, guid)
 		if not sender then return; end
 	end
 	if not sender or sender == "" then return; end
+	if guid and not canaccessvalue(guid) then return; end
 
 	if not Utils.HasRealmSuffix(sender) then
 		for fullName, entry in pairs(self.bySender) do
@@ -217,6 +218,8 @@ end
 ---@return string? sender
 function PlayerCache:GetSenderDataFromGUID(guid)
 	if not guid then return; end
+	if not canaccessvalue(guid) then return; end
+
 	local entry = self.byGUID[guid];
 	if entry then return entry.sender; end
 

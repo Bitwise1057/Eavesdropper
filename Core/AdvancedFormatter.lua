@@ -25,11 +25,17 @@ local function CreateChatName(event, _, _, sender, _, _, _, _, _, _, _, _, _, gu
 		return;
 	end
 
+	-- Resolve Name-Realm if GUID exists (can be nil and secret will also return nil)
 	if guid then
 		sender = ED.PlayerCache:GetSenderDataFromGUID(guid) or sender;
 	end
 
-	sender, guid = ED.PlayerCache:InsertAndRetrieve(sender, guid);
+	-- nil if secrets, guard against that
+	local newSender, newGuid = ED.PlayerCache:InsertAndRetrieve(sender, guid);
+	if newSender then
+		sender = newSender;
+		guid = newGuid;
+	end
 
 	local entry = {
 		t = time(),

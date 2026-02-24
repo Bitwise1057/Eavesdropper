@@ -243,6 +243,7 @@ end
 ---@return EavesdropperChatEntry? chatEntry The created chat entry, or nil if ignored
 function ChatHistory:AddEntry(event, sender, message, language, guid, channel)
 	if not sender or sender == "" then return; end
+	if not canaccessvalue(message) then return; end
 	if message == "" and event ~= "CHAT_MSG_CHANNEL_JOIN" and event ~= "CHAT_MSG_CHANNEL_LEAVE" then return; end
 	if self:IsDuplicate(event, sender, message, channel, language, guid) then return; end
 
@@ -262,12 +263,17 @@ function ChatHistory:AddEntry(event, sender, message, language, guid, channel)
 		guid = UnitGUID("player");
 	end
 
-	-- Resolve Name-Realm if GUID exists
+	-- Resolve Name-Realm if GUID exists (can be nil and secret will also return nil)
 	if guid then
 		sender = ED.PlayerCache:GetSenderDataFromGUID(guid) or sender;
 	end
 
-	sender, guid = ED.PlayerCache:InsertAndRetrieve(sender, guid);
+	-- nil if secrets, guard against that
+	local newSender, newGuid = ED.PlayerCache:InsertAndRetrieve(sender, guid);
+	if newSender then
+		sender = newSender;
+		guid = newGuid;
+	end
 	self.history[sender] = self.history[sender] or {};
 
 	message = AddLanguageTag(language, message);

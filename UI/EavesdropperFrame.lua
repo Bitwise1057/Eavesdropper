@@ -366,7 +366,7 @@ function Eavesdropper_FrameMixin:UpdateTarget()
 
 	-- Determine target
 	local magnifiedName, magnifiedGUID = ED.Magnifier:GetMagnified();
-	local target = magnifiedName or (magnifiedGUID and ED.PlayerCache:GetSenderDataFromGUID(magnifiedGUID));
+	local target = magnifiedName or (magnifiedGUID and canaccessvalue(magnifiedGUID) and ED.PlayerCache:GetSenderDataFromGUID(magnifiedGUID));
 
 	-- If nothing resolved and nothing previously tracked, exit early
 	if not target and not EAVESDROP_TARGET then
