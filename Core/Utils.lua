@@ -204,7 +204,7 @@ end
 function Utils.GetUnitName(unit)
 	local playerName, realm = UnitNameUnmodified(unit or "player");
 
-	if not playerName or playerName == UNKNOWNOBJECT or playerName:len() == 0 then
+	if not canaccessvalue(playerName) or not playerName or playerName == UNKNOWNOBJECT or playerName:len() == 0 then
 		return nil;
 	end
 
