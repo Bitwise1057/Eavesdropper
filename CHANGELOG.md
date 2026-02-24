@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [0.1.3] - 2026-02-24  
+Third minor patch for Eavesdropper featuring further bug fixes, primarily focusing on Secrets (which occur during combat, encounters, and PvP matches).  
+
+### Fixed
+- Resolved additional errors occurring within restricted environments, such as PvP, combat, and dungeons ([#9](https://github.com/Raenore/Eavesdropper/pull/9)).  
+
 ## [0.1.2] - 2026-02-24  
 Second minor patch for Eavesdropper featuring bug fixes reported by the community via Discord and Bluesky.
 
