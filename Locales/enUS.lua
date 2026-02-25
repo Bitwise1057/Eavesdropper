@@ -104,7 +104,7 @@ L = {
 	TITLE_BAR_TARGET_NAME_HELP = "Replaces the 'Eavesdropper' label in the title bar with the name of your current target. This provides a quick visual confirmation of which character's history is currently being tracked.",
 
 	WELCOME_MSG = "Startup message",
-	WELCOME_MSG_HELP = "Toggles the display of the welcome message.",
+	WELCOME_MSG_HELP = "Toggles the display of the welcome message.|n|n* Global setting - persists across all profiles.",
 
 	FONT = "Font",
 
@@ -126,10 +126,10 @@ L = {
 	MINIMAP = "Minimap",
 
 	MINIMAP_BUTTON = "Minimap Button",
-	MINIMAP_BUTTON_HELP = "Toggles the display of the minimap button.",
+	MINIMAP_BUTTON_HELP = "Toggles the display of the minimap button.|n|n* Global setting - persists across all profiles.",
 
 	ADDON_COMPARTMENT_BUTTON = "Addon compartment",
-	ADDON_COMPARTMENT_BUTTON_HELP = "Toggles the display of the addon compartment button.",
+	ADDON_COMPARTMENT_BUTTON_HELP = "Toggles the display of the addon compartment button.|n|n* Global setting - persists across all profiles.",
 
 	-- Notifications Tab
 	NOTIFICATIONS_TITLE = "Notifications",

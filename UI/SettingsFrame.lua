@@ -479,7 +479,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		},
 		{
 			type = "checkbox",
-			label = L.WELCOME_MSG,
+			label = L.WELCOME_MSG .. "*",
 			tooltip = L.WELCOME_MSG_HELP,
 			get = function() return ED.Database:GetGlobalSetting("WelcomeMessage") end,
 			set = function(val)
@@ -550,7 +550,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		},
 		{
 			type = "checkbox",
-			label = L.MINIMAP_BUTTON,
+			label = L.MINIMAP_BUTTON .. "*",
 			tooltip = L.MINIMAP_BUTTON_HELP,
 			get = function() return not ED.Database:GetGlobalSetting("MinimapButton").Hide end,
 			set = function(val)
@@ -562,8 +562,9 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		},
 		{
 			type = "checkbox",
-			label = L.ADDON_COMPARTMENT_BUTTON,
+			label = L.ADDON_COMPARTMENT_BUTTON .. "*",
 			tooltip = L.ADDON_COMPARTMENT_BUTTON_HELP,
+			disabled = function() return ED.Database:GetGlobalSetting("MinimapButton").Hide end,
 			get = function() return ED.Database:GetGlobalSetting("MinimapButton").ShowAddonCompartmentButton end,
 			set = function(val)
 				local minimap = ED.Database:GetGlobalSetting("MinimapButton");
