@@ -141,8 +141,8 @@ function Eavesdropper_SettingsMixin:PopulateTab(tab, options)
 		local padding = -Constants.SETTINGS.PADDING_HEIGHT;
 
 		if data.type == "subtitle" then
-			container = SettingsElements.CreateSubTitle(tab, data.label, data.subLabel);
-			widget = nil;
+			container = SettingsElements.CreateSubTitle(tab, data.label, data.subLabel, data);
+			widget = data and container or nil;
 			padding = -Constants.SETTINGS.PADDING_HEIGHT_TITLE;
 		elseif data.type == "description" then
 			container = SettingsElements.CreateDescription(tab, data.label);
