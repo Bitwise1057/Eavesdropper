@@ -214,6 +214,8 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		{
 			type = "subtitle",
 			label = L.TARGETING,
+			subLabel = ED.Utils.CreatePriorityString(ED.Database:GetSetting("TargetPriority"), ED.Database:GetSetting("FocusTarget")),
+			get = function() return ED.Utils.CreatePriorityString(ED.Database:GetSetting("TargetPriority"), ED.Database:GetSetting("FocusTarget")); end,
 		},
 		{
 			type = "dropdown",
@@ -224,17 +226,19 @@ function Eavesdropper_SettingsMixin:OnLoad()
 				[2] = L.TARGET_PRIORITY_PRIORITIZE_TARGET;
 				[3] = L.TARGET_PRIORITY_MOUSEOVER_ONLY;
 				[4] = L.TARGET_PRIORITY_TARGET_ONLY;
+				[5] = L.TARGET_PRIORITY_FOCUS_ONLY;
 			},
 			sorting = {
 				1,
 				2,
 				3,
 				4,
+				5,
 			},
 			get = function() return ED.Database:GetSetting("TargetPriority") end,
 			set = function(val)
 				ED.Database:SetSetting("TargetPriority", val);
-				ED.Magnifier:HandleUpdate();
+				ED.Magnifier:HandleUpdate(ED.Enums.MAGNIFIER_REASON.SETTINGS);
 			end,
 		},
 		{
@@ -245,6 +249,27 @@ function Eavesdropper_SettingsMixin:OnLoad()
 			set = function(val)
 				ED.Database:SetSetting("CompanionSupport", val);
 				ED.Frame:RefreshChat();
+			end,
+		},
+		{
+			type = "dropdown",
+			label = L.FOCUS,
+			tooltip = L.FOCUS_HELP,
+			values = {
+				[1] = L.FOCUS_OVERRIDE;
+				[2] = L.FOCUS_FALLBACK;
+				[3] = L.FOCUS_IGNORE;
+			},
+			sorting = {
+				1,
+				2,
+				3,
+			},
+			disabled = function() return not (ED.Database:GetSetting("TargetPriority") == 1 or ED.Database:GetSetting("TargetPriority") == 2) end,
+			get = function() return ED.Database:GetSetting("FocusTarget") end,
+			set = function(val)
+				ED.Database:SetSetting("FocusTarget", val);
+				ED.Magnifier:HandleUpdate(ED.Enums.MAGNIFIER_REASON.SETTINGS);
 			end,
 		},
 		{

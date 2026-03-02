@@ -52,7 +52,7 @@ function ED.Init()
 
 		C_Timer.After(1, function()
 			ED.Frame:RefreshChat();
-			ED.Magnifier:HandleUpdate(0);
+			ED.Magnifier:HandleUpdate(ED.Enums.MAGNIFIER_REASON.LOGIN);
 			ED.Minimap:SetupMinimapButtons();
 
 			if ED.Database:GetGlobalSetting("WelcomeMessage") then

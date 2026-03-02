@@ -16,6 +16,7 @@ end);
 
 Events:RegisterEvent("PLAYER_REGEN_DISABLED");
 Events:RegisterEvent("PLAYER_REGEN_ENABLED");
+Events:RegisterEvent("PLAYER_FOCUS_CHANGED");
 Events:RegisterEvent("PLAYER_TARGET_CHANGED");
 Events:RegisterEvent("UPDATE_MOUSEOVER_UNIT");
 
@@ -35,20 +36,29 @@ function Events:PLAYER_REGEN_ENABLED()
 	ED.Frame:Show();
 end
 
+---PLAYER_FOCUS_CHANGED Fired when player focus changes.
+function Events:PLAYER_FOCUS_CHANGED()
+	if not ED or not ED.Database or not ED.Frame then return; end
+	local targetPriority = ED.Database:GetSetting("TargetPriority");
+	if targetPriority == Enums.TARGET_PRIORITY.MOUSEOVER_ONLY or targetPriority == Enums.TARGET_PRIORITY.TARGET_ONLY then return; end
+
+	ED.Magnifier:HandleUpdate(Enums.MAGNIFIER_REASON.FOCUS);
+end
+
 ---PLAYER_TARGET_CHANGED Fired when player target changes.
 function Events:PLAYER_TARGET_CHANGED()
 	if not ED or not ED.Database or not ED.Frame then return; end
 	local targetPriority = ED.Database:GetSetting("TargetPriority");
-	if targetPriority == Enums.TARGET_PRIORITY.MOUSEOVER_ONLY then return; end
+	if targetPriority == Enums.TARGET_PRIORITY.MOUSEOVER_ONLY or targetPriority == Enums.TARGET_PRIORITY.FOCUS_ONLY then return; end
 
-	ED.Magnifier:HandleUpdate(1);
+	ED.Magnifier:HandleUpdate(Enums.MAGNIFIER_REASON.TARGET);
 end
 
 ---UPDATE_MOUSEOVER_UNIT Fired when mouseover unit changes.
 function Events:UPDATE_MOUSEOVER_UNIT()
 	if not ED or not ED.Database or not ED.Frame then return; end
 	local targetPriority = ED.Database:GetSetting("TargetPriority");
-	if targetPriority == Enums.TARGET_PRIORITY.TARGET_ONLY then return; end
+	if targetPriority == Enums.TARGET_PRIORITY.TARGET_ONLY or targetPriority == Enums.TARGET_PRIORITY.FOCUS_ONLY then return; end
 
 	ED.Magnifier:StartUpdateCheck();
 end

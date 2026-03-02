@@ -333,4 +333,47 @@ function Utils.Write(output, command)
 	Print(formattedOutput);
 end
 
+function Utils.CreatePriorityString(targetPriority, focusTarget)
+	local Enums = ED.Enums;
+	local L = ED.Localization;
+	local TargetPriority = Enums.TARGET_PRIORITY;
+	local FocusTarget = Enums.FOCUS_TARGET;
+
+	if targetPriority == TargetPriority.TARGET_ONLY then
+		return "|cnGREEN_FONT_COLOR:" .. L.TARGETING_PRIORITY_TARGET .. "|r";
+	end
+
+	if targetPriority == TargetPriority.MOUSEOVER_ONLY then
+		return "|cnGREEN_FONT_COLOR:" .. L.TARGETING_PRIORITY_MOUSEOVER .. "|r";
+	end
+
+	if targetPriority == TargetPriority.FOCUS_ONLY then
+		return "|cnGREEN_FONT_COLOR:" .. L.TARGETING_PRIORITY_FOCUS .. "|r";
+	end
+
+	local entry = Enums.TARGET_PRIORITY_STRING_MAP[targetPriority];
+	local priority = entry and L[entry.priority];
+	local secondary = entry and entry.secondary	and L[entry.secondary];
+
+	local allowFocus = focusTarget ~= FocusTarget.IGNORE;
+	local focus = allowFocus and L.TARGETING_PRIORITY_FOCUS or nil;
+
+	local output;
+
+	if focusTarget == FocusTarget.OVERRIDE then
+		output = (focus or "")
+			.. (priority and " > " .. priority or "")
+			.. (secondary and " > " .. secondary or "");
+	elseif focusTarget == FocusTarget.FALLBACK then
+		output = (priority or "")
+			.. (secondary and " > " .. secondary or "")
+			.. (focus and " > " .. focus or "");
+	elseif focusTarget == FocusTarget.IGNORE then
+		output = (priority or "")
+			.. (secondary and " > " .. secondary or "");
+	end
+
+	return "|cnGREEN_FONT_COLOR:" .. output .. "|r";
+end
+
 ED.Utils = Utils;

@@ -29,9 +29,11 @@ function SettingsElements.CreateTitle(parent, titleText)
 	return title;
 end
 
-function SettingsElements.CreateSubTitle(parent, titleText, subTitleText)
+function SettingsElements.CreateSubTitle(parent, titleText, subTitleText, data)
 	local container = CreateFrame("Frame", nil, parent);
 	container:SetWidth(parent:GetWidth());
+
+	container.settingKey = data and data.settingKey or nil;
 
 	-- Title
 	local title = container:CreateFontString(nil, "OVERLAY", "GameFontNormalMed1");
@@ -39,23 +41,45 @@ function SettingsElements.CreateSubTitle(parent, titleText, subTitleText)
 	title:SetJustifyH("CENTER");
 	title:SetPoint("TOP", container, "TOP", 0, 0);
 	title:SetWidth(container:GetWidth());
-	title:SetHeight(title:GetStringHeight());
 
 	-- Subtitle (optional)
-	local subTitle;
-	if subTitleText and subTitleText ~= "" then
-		subTitle = container:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
-		subTitle:SetSpacing(4);
-		subTitle:SetText(subTitleText);
-		subTitle:SetJustifyH("CENTER"); -- center horizontally
-		subTitle:SetPoint("TOP", title, "BOTTOM", 0, -8); -- spacing under title
-		subTitle:SetWidth(container:GetWidth() - 8);
-		subTitle:SetHeight(subTitle:GetStringHeight());
+	local subTitle = container:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+	subTitle:SetSpacing(4);
+	subTitle:SetJustifyH("CENTER"); -- center horizontally
+	subTitle:SetPoint("TOP", title, "BOTTOM", 0, -8); -- spacing under title
+	subTitle:SetWidth(container:GetWidth() - 8);
+
+	local function GetSubtitleText()
+		if type(data) == "table" and type(data.get) == "function" then
+			return data.get() or "";
+		end
+		return subTitleText or "";
 	end
 
-	-- Adjust container height to fit both title and subtitle
-	local totalHeight = title:GetStringHeight() + (subTitle and (subTitle:GetStringHeight() + 8) or 0) + 5;
-	container:SetHeight(totalHeight);
+	container.Refresh = function(self)
+		local text = GetSubtitleText();
+
+		title:SetWidth(container:GetWidth());
+		subTitle:SetWidth(container:GetWidth() - 8);
+
+		if text ~= "" then
+			subTitle:SetText(text);
+			subTitle:Show();
+		else
+			subTitle:SetText("");
+			subTitle:Hide();
+		end
+
+		local titleHeight = title:GetStringHeight();
+		local subHeight = subTitle:IsShown() and subTitle:GetStringHeight() or 0;
+
+		-- Adjust container height to fit both title and subtitle
+		local totalHeight = titleHeight + (subHeight > 0 and (subHeight + 8) or 0) + 5;
+
+		container:SetHeight(totalHeight);
+	end
+
+	container:Refresh();
 
 	return container;
 end
