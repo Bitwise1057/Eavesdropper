@@ -39,7 +39,7 @@ end
 function Magnifier:StartUpdateCheck()
 	if not self.Frame or self.Frame:GetScript("OnUpdate") then return; end
 	self.Frame:SetScript("OnUpdate", function()
-		self:HandleUpdate(2);
+		self:HandleUpdate(Enums.MAGNIFIER_REASON.MOUSEOVER);
 	end);
 end
 
@@ -87,7 +87,7 @@ function Magnifier:OnMagnifiedChanged(reason) -- luacheck: no unused (reason)
 	self.lastNotifiedName = magnifiedName;
 	clearTimerToken = C_Timer.NewTimer(delay, function()
 		clearTimerToken = nil;
-		ED.Debug:Print("Magnifier:OnMagnifiedChanged() - ", magnifiedName);
+		ED.Debug:Print("Magnifier:OnMagnifiedChanged() -", magnifiedName);
 		if ED and ED.Frame then
 			ED.Frame:UpdateMagnifier();
 		end
@@ -104,18 +104,29 @@ function Magnifier:HandleUpdate(reason) -- luacheck: no unused (reason)
 	local targetPriority = ED.Database:GetSetting("TargetPriority");
 	if not targetPriority then return; end
 
-	local priority, secondary;
-	if targetPriority == Enums.TARGET_PRIORITY.TARGET_ONLY then
-		priority = "target";
-	elseif targetPriority == Enums.TARGET_PRIORITY.MOUSEOVER_ONLY then
-		priority = "mouseover";
-	elseif targetPriority == Enums.TARGET_PRIORITY.PRIORITIZE_MOUSEOVER then
-		priority, secondary = "mouseover", "target";
-	elseif targetPriority == Enums.TARGET_PRIORITY.PRIORITIZE_TARGET then
-		priority, secondary = "target", "mouseover";
+	local focusTarget = ED.Database:GetSetting("FocusTarget");
+	local entry = Enums.TARGET_PRIORITY_UNIT_MAP[targetPriority];
+	local priority = entry and entry.priority;
+	local secondary = entry and entry.secondary;
+
+	local focus;
+	if focusTarget ~= Enums.FOCUS_TARGET.IGNORE and targetPriority ~= Enums.TARGET_PRIORITY.TARGET_ONLY and targetPriority ~= Enums.TARGET_PRIORITY.MOUSEOVER_ONLY then
+		focus = "focus";
 	end
 
-	local unit = (priority and UnitExists(priority) and priority) or (secondary and UnitExists(secondary) and secondary);
+	local unit;
+	if focusTarget == Enums.FOCUS_TARGET.OVERRIDE then
+		unit = (focus and UnitExists(focus) and focus)
+			or (priority and UnitExists(priority) and priority)
+			or (secondary and UnitExists(secondary) and secondary);
+	elseif focusTarget == Enums.FOCUS_TARGET.FALLBACK then
+		unit = (priority and UnitExists(priority) and priority)
+			or (secondary and UnitExists(secondary) and secondary)
+			or (focus and UnitExists(focus) and focus);
+	elseif focusTarget == Enums.FOCUS_TARGET.IGNORE then
+		unit = (priority and UnitExists(priority) and priority)
+			or (secondary and UnitExists(secondary) and secondary);
+	end
 
 	-- Determine polling behavior
 	local target = UnitExists("target");

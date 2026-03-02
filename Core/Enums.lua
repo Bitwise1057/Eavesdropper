@@ -62,6 +62,13 @@ Enums.ENTRY_CHAT_REMAP = {
 	GUILD_ITEM_LOOTED = "GUILD_ACHIEVEMENT",
 };
 
+---@enum EavesdropperFocusTarget
+Enums.FOCUS_TARGET = {
+	OVERRIDE = 1,
+	FALLBACK   = 2,
+	IGNORE     = 3,
+};
+
 ---@class EavesdropperFrameEnums
 Enums.FRAME = {};
 
@@ -83,10 +90,11 @@ Enums.FRAME.SCROLL_DIRECTION = {
 
 ---@enum EavesdropperMagnifierReason
 Enums.MAGNIFIER_REASON = {
-	LOGIN    = 0,
-	TARGET   = 1,
+	LOGIN     = 0,
+	TARGET    = 1,
 	MOUSEOVER = 2,
-	SETTINGS = 3,
+	SETTINGS  = 3,
+	FOCUS     = 4,
 };
 
 ---@enum EavesdropperNotificationsType
@@ -129,6 +137,44 @@ Enums.TARGET_PRIORITY = {
 	PRIORITIZE_TARGET    = 2,
 	MOUSEOVER_ONLY       = 3,
 	TARGET_ONLY          = 4,
+	FOCUS_ONLY           = 5,
+};
+
+---@class EavesdropperPriorityStringEntry
+---@field priority string
+---@field secondary string?
+Enums.TARGET_PRIORITY_STRING_MAP = {
+	[Enums.TARGET_PRIORITY.PRIORITIZE_MOUSEOVER] = {
+		priority = "TARGETING_PRIORITY_MOUSEOVER",
+		secondary = "TARGETING_PRIORITY_TARGET",
+	},
+	[Enums.TARGET_PRIORITY.PRIORITIZE_TARGET] = {
+		priority = "TARGETING_PRIORITY_TARGET",
+		secondary = "TARGETING_PRIORITY_MOUSEOVER",
+	},
+};
+
+---@class EavesdropperPriorityUnitEntry
+---@field priority string
+---@field secondary string?
+Enums.TARGET_PRIORITY_UNIT_MAP = {
+	[Enums.TARGET_PRIORITY.TARGET_ONLY] = {
+		priority = "target",
+	},
+	[Enums.TARGET_PRIORITY.MOUSEOVER_ONLY] = {
+		priority = "mouseover",
+	},
+	[Enums.TARGET_PRIORITY.FOCUS_ONLY] = {
+		priority = "focus",
+	},
+	[Enums.TARGET_PRIORITY.PRIORITIZE_MOUSEOVER] = {
+		priority = "mouseover",
+		secondary = "target",
+	},
+	[Enums.TARGET_PRIORITY.PRIORITIZE_TARGET] = {
+		priority = "target",
+		secondary = "mouseover",
+	},
 };
 
 ED.Enums = Enums;

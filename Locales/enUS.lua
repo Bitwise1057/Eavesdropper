@@ -46,12 +46,23 @@ L = {
 	-- General Tab
 	GENERAL_TITLE = "General",
 	TARGETING = "Targeting",
+	TARGETING_PRIORITY_MOUSEOVER = "Mouseover",
+	TARGETING_PRIORITY_TARGET = "Target",
+	TARGETING_PRIORITY_FOCUS = "Focus",
+
 	TARGET_PRIORITY = "Priority",
-	TARGET_PRIORITY_HELP = "Determines which unit's history Eavesdropper displays when you have both a target and a mouseover unit.|n|n- Prioritize: Choose which one takes precedence.|n- Only: Choose to ignore one type of interaction entirely.",
+	TARGET_PRIORITY_HELP = "Determines which unit's history Eavesdropper displays when you have both a target and a mouseover unit.|n|n- Prioritize: Choose which one takes precedence.|n- Only: Choose to listen exclusively to one unit type (this disables 'Focus' logic).",
 	TARGET_PRIORITY_PRIORITIZE_MOUSEOVER = "Prioritize Mouseover",
 	TARGET_PRIORITY_PRIORITIZE_TARGET = "Prioritize Target",
 	TARGET_PRIORITY_MOUSEOVER_ONLY = "Mouseover Only",
 	TARGET_PRIORITY_TARGET_ONLY = "Target Only",
+	TARGET_PRIORITY_FOCUS_ONLY = "Focus Only",
+
+	FOCUS = "Focus",
+	FOCUS_HELP = "Determines how the Eavesdropper's history window handles your focus target.|n|n- Override: Always gives precedence to your focus target over all other units.|n- Fallback: Displays the focus target only when no current target or mouseover unit exists.|n- Ignore: Completely excludes focus targets from being displayed.|n|n|cnWARNING_FONT_COLOR:Note: This setting is disabled if your Priority is set to an 'Only' option.|r",
+	FOCUS_OVERRIDE = "Override",
+	FOCUS_FALLBACK = "Fallback",
+	FOCUS_IGNORE = IGNORE,
 
 	INCLUDE_COMPANIONS = "Include Companions",
 	INCLUDE_COMPANIONS_HELP = "Show the owner's history when targeting or hovering over their pets and companions.|n|n- When enabled, Eavesdropper treats pets as a bridge to their owner's data.|n- When disabled, Eavesdropper will ignore pets and companions entirely.",

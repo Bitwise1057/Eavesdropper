@@ -755,6 +755,7 @@ stds.wow = {
 		"CHI",
 		"CLOSE",
 		"COMBO_POINTS",
+		"DEFAULT",
 		"DEFAULT_CHAT_FRAME",
 		"DELETE",
 		"DISABLE",

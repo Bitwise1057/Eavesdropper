@@ -39,6 +39,7 @@ local GLOBAL_DEFAULTS = {
 ---@field EnableKeywords boolean?
 ---@field EnableMouse boolean?
 ---@field EnablePartialKeywords boolean?
+---@field FocusTarget EavesdropperFocusTarget?
 ---@field FontFace string?
 ---@field FontOutline number?
 ---@field FontShadow boolean?
@@ -66,6 +67,7 @@ local GLOBAL_DEFAULTS = {
 ---@field NotificationThrottle number?
 ---@field PreferMouseOver boolean?
 ---@field TargetOnly boolean?
+---@field TargetPriority EavesdropperTargetPriority?
 ---@field TimestampBrackets boolean?
 ---@field UpdateTitleBarWithName boolean?
 ---@field UseRPName boolean?
@@ -85,6 +87,7 @@ local DEFAULT_PROFILE = {
 	EnableKeywords = true,
 	EnableMouse = false,
 	EnablePartialKeywords = false,
+	FocusTarget = Enums.FOCUS_TARGET.OVERRIDE,
 	FontFace = "Arial Narrow",
 	FontOutline = 1,
 	FontShadow = true,
@@ -312,6 +315,7 @@ end
 ---| "EnableKeywords"
 ---| "EnableMouse"
 ---| "EnablePartialKeywords"
+---| "FocusTarget"
 ---| "FontFace"
 ---| "FontOutline"
 ---| "FontShadow"
@@ -339,6 +343,7 @@ end
 ---| "NotificationThrottle"
 ---| "PreferMouseOver"
 ---| "TargetOnly"
+---| "TargetPriority"
 ---| "TimestampBrackets"
 ---| "UpdateTitleBarWithName"
 ---| "UseRPName"
