@@ -3,10 +3,11 @@
 All notable changes to this project will be documented in this file.  
 
 ## [0.2.1] - 2026-03-05  
-First minor patch following the Midnight launch, resolving a user-submitted bug.  
+First minor patch following the Midnight launch, resolving some user-submitted bugs.  
 
 ### Fixed
 - Resolved several issues regarding frame visibility in specific scenarios, such as "Hide In Combat" and "Hide When Empty" ([#16](https://github.com/Raenore/Eavesdropper/pull/16)).  
+- Resolved an issue where some standard Blizzard emotes would incorrectly trigger a "targeted by emote" notification ([#18](https://github.com/Raenore/Eavesdropper/pull/18)).  
 
 ## [0.2.0] - 2026-03-02  
 To start off the Midnight expansion, introducing Focus as a targeting option.  
