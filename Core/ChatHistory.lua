@@ -186,10 +186,14 @@ end
 ---Handle data for blizzard text emote
 ---@param sender string
 ---@param message string
+---@param advancedFormatting boolean? if called throughed AdvancedFormatter, we ignore notifications
 ---@return string sender Possibly updated sender name
-function ChatHistory:HandleTextEmote(sender, message)
+function ChatHistory:HandleTextEmote(sender, message, advancedFormatting)
 	local emoteName = ED.Utils.GetCharacterNameFromEmote(message);
-	if emoteName then sender = emoteName; end
+	if emoteName then
+		sender = emoteName;
+	end
+	if advancedFormatting then return sender; end
 
 	local playSound = ED.Database:GetSetting("NotificationEmotesSound");
 	local flashTaskbar = ED.Database:GetSetting("NotificationEmotesFlashTaskbar");
