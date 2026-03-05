@@ -341,7 +341,7 @@ function Eavesdropper_FrameMixin:HandleHoverState(show)
 end
 
 ---@param settingsClosed boolean
-function Eavesdropper_FrameMixin:HandleVisibility(settingsClosed)
+function Eavesdropper_FrameMixin:HandleVisibility()
 	-- Hide in combat if the setting is on
 	if ED.Database:GetSetting("HideInCombat") and InCombatLockdown() then
 		self:Hide();
@@ -351,22 +351,14 @@ function Eavesdropper_FrameMixin:HandleVisibility(settingsClosed)
 	-- Determine if frame should be shown
 	local shouldShow = true;
 
-	if settingsClosed and ED.Frame.closed then
-		shouldShow = false;
-	end
-
-	-- Respect HideInCombat after combat ends
-	if ED.Database:GetSetting("HideInCombat") and not InCombatLockdown() then
-		shouldShow = true;
-	end
-
 	-- Respect HideWhenEmpty
 	if ED.Database:GetSetting("HideWhenEmpty") then
 		if not EAVESDROP_TARGET or self.ChatBox:GetNumMessages() == 0 then
 			shouldShow = false;
-		else
-			shouldShow = true;
 		end
+	elseif ED.Frame.closed then
+		-- If HideWhenEmpty is off, fallback to last closed position
+		shouldShow = false;
 	end
 
 	-- Show or hide frame, never hiding if settings are open

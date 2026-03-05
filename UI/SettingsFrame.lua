@@ -908,7 +908,7 @@ end
 
 function Eavesdropper_SettingsMixin:OnHide()
 	ED.Frame.settingsOpened = false;
-	ED.Frame:HandleVisibility(true);
+	ED.Frame:HandleVisibility();
 end
 
 ---@param view number? Optional tab index, defaults to 1.
