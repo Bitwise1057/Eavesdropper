@@ -40,11 +40,35 @@ Constants.CHAT_HISTORY.EXPIRE_AFTER = 60 * 30;
 
 ---@type string[]
 Constants.CHAT_HISTORY.IGNORE_EMOTES = {
-	"orders you to open fire.";
-	"asks you to wait.";
-	"tells you to attack";
-	"motions for you to follow.";
-	"looks at you with crossed eyes.";
+	"orders you to open fire",
+	"asks you to wait",
+	"tells you to attack",
+	"motions for you to follow",
+	"looks at you with crossed eyes",
+	"beg everyone around you",
+	"arms flapping, you strut around",
+	", you mourn the loss of the dead",
+	"a finger deep in one nostril, you pass the tim",
+	"let everyone know that you are tired",
+	"let everyone know that you are cold.",
+	"think everyone around you is a son of a motherless ogre",
+	"let everyone know that you are ready",
+	"announce that you have low mana",
+	"vow you will have your revenge",
+	"beckon everyone over to you",
+	"congratulate everyone around you",
+	"express your curiosity to those around you",
+	"hail those around you",
+	"thank everyone around you",
+	"sniff the air around you",
+	"snub all of the lowly peons around you",
+	"taunt everyone around you",
+	"pity those around you",
+	"encourage everyone around you",
+	"glower at averyone around you",
+	"hiss at everyone around you",
+	"are jealous of everyone around you",
+	"pout at everyone around you",
 };
 
 -- (Credits @ Listener by tmgpub)

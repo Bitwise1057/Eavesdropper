@@ -80,7 +80,7 @@ function AdvancedFormatter:HandleChecks(chatFrame, event, message, sender, ...) 
 
 	-- Extract sender data from Blizzard Emote
 	if event == "CHAT_MSG_TEXT_EMOTE" then
-		msgSender = ED.ChatHistory:HandleTextEmote(sender, message);
+		msgSender = ED.ChatHistory:HandleTextEmote(sender, message, true);
 	end
 
 	if ED.Utils.IsOwnPlayer(msgSender, event) then
