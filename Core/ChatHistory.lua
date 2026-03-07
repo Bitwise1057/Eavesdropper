@@ -169,7 +169,7 @@ function ChatHistory:IsDuplicate(event, sender, message, channel, language, guid
 	local key =
 		(event or "") .. "|" ..
 		(sender or "") .. "|" ..
-		(message or "") .. "|" ..
+		(ED.Utils.StripColorCodes(message) or "") .. "|" ..
 		(channel or "") .. "|" ..
 		(language or "") .. "|" ..
 		(guid or "");
