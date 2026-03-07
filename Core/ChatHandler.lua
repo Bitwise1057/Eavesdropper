@@ -26,6 +26,7 @@ local function ChatFrameFilter(chatFrame, event, ...)
 
 	--[[
 	Debug in case the ChatFrame arguments ever change.
+	local args = {...};
 	print("Event:", event);
 	for i, v in ipairs(args) do
 		print("Arg" .. i .. ":", v);
