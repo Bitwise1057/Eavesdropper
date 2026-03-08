@@ -40,36 +40,38 @@ end
 ---Generates the chat filter menu for UI
 ---@param menu table
 function ChatFilters:GenerateFilterListMenu(menu)
-	local filters = ED.Database:GetSetting("Filters");
-	if not filters then
-		return;
-	end
-
 	for i = 1, #ED.Constants.FILTER_ORDER do
 		local groupName = ED.Constants.FILTER_ORDER[i];
-		if filters[groupName] ~= nil then
-			local labelText = ED.Constants.FILTER_LABELS[groupName] or groupName;
-			local groupColor = GetGroupColor(groupName);
-			local groupLabel = ED.Utils.WrapTextInColor(labelText, groupColor);
 
+		local labelText = ED.Constants.FILTER_LABELS[groupName] or groupName;
+		local groupColor = GetGroupColor(groupName);
+		local groupLabel = ED.Utils.WrapTextInColor(labelText, groupColor);
 
-			menu:CreateCheckbox(
-				groupLabel,
-				function()
-					local currentFilters = ED.Database:GetSetting("Filters");
-					return currentFilters and currentFilters[groupName] or false;
-				end,
-				function()
-					local currentFilters = ED.Database:GetSetting("Filters") or {};
-					currentFilters[groupName] = not currentFilters[groupName];
-					ED.Database:SetSetting("Filters", currentFilters);
-					ChatFilters:UpdateFilters(ED.Frame);
+		menu:CreateCheckbox(
+			groupLabel,
+			function()
+				local current = ED.Database:GetSetting("Filters");
+				if not current then return false; end
+				return current[groupName] or false;
+			end,
+			function()
+				local current = ED.Database:GetSetting("Filters") or {};
+				local newFilters = ED.Utils.ShallowCopy(current);
+
+				local value = current[groupName];
+				if value == nil then
+					value = ED.Constants.DEFAULT_FILTERS[groupName] or false;
 				end
-			);
 
-			if ED.Constants.DIVIDE_AFTER[groupName] then
-				menu:CreateDivider();
+				newFilters[groupName] = not value;
+
+				ED.Database:SetSetting("Filters", newFilters);
+				ChatFilters:UpdateFilters(ED.Frame);
 			end
+		);
+
+		if ED.Constants.DIVIDE_AFTER[groupName] then
+			menu:CreateDivider();
 		end
 	end
 end

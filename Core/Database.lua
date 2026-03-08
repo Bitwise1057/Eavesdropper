@@ -369,11 +369,20 @@ function Database:GetSetting(key)
 	if profile and profile[key] ~= nil then
 		if type(def) == "table" then
 			local merged = {};
+
+			-- start with defaults
 			for k, v in pairs(def) do
-				merged[k] = profile[key][k] ~= nil and profile[key][k] or v;
+				merged[k] = v;
 			end
+
+			-- apply profile overrides (including keys not in defaults)
+			for k, v in pairs(profile[key]) do
+				merged[k] = v;
+			end
+
 			return merged;
 		end
+
 		return profile[key];
 	end
 
