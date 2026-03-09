@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.  
 
-[Unreleased]
+## [Unreleased]  
 Eavesdropper now supports per-character window visibility and includes minor consistency updates for the Settings menu.  
 
 ### Added
