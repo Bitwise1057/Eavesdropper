@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.  
 
+[Unreleased]
+Eavesdropper now supports per-character window visibility and includes minor consistency updates for the Settings menu.  
+
+### Added
+- Eavesdropper window visibility is now saved per character rather than per session.  
+  - Allows the frame to be shown or hidden independently across different characters.  
+  - The most recent visibility state is now remembered across logins and UI reloads.  
+
+### Changed
+- Standardized terminology across the addon; all instances now consistently use "Settings" instead of a mix of "Options" and "Settings".  
+
 ## [0.2.3] - 2026-03-09  
 Third minor patch following the Midnight launch, resolving a few filter-related issues.  
 
