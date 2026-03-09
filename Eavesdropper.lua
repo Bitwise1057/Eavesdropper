@@ -57,7 +57,7 @@ function ED.Init()
 
 			if ED.Database:GetGlobalSetting("WelcomeMessage") then
 				ED.Utils.Write(ED.Localization.WELCOMEMSG_VERSION:format(ED.Database:GetProfileName(), ED.Globals.addon_version));
-				ED.Utils.Write(ED.Localization.WELCOMEMSG_OPTIONS);
+				ED.Utils.Write(ED.Localization.WELCOMEMSG_SETTINGS);
 			end
 		end);
 	end);

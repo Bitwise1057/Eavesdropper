@@ -183,7 +183,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	self.Tabs = {};
 	self.Views = {};
 
-	self:SetTitle(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. MAIN_MENU);
+	self:SetTitle(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. SETTINGS);
 
 	self.CloseButton:SetScript("OnClick", function()
 		self:Hide();
