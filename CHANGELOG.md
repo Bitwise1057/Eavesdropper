@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [0.2.3] - 2026-03-xx  
+## [0.2.3] - 2026-03-09  
 Third minor patch following the Midnight launch, resolving a few filter-related issues.  
 
 ### Fixed
