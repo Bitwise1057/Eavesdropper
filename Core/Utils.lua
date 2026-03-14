@@ -333,6 +333,26 @@ function Utils.Write(output, command)
 	Print(formattedOutput);
 end
 
+---WriteCommandTable Prints multiple command descriptions with the addon title header
+---@param commands table<string, string> Table where keys are descriptions and values are commands
+---@param noprefix boolean? Whether or not the prefix of "Eavesdropper" should be shown
+function Utils.WriteCommandTable(commands, noprefix)
+	if not commands or next(commands) == nil then
+		return;
+	end
+
+	Print(ED.Localization.SLASH_COMMAND_HEADER);
+	-- Iterate through each command and print on its own line
+	for description, command in pairs(commands) do
+		local formattedOutput = ("|cnGREEN_FONT_COLOR:%s|r |cnWHITE_FONT_COLOR:%s|r"):format(command, description);
+		if noprefix then
+			print(formattedOutput);
+		else
+			Print(formattedOutput);
+		end
+	end
+end
+
 function Utils.CreatePriorityString(targetPriority, focusTarget)
 	local Enums = ED.Enums;
 	local L = ED.Localization;

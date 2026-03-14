@@ -19,22 +19,24 @@ function ED.Init()
 			msg = type(msg) == "string" and msg:lower() or "";
 
 			if msg == "help" then
-				ED.Utils.Write(ED.Localization.SLASH_COMMAND_ED, "/ed");
-				ED.Utils.Write(ED.Localization.SLASH_COMMAND_ED_SHOW, "/ed show");
-				ED.Utils.Write(ED.Localization.SLASH_COMMAND_ED_HIDE, "/ed hide");
-				ED.Utils.Write(ED.Localization.SLASH_COMMAND_ED_TOGGLE, "/ed toggle");
+				ED.Utils.WriteCommandTable({
+					[ED.Localization.SLASH_COMMAND_ED] = "/ed",
+					[ED.Localization.SLASH_COMMAND_ED_SHOW] = "/ed show",
+					[ED.Localization.SLASH_COMMAND_ED_HIDE] = "/ed hide",
+					[ED.Localization.SLASH_COMMAND_ED_TOGGLE] = "/ed toggle",
+				});
 				return;
 			elseif msg == "show" then
 				ED.Frame:Show();
-				ED.Frame.closed = false;
+				ED.Database:SetCharSetting("WindowVisible", true);
 				return;
 			elseif msg == "hide" then
 				ED.Frame:Hide();
-				ED.Frame.closed = true;
+				ED.Database:SetCharSetting("WindowVisible", false);
 				return;
 			elseif msg == "toggle" then
 				ED.Frame:SetShown(not ED.Frame:IsShown());
-				ED.Frame.closed = not ED.Frame:IsShown();
+				ED.Database:SetCharSetting("WindowVisible", ED.Frame:IsShown());
 				return;
 			end
 
@@ -57,7 +59,7 @@ function ED.Init()
 
 			if ED.Database:GetGlobalSetting("WelcomeMessage") then
 				ED.Utils.Write(ED.Localization.WELCOMEMSG_VERSION:format(ED.Database:GetProfileName(), ED.Globals.addon_version));
-				ED.Utils.Write(ED.Localization.WELCOMEMSG_OPTIONS);
+				ED.Utils.Write(ED.Localization.WELCOMEMSG_SETTINGS);
 			end
 		end);
 	end);
