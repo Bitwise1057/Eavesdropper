@@ -9,6 +9,7 @@ Eavesdropper now supports per-character window visibility and includes minor con
 - Eavesdropper window visibility is now saved per character rather than per session.  
   - Allows the frame to be shown or hidden independently across different characters.  
   - The most recent visibility state is now remembered across logins and UI reloads.  
+- Russian translation added thanks to [Hubbotu](https://github.com/Hubbotu) / ZamestoTV ([#32](https://github.com/Raenore/Eavesdropper/pull/32)).  
 
 ### Changed
 - Standardized terminology across the addon; all instances now consistently use "Settings" instead of a mix of "Options" and "Settings".  

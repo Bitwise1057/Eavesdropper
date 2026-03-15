@@ -1,10 +1,10 @@
 -- Copyright The Eavesdropper Authors
 -- SPDX-License-Identifier: Apache-2.0
+-- Translator ZamestoTV
 
 local title = C_AddOns.GetAddOnMetadata("Eavesdropper", "Title");
 local L;
 
----Translator ZamestoTV
 L = {
 	WELCOMEMSG_VERSION = "Активен профиль: |cnGREEN_FONT_COLOR:%s|r (|cnGOLD_FONT_COLOR:%s|r)!",
 	WELCOMEMSG_SETTINGS = "Настройки: |cnGREEN_FONT_COLOR:/ed|r или |cnGREEN_FONT_COLOR:/ed help|r",
@@ -205,6 +205,5 @@ L = {
 	ADDONINFO_BLUESKY_SHILL_HELP = "Подписывайтесь на меня в Bluesky!",
 };
 
----@class ED.L : ED.Locale.enUS, ED.Localization
 ED.Localization = ED.LocalizationClass:New(L);
 ED.Localization:RegisterNewLocale("ruRU", "Russian", L);
