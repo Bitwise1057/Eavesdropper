@@ -204,3 +204,7 @@ L = {
 	ADDONINFO_BUILD_CURRENT = title .. " совместим с вашей версиями игры.|n|n|cnGREEN_FONT_COLOR:Все функции должны работать корректно.|r",
 	ADDONINFO_BLUESKY_SHILL_HELP = "Подписывайтесь на меня в Bluesky!",
 };
+
+---@class ED.L : ED.Locale.enUS, ED.Localization
+ED.Localization = ED.LocalizationClass:New(L);
+ED.Localization:RegisterNewLocale("ruRU", "Russian", L);
