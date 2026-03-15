@@ -12,6 +12,7 @@ Eavesdropper now supports per-character window visibility and includes minor con
 
 ### Changed
 - Standardized terminology across the addon; all instances now consistently use "Settings" instead of a mix of "Options" and "Settings".  
+- Refined the keyword highlighting system to improve overall consistency and resolve rare occurrences of missed keywords ([#31](https://github.com/Raenore/Eavesdropper/pull/31)).  
 
 ## [0.2.4] - 2026-03-14  
 Fourth minor patch, addressing a critical bug with TRP3's NPC Speech Emotes being invisible.  
