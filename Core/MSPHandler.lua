@@ -175,6 +175,14 @@ local function NormalizeString(value)
 	return value;
 end
 
+local invalidateCache = false;
+
+---Invalidates the MSP cache, forcing the next TryGetMSPData call to fetch fresh data.
+---@return nil
+function MSP.InvalidateCache()
+	invalidateCache = true;
+end
+
 ---Attempts to retrieve the MSP/TRP3 name and color of a player
 ---@param playerName string
 ---@param playerGUID string
@@ -192,7 +200,7 @@ function MSP.TryGetMSPData(playerName, playerGUID)
 	local now = GetTime();
 
 	-- Return cached result if same GUID, still valid, and has meaningful data
-	if MSP.cache.guid == playerGUID
+	if not invalidateCache and MSP.cache.guid == playerGUID
 		and MSP.cache.data
 		and (now - MSP.cache.time) <= Constants.MSP.CACHE_RESET_TIME
 		and HasValidMSPData(MSP.cache.data)
@@ -250,8 +258,37 @@ function MSP.TryGetMSPData(playerName, playerGUID)
 	MSP.cache.guid = playerGUID;
 	MSP.cache.time = now;
 	MSP.cache.data = { fullName, firstName, nameColor, lastName, className, raceName };
+	invalidateCache = false;
 
 	return fullName, firstName, nameColor, lastName, className, raceName;
+end
+
+local pendingRefresh = {};
+
+function MSP.Init()
+	if msp == nil then return; end
+
+	local name, realm = UnitFullName("player");
+	MSP.FullName = format("%s-%s", name, realm);
+
+	table.insert(msp.callback["updated"], function(senderID, field)
+		if MSP.FullName ~= senderID then return; end
+		if not Constants.MSP_RELEVANT_FIELDS[field] then return; end
+
+		-- Cancel any pending refresh for this sender before scheduling a new one
+		if pendingRefresh[senderID] then
+			pendingRefresh[senderID]:Cancel();
+			pendingRefresh[senderID] = nil;
+		end
+
+		-- Debounce: wait 0.5s in case multiple fields update in the same frame
+		pendingRefresh[senderID] = C_Timer.NewTicker(0.5, function()
+			pendingRefresh[senderID]:Cancel();
+			pendingRefresh[senderID] = nil;
+			MSP.InvalidateCache();
+			ED.Keywords:ParseList();
+		end, 1);
+	end);
 end
 
 ED.MSP = MSP;

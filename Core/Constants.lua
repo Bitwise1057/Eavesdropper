@@ -260,6 +260,13 @@ Constants.MESSAGE_PREFIXES = {
 Constants.MSP = {};
 Constants.MSP.CACHE_RESET_TIME = 5;
 
+---@type table<string, boolean>
+Constants.MSP_RELEVANT_FIELDS = {
+	RC = true,
+	RA = true,
+	NA = true
+};
+
 ---@class EavesdropperPlayerCache
 ---@field DEFAULT_TTL number
 ---@field TIME number
