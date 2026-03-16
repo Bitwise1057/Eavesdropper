@@ -9,6 +9,7 @@ function ED.Init()
 		-- DB must be ready first
 		ED.Database:Init();
 
+		ED.MSP.Init();
 		ED.Keywords:ParseList();
 
 		-- Now safe to initialize everything else
