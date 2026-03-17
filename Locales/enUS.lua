@@ -75,7 +75,7 @@ L = {
 	HISTORY_SIZE_HELP = "Set the maximum number of messages Eavesdropper stores for each unit.|n|n|cnWARNING_FONT_COLOR:Note: High values may cause temporary frame drops when refreshing the history window.|r",
 
 	NAME_DISPLAY_MODE = "Name Display",
-	NAME_DISPLAY_MODE_HELP = "Choose how character names are formatted within Eavesdropper.",
+	NAME_DISPLAY_MODE_HELP = "Choose how character names are formatted within Eavesdropper.|n|n|cnWARNING_FONT_COLOR:Note: This option is disabled and defaults to 'Original (OOC) Name' when no suitable RP addon (TRP, MRP, XRP) is loaded.|r",
 	NAME_DISPLAY_MODE_FULL_NAME = "Full Name",
 	NAME_DISPLAY_MODE_FIRST_NAME = "First Name",
 	NAME_DISPLAY_MODE_ORIGINAL_NAME = "Original (OOC) Name",
@@ -88,6 +88,9 @@ L = {
 
 	USE_RP_NAME_FOR_TARGETS = "Format Emote Targets",
 	USE_RP_NAME_FOR_TARGETS_HELP = "Toggles whether target names within Blizzard emotes (e.g., /wave, /point) use a character's RP name or their original in-game name.|n|n|cnWARNING_FONT_COLOR:Note: Due to how Blizzard handles emote strings, name substitution may not work consistently in all situations.|r",
+
+	USE_RP_NAME_FOR_QUEST_TEXT = "Format Quest Text",
+	USE_RP_NAME_FOR_QUEST_TEXT_HELP = "Toggles whether names in quest text use your character's RP name (full or first) or original in-game name.|n|nNote: This requires a supported addon (e.g. Dialogue UI) to be loaded.|n|n|cnWARNING_FONT_COLOR:Note: This option is disabled and defaults to 'Original (OOC) Name' when no suitable RP addon (TRP, MRP, XRP) is loaded.|r",
 
 	TIMESTAMP_BRACKETS = "Timestamp Brackets",
 	TIMESTAMP_BRACKETS_HELP = "Toggles the visibility of brackets around message timestamps (e.g., [5m] vs 5m).",

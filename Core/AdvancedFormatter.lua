@@ -84,7 +84,7 @@ function AdvancedFormatter:HandleChecks(chatFrame, event, message, sender, ...) 
 	end
 
 	if ED.Utils.IsOwnPlayer(msgSender, event) then
-		guid = UnitGUID("player");
+		guid = ED.Globals.player_guid;
 	end
 
 	-- Resolve Name-Realm if GUID exists

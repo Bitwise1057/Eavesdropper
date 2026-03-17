@@ -264,7 +264,7 @@ function ChatHistory:AddEntry(event, sender, message, language, guid, channel)
 	local isOwn = ED.Utils.IsOwnPlayer(sender, event);
 
 	if isOwn then
-		guid = UnitGUID("player");
+		guid = ED.Globals.player_guid;
 	end
 
 	-- Resolve Name-Realm if GUID exists (can be nil and secret will also return nil)

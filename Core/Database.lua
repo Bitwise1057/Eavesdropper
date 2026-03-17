@@ -66,6 +66,7 @@ local GLOBAL_DEFAULTS = {
 ---@field NotificationTargetFlashTaskbar boolean?
 ---@field NotificationThrottle number?
 ---@field PreferMouseOver boolean?
+---@field QuestTextNameDisplayMode number?
 ---@field TargetOnly boolean?
 ---@field TargetPriority EavesdropperTargetPriority?
 ---@field TimestampBrackets boolean?
@@ -114,6 +115,7 @@ local DEFAULT_PROFILE = {
 	NotificationTargetFlashTaskbar = true,
 	NotificationThrottle = 3,
 	PreferMouseOver = true,
+	QuestTextNameDisplayMode = 1,
 	TargetOnly = false,
 	TargetPriority = Enums.TARGET_PRIORITY.PRIORITIZE_MOUSEOVER,
 	TimestampBrackets = true,
@@ -151,6 +153,10 @@ function Database:Init()
 	local db = EavesdropperDB;
 	local playerKey = ED.Utils.GetUnitName();
 	local profileName = db.profileKeys[playerKey] or "Default";
+
+	ED.Globals.player_character_name = UnitName("player");
+	ED.Globals.player_sender_name = playerKey;
+	ED.Globals.player_guid = UnitGUID("player");
 
 	db.profiles[profileName] = db.profiles[profileName] or {};
 
@@ -359,6 +365,7 @@ end
 ---| "NotificationTargetFlashTaskbar"
 ---| "NotificationThrottle"
 ---| "PreferMouseOver"
+---| "QuestTextNameDisplayMode"
 ---| "TargetOnly"
 ---| "TargetPriority"
 ---| "TimestampBrackets"

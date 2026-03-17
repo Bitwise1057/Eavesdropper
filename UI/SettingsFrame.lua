@@ -307,6 +307,13 @@ function Eavesdropper_SettingsMixin:OnLoad()
 				2,
 				3,
 			},
+			disabled = function() return not ED.MSP.IsEnabled() end,
+			disabledValues = function()
+				return {
+					[1] = not ED.MSP.IsEnabled(),
+					[2] = not ED.MSP.IsEnabled(),
+				}
+			end,
 			get = function() return ED.Database:GetSetting("NameDisplayMode") end,
 			set = function(val)
 				ED.Database:SetSetting("NameDisplayMode", val);
@@ -367,6 +374,33 @@ function Eavesdropper_SettingsMixin:OnLoad()
 			set = function(val)
 				ED.Database:SetSetting("UseRPNameInRolls", val)
 				ED.Frame:RefreshChat();
+			end,
+		},
+		{
+			type = "dropdown",
+			label = L.USE_RP_NAME_FOR_QUEST_TEXT,
+			tooltip = L.USE_RP_NAME_FOR_QUEST_TEXT_HELP,
+			values = {
+				[1] = L.NAME_DISPLAY_MODE_FULL_NAME;
+				[2] = L.NAME_DISPLAY_MODE_FIRST_NAME;
+				[3] = L.NAME_DISPLAY_MODE_ORIGINAL_NAME;
+			},
+			sorting = {
+				1,
+				2,
+				3,
+			},
+			disabled = function() return not ED.MSP.IsEnabled() or not ED.QuestText.SupportedAddonsInstalled() end,
+			disabledValues = function()
+				return {
+					[1] = not ED.MSP.IsEnabled(),
+					[2] = not ED.MSP.IsEnabled(),
+				}
+			end,
+			get = function() return ED.Database:GetSetting("QuestTextNameDisplayMode") end,
+			set = function(val)
+				ED.Database:SetSetting("QuestTextNameDisplayMode", val);
+				ED.QuestText.RefreshPlayerPreferredName();
 			end,
 		},
 		{

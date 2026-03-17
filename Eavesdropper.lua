@@ -9,6 +9,7 @@ function ED.Init()
 		-- DB must be ready first
 		ED.Database:Init();
 
+		ED.QuestText.Init();
 		ED.MSP.Init();
 		ED.Keywords:ParseList();
 

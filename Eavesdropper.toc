@@ -73,6 +73,7 @@ Core\Magnifier.lua
 Modules\ElvUI\ElvUI.lua
 Modules\LinkDialog\LinkDialog.lua
 Modules\Minimap\Minimap.lua
+Modules\QuestText\QuestText.lua
 Modules\TRP\TRP.lua
 
 ## UI

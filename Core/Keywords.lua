@@ -25,19 +25,15 @@ function Keywords:ParseList()
 		return;
 	end
 
-	-- Get player names for substitutions
-	local unitName = ED.Utils and ED.Utils.GetUnitName and ED.Utils.GetUnitName();
-	local guid = UnitGUID("player");
+	-- Get substitutions data if MSP is enabled.
 	local firstName, lastName, className, raceName;
-	if ED.MSP and ED.MSP.TryGetMSPData then
-		local _, fn, _, ln, cn, rn = ED.MSP.TryGetMSPData(unitName, guid);
+	if ED.MSP.IsEnabled() then
+		local _, fn, _, ln, cn, rn = ED.MSP.TryGetMSPData(ED.Globals.player_sender_name, ED.Globals.player_guid);
 		firstName = fn;
 		lastName  = ln;
 		className = cn;
 		raceName  = rn;
 	end
-
-	local oocName = UnitName("player");
 
 	firstName = firstName or "";
 	lastName  = lastName or "";
@@ -51,7 +47,7 @@ function Keywords:ParseList()
 			word = word
 				:gsub("<firstname>", firstName)
 				:gsub("<lastname>",  lastName)
-				:gsub("<oocname>",   oocName)
+				:gsub("<oocname>",   ED.Globals.player_character_name)
 				:gsub("<class>",     className)
 				:gsub("<race>",      raceName);
 
