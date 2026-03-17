@@ -84,4 +84,5 @@ UI\SettingsElements.lua
 UI\SettingsFrame.lua
 UI\SettingsFrame.xml
 
+Deprecated.lua
 Eavesdropper.lua
