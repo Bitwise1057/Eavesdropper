@@ -32,6 +32,8 @@
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\TaintLess\TaintLess.xml
+Libs\LibChatAnims\LibChatAnims.xml
 Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 Libs\LibDBCompartment\lib.xml
 Libs\LibDBIcon-1.0\lib.xml
