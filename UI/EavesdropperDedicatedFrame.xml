@@ -67,6 +67,11 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					</AnimationGroup>
 					<AnimationGroup parentKey="NewIndicatorFadeOut" setToFinalAlpha="true">
 						<Alpha fromAlpha="1" toAlpha="0" duration="0.3" order="1"/>
+						<Scripts>
+							<OnFinished>
+								self:GetParent():Hide();
+							</OnFinished>
+						</Scripts>
 					</AnimationGroup>
 				</Animations>
 			</Frame>

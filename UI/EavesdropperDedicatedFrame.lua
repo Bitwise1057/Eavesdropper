@@ -96,6 +96,8 @@ function Eavesdropper_Dedicated_FrameMixin:OnHide()
 	if self.NewIndicator then
 		if self.NewIndicator.NewIndicatorFadeIn then self.NewIndicator.NewIndicatorFadeIn:Stop(); end
 		if self.NewIndicator.NewIndicatorFadeOut then self.NewIndicator.NewIndicatorFadeOut:Stop(); end
+		self.NewIndicator.isFadedIn = false;
+		self.NewIndicator.isFadedOut = false;
 	end
 
 	if self.newIndicatorTimer then
@@ -186,11 +188,9 @@ function Eavesdropper_Dedicated_FrameMixin:OnEnter()
 	self.isMouseOver = true;
 
 	if self.NewIndicator and self.NewIndicator.isFadedIn and not self.NewIndicator.isFadedOut then
-		-- Fade-out only if still faded in
-		if self.NewIndicator.NewIndicatorFadeOut then
-			self.NewIndicator.NewIndicatorFadeOut:Stop();
-			self.NewIndicator.NewIndicatorFadeOut:Play();
-		end
+		self.NewIndicator.NewIndicatorFadeIn:Stop();
+        self.NewIndicator.NewIndicatorFadeOut:Stop();
+        self.NewIndicator.NewIndicatorFadeOut:Play();
 
 		self.NewIndicator.isFadedOut = true;
 		self.NewIndicator.isFadedIn = false;
@@ -438,14 +438,10 @@ function Eavesdropper_Dedicated_FrameMixin:TryAddMessage(entry)
 	if not entry.p and ED.Database:GetGlobalSetting("DedicatedWindowsNewIndicator") and self.NewIndicator and not self.isMouseOver then
 		-- Fade-in only if not already faded in
 		if not self.NewIndicator.isFadedIn then
-			self.NewIndicator:SetAlpha(0);
 			self.NewIndicator:Show();
-
-			if self.NewIndicator.NewIndicatorFadeIn then
-				self.NewIndicator.NewIndicatorFadeIn:Stop();
-				self.NewIndicator.NewIndicatorFadeIn:Play();
-			end
-
+			self.NewIndicator.NewIndicatorFadeIn:Stop();
+			self.NewIndicator.NewIndicatorFadeOut:Stop();
+			self.NewIndicator.NewIndicatorFadeIn:Play();
 			self.NewIndicator.isFadedIn = true;
 			self.NewIndicator.isFadedOut = false;
 		end
@@ -457,6 +453,7 @@ function Eavesdropper_Dedicated_FrameMixin:TryAddMessage(entry)
 
 		self.newIndicatorTimer = C_Timer.NewTimer(ED.Constants.CHAT_NEW_INDICATOR_FADE_OUT, function()
 			if self.NewIndicator and self.NewIndicator.NewIndicatorFadeOut and not self.NewIndicator.isFadedOut then
+				self.NewIndicator.NewIndicatorFadeIn:Stop();
 				self.NewIndicator.NewIndicatorFadeOut:Stop();
 				self.NewIndicator.NewIndicatorFadeOut:Play();
 				self.NewIndicator.isFadedOut = true;
