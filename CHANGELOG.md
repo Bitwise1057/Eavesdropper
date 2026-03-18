@@ -25,6 +25,7 @@ Eavesdropper now supports per-character window visibility and includes minor con
   - Scrolling while hovering over the editbox (without focus) will now correctly scroll the Keywords tab itself.  
   - Improved the scrollbar logic to reveal more intuitively when the content exceeds the editbox height.  
   - Clicking anywhere within the editbox now properly focuses the text, removing the need to click specifically on existing text.  
+- Total RP 3 NPC Speech Emotes once again support keyword color highlighting for users on TRP3 v3.3.3; for users on older versions, support remains limited to keyword notification sounds.  
 
 ## [0.2.4] - 2026-03-14  
 Fourth minor patch, addressing a critical bug with TRP3's NPC Speech Emotes being invisible.  
