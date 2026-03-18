@@ -68,7 +68,14 @@ function Eavesdropper_Dedicated_FrameMixin:OnLoad()
 	end
 
 	local titleBtn = self.TitleBar.TitleButton;
-	titleBtn.Text:SetText(player and ED.Utils.StripRealmSuffix(player));
+	local newPlayer, newGuid = ED.PlayerCache:InsertAndRetrieve(player);
+	if newPlayer and newGuid then
+		local _, firstName = ED.MSP.TryGetMSPData(newPlayer, newGuid);
+		self.titlebar_name = firstName;
+	else
+		self.titlebar_name = player and ED.Utils.StripRealmSuffix(player);
+	end
+	titleBtn.Text:SetText(self.titlebar_name);
 	titleBtn:SetScript("OnClick", function()
 		ED.Config:ShowConfigMenu(self, true);
 	end);
@@ -329,7 +336,7 @@ function Eavesdropper_Dedicated_FrameMixin:RefreshChat()
 	local maxMessages = ED.Database:GetSetting("MaxHistory");
 
 	local player = self.eavesdropped_player;
-	self.TitleBar.TitleButton.Text:SetText(player and ED.Utils.StripRealmSuffix(player));
+	self.TitleBar.TitleButton.Text:SetText(self.titlebar_name);
 
 	if player then
 		local chatFull = ED.ChatHistory:GetPlayerHistory(player, maxMessages);
@@ -422,6 +429,7 @@ function Eavesdropper_Dedicated_FrameMixin:AddMessage(entry, fromHistory)
 	local r, g, b = ED.ChatFormatter:GetEntryColor(entry);
 	local formatted, firstName = ED.ChatFormatter:FormatMessage(entry);
 	self.ChatBox:AddMessage(formatted, r, g, b);
+	self.titlebar_name = firstName;
 	self.TitleBar.TitleButton.Text:SetText(firstName);
 end
 
