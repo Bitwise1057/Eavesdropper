@@ -1,6 +1,9 @@
 -- Copyright The Eavesdropper Authors
 -- SPDX-License-Identifier: Apache-2.0
 
+---@type EavesdropperConstants
+local Constants = ED.Constants;
+
 ---@class EavesdropperMainChat
 local MainChat = {};
 
@@ -31,6 +34,43 @@ function MainChat:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 	end
 
 	return false, message, sender, ...;
+end
+
+function MainChat:ToggleAdvancedFormatting()
+	if ED.Database:GetSetting("ApplyOnMainChat") then
+		for _, evt in ipairs(Constants.CHAT_EVENTS_ADVANCED_FORMATTING) do
+			ChatFrameUtil.AddMessageEventFilter(evt, function(...)
+				return ED.ChatHandler:MainChatFilter(...);
+			end);
+		end
+	else
+		for _, evt in ipairs(Constants.CHAT_EVENTS_ADVANCED_FORMATTING) do
+			ChatFrameUtil.RemoveMessageEventFilter(evt, function(...)
+				return ED.ChatHandler:MainChatFilter(...);
+			end);
+		end
+	end
+end
+
+function MainChat:ToggleKeywords()
+	if ED.Database:GetSetting("EnableKeywords") then
+		for _, evt in ipairs(Constants.CHAT_EVENTS_KEYWORDS) do
+			ChatFrameUtil.AddMessageEventFilter(evt, function(...)
+				return ED.ChatHandler:MainChatFilter(...);
+			end);
+		end
+	else
+		for _, evt in ipairs(Constants.CHAT_EVENTS_KEYWORDS) do
+			ChatFrameUtil.RemoveMessageEventFilter(evt, function(...)
+				return ED.ChatHandler:MainChatFilter(...);
+			end);
+		end
+	end
+end
+
+function MainChat:Toggle()
+	self:ToggleAdvancedFormatting();
+	self:ToggleKeywords();
 end
 
 ED.MainChat = MainChat;
