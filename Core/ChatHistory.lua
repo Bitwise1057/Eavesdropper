@@ -330,13 +330,15 @@ function ChatHistory:AddEntry(event, sender, message, language, guid, channel)
 
 	if entry.s and _G["Eavesdropper_Dedicated_Frame_" .. entry.s] then
 		local dedicatedFrame = _G["Eavesdropper_Dedicated_Frame_" .. entry.s];
-		local notifyDedicatedSound = ED.Database:GetSetting("NotificationDedicatedSound");
-		local notifyDedicatedFlash = ED.Database:GetSetting("NotificationDedicatedFlashTaskbar");
+		if not entry.p then
+			local notifyDedicatedSound = ED.Database:GetSetting("NotificationDedicatedSound");
+			local notifyDedicatedFlash = ED.Database:GetSetting("NotificationDedicatedFlashTaskbar");
 
-		if (notifyDedicatedSound or notifyDedicatedFlash)
-			and not ED.Constants.CHANNELS_TO_SKIP_NOTIFICATIONS[entry.e] then
-			if notifyDedicatedSound then ED.Notifications:PlayAlertSound(ED.Enums.NOTIFICATIONS_TYPE.DEDICATED); end
-			if notifyDedicatedFlash then ED.Notifications:FlashTaskbar(); end
+			if (notifyDedicatedSound or notifyDedicatedFlash)
+				and not ED.Constants.CHANNELS_TO_SKIP_NOTIFICATIONS[entry.e] then
+				if notifyDedicatedSound then ED.Notifications:PlayAlertSound(ED.Enums.NOTIFICATIONS_TYPE.DEDICATED); end
+				if notifyDedicatedFlash then ED.Notifications:FlashTaskbar(); end
+			end
 		end
 		dedicatedFrame:TryAddMessage(entry);
 	end

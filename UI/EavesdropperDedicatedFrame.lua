@@ -434,7 +434,8 @@ function Eavesdropper_Dedicated_FrameMixin:TryAddMessage(entry)
 
 	self:AddMessage(entry);
 
-	if ED.Database:GetGlobalSetting("DedicatedWindowsNewIndicator") and self.NewIndicator and not self.isMouseOver then
+	-- Fade in new msg indicator if not own player
+	if not entry.p and ED.Database:GetGlobalSetting("DedicatedWindowsNewIndicator") and self.NewIndicator and not self.isMouseOver then
 		-- Fade-in only if not already faded in
 		if not self.NewIndicator.isFadedIn then
 			self.NewIndicator:SetAlpha(0);
