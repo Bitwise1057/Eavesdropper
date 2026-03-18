@@ -196,8 +196,8 @@ function Eavesdropper_Dedicated_FrameMixin:OnEnter()
 
 	if self.NewIndicator and self.NewIndicator.isFadedIn and not self.NewIndicator.isFadedOut then
 		self.NewIndicator.NewIndicatorFadeIn:Stop();
-        self.NewIndicator.NewIndicatorFadeOut:Stop();
-        self.NewIndicator.NewIndicatorFadeOut:Play();
+		self.NewIndicator.NewIndicatorFadeOut:Stop();
+		self.NewIndicator.NewIndicatorFadeOut:Play();
 
 		self.NewIndicator.isFadedOut = true;
 		self.NewIndicator.isFadedIn = false;
