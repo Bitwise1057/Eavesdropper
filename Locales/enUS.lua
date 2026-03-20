@@ -214,6 +214,17 @@ L = {
 	ADDONINFO_BUILD_OUTDATED = title .. " is not optimized for this game build.|n|n|cnWARNING_FONT_COLOR:This may cause unexpected behavior.|r",
 	ADDONINFO_BUILD_CURRENT = title .. " is optimized for your current game build.|n|n|cnGREEN_FONT_COLOR:All features should work as expected.|r",
 	ADDONINFO_BLUESKY_SHILL_HELP = "Follow me on Bluesky!",
+
+	-- Message Prefixes (keep them shorthand)
+	MSG_PREFIX_PARTY = "P",
+	MSG_PREFIX_RAID = "R",
+	MSG_PREFIX_INSTANCE = "I",
+	MSG_PREFIX_OFFICER = "O",
+	MSG_PREFIX_GUILD = "G",
+	MSG_PREFIX_CHANNEL = "C",
+	MSG_PREFIX_RAID_WARNING = "RW",
+	MSG_PREFIX_WHISPER_FROM = "W From",
+	MSG_PREFIX_WHISPER_TO = "W To",
 };
 
 ---@class ED.L : ED.Locale.enUS, ED.Localization
