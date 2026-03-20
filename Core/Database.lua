@@ -26,7 +26,7 @@ local GLOBAL_DEFAULTS = {
 		Hide = false,
 		ShowAddonCompartmentButton = true,
 	},
-	SettingsWindowPosition = ED.Utils.ShallowCopy(Constants.DEFAULT_WINDOW_POSITION);
+	SettingsWindowPosition = ED.Utils.ShallowCopy(Constants.DEFAULT_WINDOW_POSITION),
 	WelcomeMessage = true,
 };
 
@@ -145,8 +145,39 @@ Database.defaults = ED.Utils.DeepCopy(DEFAULT_PROFILE);
 Database.charDefaults = ED.Utils.DeepCopy(CHAR_DEFAULTS);
 Database.globalDefaults = ED.Utils.DeepCopy(GLOBAL_DEFAULTS);
 
----Initializes the account-wide and character-specific databases.
----@return nil
+---Returns a new table containing all keys from `base`, with keys from `override` applied on top.
+---@param base table
+---@param override table
+---@return table
+local function mergeTables(base, override)
+	-- start with defaults
+	local result = ED.Utils.ShallowCopy(base);
+	-- apply profile overrides (including keys not in defaults)
+	for k, v in pairs(override) do
+		result[k] = v;
+	end
+	return result;
+end
+
+---Returns a pruned copy of `value` containing only keys that differ from `def`.
+---Returns nil if no keys differ (signals "same as default, don't store").
+---Always returns the table itself if `def` is nil (no defaults to compare against).
+---@param value table
+---@param def table?
+---@return table?
+local function pruneToDefaults(value, def)
+	local newTable = {};
+	-- store only keys that differ from defaults
+	for k, v in pairs(value) do
+		if not def or def[k] ~= v then
+			newTable[k] = v;
+		end
+	end
+	-- store table only if there is at least one diff
+	return next(newTable) and newTable or nil;
+end
+
+---Initialises the account-wide saved variable and resolves the active profile for the current player.
 function Database:Init()
 	EavesdropperDB = EavesdropperDB or {
 		global = {},
@@ -176,8 +207,7 @@ end
 ---@field playerCache table
 ---@field settings EavesdropperCharSettings
 
----Initializes or migrates the character-specific chat database.
----@return nil
+---Initialises or migrates the character-specific chat database, clearing history on version change.
 function Database:InitCharacterDatabase()
 	EavesdropperCharDB = EavesdropperCharDB or {
 		version = ED.Globals.addon_version,
@@ -188,7 +218,7 @@ function Database:InitCharacterDatabase()
 
 	local charDB = EavesdropperCharDB;
 
-	-- ensure settings table exists for older DB versions
+	-- Ensure settings table exists for older DB versions.
 	charDB.settings = charDB.settings or {};
 
 	if charDB.version ~= ED.Globals.addon_version then
@@ -254,7 +284,7 @@ function Database:GetAllProfiles(excludeCurrent, excludeDefault)
 	return results;
 end
 
----Creates a new profile and switches to it.
+---Creates a new profile and switches to it. If the profile already exists, switches to it.
 ---@param profileName string
 ---@return boolean success
 function Database:CreateProfile(profileName)
@@ -263,7 +293,7 @@ function Database:CreateProfile(profileName)
 	return true;
 end
 
----Clones an existing profile into a new profile.
+---Creates a new profile as a copy of an existing one and switches to it.
 ---@param sourceName string
 ---@param newName string
 ---@return boolean success
@@ -275,7 +305,7 @@ function Database:CloneProfile(sourceName, newName)
 	return self:CopyProfile(sourceName);
 end
 
----Copies a source profile into the current profile, overwriting all settings.
+---Copies all settings from a source profile into the current profile, overwriting everything.
 ---@param sourceName string
 ---@return boolean success
 function Database:CopyProfile(sourceName)
@@ -296,7 +326,7 @@ function Database:CopyProfile(sourceName)
 	return true;
 end
 
----Deletes a profile from saved variables.
+---Deletes a profile from saved variables. Prevents deleting the active profile.
 ---@param profileName string
 ---@return boolean success
 function Database:DeleteProfile(profileName)
@@ -385,7 +415,8 @@ end
 ---| "WindowPosition"
 ---| "WindowSize"
 
----Gets a value from the current profile, falling back to defaults.
+---Returns the effective value of a profile setting, merging profile overrides onto defaults.
+---For table settings, always returns a new merged copy so callers cannot mutate stored data.
 ---@param key EavesdropperSettingKey
 ---@return any settingValue Value of the setting, or nil
 function Database:GetSetting(key)
@@ -395,43 +426,26 @@ function Database:GetSetting(key)
 	local def = defaults[key];
 	local profile = self.currentProfile;
 
-	-- profile override exists
 	if profile and profile[key] ~= nil then
+		-- Table: merge defaults with profile overrides so neither side is mutated.
 		if type(def) == "table" then
-			local merged = {};
-
-			-- start with defaults
-			for k, v in pairs(def) do
-				merged[k] = v;
-			end
-
-			-- apply profile overrides (including keys not in defaults)
-			for k, v in pairs(profile[key]) do
-				merged[k] = v;
-			end
-
-			return merged;
+			return mergeTables(def, profile[key]);
 		end
-
 		return profile[key];
 	end
 
-	-- no override, return full table copy if table
+	-- No profile override: return a fresh copy of the default table, or the scalar.
 	if type(def) == "table" then
-		local copy = {};
-		for k, v in pairs(def) do
-			copy[k] = v;
-		end
-		return copy;
+		return ED.Utils.ShallowCopy(def);
 	end
 
 	return def;
 end
 
----Sets a value in the current profile.
+---Stores a setting in the current profile, pruning values equal to their defaults.
+---Table values are stored as diff-only; primitives equal to defaults are nilled out.
 ---@param key EavesdropperSettingKey
 ---@param value any
----@return nil
 function Database:SetSetting(key, value)
 	local profile = self.currentProfile;
 	if not profile then return; end
@@ -439,21 +453,7 @@ function Database:SetSetting(key, value)
 	local def = self.defaults[key];
 
 	if type(value) == "table" then
-		local newTable = {};
-
-		-- store only keys that differ from defaults
-		for k, v in pairs(value) do
-			if not def or def[k] ~= v then
-				newTable[k] = v;
-			end
-		end
-
-		-- store table only if there is at least one diff
-		if next(newTable) then
-			profile[key] = newTable;
-		else
-			profile[key] = nil;
-		end
+		profile[key] = pruneToDefaults(value, def);
 	elseif value == def then
 		profile[key] = nil;
 	else
@@ -468,7 +468,7 @@ end
 ---@alias EavesdropperCharSettingKey
 ---| "WindowVisible"
 
----Gets a value from the character database, falling back to defaults.
+---Returns the effective value of a character setting, falling back to defaults.
 ---@param key EavesdropperCharSettingKey
 ---@return any
 function Database:GetCharSetting(key)
@@ -478,9 +478,7 @@ function Database:GetCharSetting(key)
 	if not settings then return nil; end
 
 	local value = settings[key];
-	if value ~= nil then
-		return value;
-	end
+	if value ~= nil then return value; end
 
 	local def = self.charDefaults[key];
 	if type(def) == "table" then
@@ -490,7 +488,7 @@ function Database:GetCharSetting(key)
 	return def;
 end
 
----Sets a value in the character database.
+---Stores a character setting, pruning values equal to their defaults.
 ---@param key EavesdropperCharSettingKey
 ---@param value any
 function Database:SetCharSetting(key, value)
@@ -505,19 +503,7 @@ function Database:SetCharSetting(key, value)
 	local def = self.charDefaults[key];
 
 	if type(value) == "table" then
-		local newTable = {};
-
-		for k, v in pairs(value) do
-			if not def or def[k] ~= v then
-				newTable[k] = v;
-			end
-		end
-
-		if next(newTable) then
-			settings[key] = newTable;
-		else
-			settings[key] = nil;
-		end
+		settings[key] = pruneToDefaults(value, def);
 	elseif value == def then
 		settings[key] = nil;
 	else
@@ -530,29 +516,35 @@ end
 ---| "SettingsWindowPosition"
 ---| "WelcomeMessage"
 
----Gets a value from the global database, falling back to defaults.
+---Returns the effective value of a global setting.
+---For table keys, the stored table is returned directly as a live reference which is required
+---by LibDBIcon, which mutates the MinimapButton table in place (e.g. minimapPos on drag).
+---On first access, a missing table key is initialised from defaults and written back so that
+---LibDBIcon receives a real table it can write into immediately after Register() is called.
+---Took me way too long to figure out, but was the cause of how some people's minimap button reset.
 ---@param key EavesdropperGlobalSettingKey
 ---@return any
 function Database:GetGlobalSetting(key)
 	if not EavesdropperDB then EavesdropperDB = {}; end
 	if not EavesdropperDB.global then EavesdropperDB.global = {}; end
 
-	local value = EavesdropperDB.global[key];
-	if value == nil then
-		local def = self.globalDefaults[key];
-		if type(def) == "table" then
-			-- initialize the table and store it
-			value = ED.Utils.ShallowCopy(def);
-			EavesdropperDB.global[key] = value;
-		else
-			value = def;
-		end
+	local stored = EavesdropperDB.global[key];
+
+	if stored ~= nil then return stored; end
+
+	local def = self.globalDefaults[key];
+	if type(def) == "table" then
+		-- Initialise and store the table so LibDBIcon has a live reference to mutate.
+		local init = ED.Utils.ShallowCopy(def);
+		EavesdropperDB.global[key] = init;
+		return init;
 	end
 
-	return value;
+	return def;
 end
 
----Sets a value in the global database.
+---Stores a global setting. Table values are merged into the existing stored table in place,
+---preserving keys written by LibDBIcon (e.g. minimapPos) that are not part of our defaults.
 ---@param key EavesdropperGlobalSettingKey
 ---@param value any
 function Database:SetGlobalSetting(key, value)
@@ -562,6 +554,7 @@ function Database:SetGlobalSetting(key, value)
 	local def = self.globalDefaults[key];
 
 	if type(value) == "table" then
+		-- Merge into the existing table to preserve LibDBIcon-managed keys.
 		EavesdropperDB.global[key] = EavesdropperDB.global[key] or {};
 		for k, v in pairs(value) do
 			EavesdropperDB.global[key][k] = v;
