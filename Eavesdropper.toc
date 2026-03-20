@@ -57,6 +57,7 @@ Core\Events.lua
 
 Core\ChatHistory.lua
 Core\PlayerCache.lua
+Core\PlayerName.lua
 
 Core\ChatFilters.lua
 Core\MSPHandler.lua
