@@ -139,6 +139,7 @@ stds.wow = {
 				"GetMessageEventFilters",
 				"OpenChat",
 				"RemoveMessageEventFilter",
+				"RemoveSenderNameFilter",
 			},
 		},
 
