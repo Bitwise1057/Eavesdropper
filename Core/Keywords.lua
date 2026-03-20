@@ -84,7 +84,7 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 	local trpNPCDetection = false;
 	if event == "CHAT_MSG_EMOTE" and TRP3_API and message == " " then
 		trpNPCDetection = true;
-		msg = TRP3_API.chat.getNPCMessageName(); -- Still allow checking for notification sounds at least, and then setNPCMessageName one day?
+		msg = TRP3_API.chat.getNPCMessageName();
 	end
 
 	local enablePartial = ED.Database:GetSetting("EnablePartialKeywords");
@@ -181,8 +181,15 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 			end
 		);
 
-		-- On TRP NPC Detection, we don't apply keyword highlighting as it'll just break the formatting.
-		return false, trpNPCDetection and message or msg, sender, ...;
+		if trpNPCDetection then
+			-- Safeguard for people that have not updated TRP to 3.3.3
+			if TRP3_API.chat.setNPCMessageName then
+				TRP3_API.chat.setNPCMessageName(msg);
+			end
+			return false, message, sender, ...;
+		end
+
+		return false, msg, sender, ...;
 	end
 end
 

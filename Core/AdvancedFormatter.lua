@@ -52,6 +52,14 @@ local function CreateChatName(event, _, _, sender, _, _, _, _, _, _, _, _, _, gu
 	return sender;
 end
 
+function AdvancedFormatter:EnableNameFormatting()
+	ChatFrameUtil.AddSenderNameFilter(CreateChatName);
+end
+
+function AdvancedFormatter:DisableNameFormatting()
+	ChatFrameUtil.RemoveSenderNameFilter(CreateChatName);
+end
+
 ---HandleChecks substitutes targets in a chat message
 ---@param chatFrame table
 ---@param event string
@@ -119,7 +127,7 @@ function AdvancedFormatter:HandleChecks(chatFrame, event, message, sender, ...) 
 		msgToSend = ED.ChatFormatter:MsgFormatTextEmote(entry, name);
 	end
 
-	ChatFrameUtil.AddSenderNameFilter(CreateChatName);
+	self:EnableNameFormatting();
 
 	return false, msgToSend, sender, ...;
 end

@@ -20,6 +20,7 @@ function MainChat:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 	if event == "CHAT_MSG_TEXT_EMOTE" or event == "CHAT_MSG_SYSTEM" then
 		handler = ED.AdvancedFormatter;
 	else
+		ED.AdvancedFormatter:DisableNameFormatting();
 		handler = ED.Keywords;
 	end
 
