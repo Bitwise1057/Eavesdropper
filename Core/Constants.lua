@@ -65,6 +65,10 @@ Constants.CHAT_EVENTS_ADVANCED_FORMATTING = {
 	"CHAT_MSG_TEXT_EMOTE", -- Advanced Formatting
 	"CHAT_MSG_SYSTEM", -- Advanced Formatting
 	"CHAT_MSG_MONSTER_SAY", -- Advanced Formatting (NPCs)
+	"CHAT_MSG_MONSTER_EMOTE", -- Advanced Formatting (NPCs)
+	"CHAT_MSG_MONSTER_PARTY", -- Advanced Formatting (NPCs)
+	"CHAT_MSG_MONSTER_YELL", -- Advanced Formatting (NPCs)
+	"CHAT_MSG_MONSTER_WHISPER", -- Advanced Formatting (NPCs)
 };
 
 ---@class EavesdropperChatHistory
