@@ -10,21 +10,17 @@ local ChatHandler = {};
 ---ChatFrameFilter Core Blizzard chat message filter
 ---@param chatFrame table Blizzard chat frame
 ---@param event string Chat event
----@vararg any
+---@param ... any
 ---@return boolean?
 function ChatHandler:ChatFrameFilter(chatFrame, event, ...)
 	local message, sender, language, _, _, _, _, _, channel, _, _, guid = ...;
 
-	if not message or not canaccessvalue(message) then
-		return;
-	end
+	if not message or not canaccessvalue(message) then return; end
 
 	-- No support for channels now (or ever?)
 	if event == "CHAT_MSG_CHANNEL" and channel then
 		local lower = channel:lower();
-		if ED.Constants.IGNORED_CHANNELS[lower] then
-			return;
-		end
+		if ED.Constants.IGNORED_CHANNELS[lower] then return; end
 	end
 
 	--[[
@@ -36,7 +32,7 @@ function ChatHandler:ChatFrameFilter(chatFrame, event, ...)
 	end
 	]]
 
-	-- Apply Blizzard chat filters
+	-- Apply Blizzard chat filters.
 	local filters = ChatFrameUtil and ChatFrameUtil.GetMessageEventFilters(event);
 	if filters and message then
 		local skipFilters = message:sub(1, 3) == "|| ";
@@ -54,9 +50,10 @@ function ChatHandler:ChatFrameFilter(chatFrame, event, ...)
 
 						-- Preserve TRP emote edge-cases
 						if event == "CHAT_MSG_EMOTE" then
-							local firstTwoOrig = message:sub(1,2);
-							local firstTwoNew  = newMessage:sub(1,2);
-							if (firstTwoOrig == "'s" and firstTwoNew ~= "'s") or (firstTwoOrig == ", " and firstTwoNew ~= ", ") then
+							local firstTwoOrig = message:sub(1, 2);
+							local firstTwoNew  = newMessage:sub(1, 2);
+							if (firstTwoOrig == "'s" and firstTwoNew ~= "'s")
+							or (firstTwoOrig == ", " and firstTwoNew ~= ", ") then
 								break;
 							end
 						end
@@ -75,7 +72,7 @@ function ChatHandler:ChatFrameFilter(chatFrame, event, ...)
 	-- Store chat history
 	if event == "CHAT_MSG_SYSTEM" then
 		local rollSender = ED.Utils.GetRollData(message);
-		if sender then
+		if rollSender then
 			ED.ChatHistory:AddEntry("ROLL", rollSender, message);
 		end
 	else
@@ -90,7 +87,7 @@ end
 ---@param event string Chat event
 ---@param message string Chat message
 ---@param sender string Sender name
----@vararg any
+---@param ... any
 ---@return boolean?
 function ChatHandler:MainChatFilter(chatFrame, event, message, sender, ...)
 	return ED.MainChat:HandleChecks(chatFrame, event, message, sender, ...);
@@ -98,9 +95,7 @@ end
 
 ---Init Registers Blizzard chat events to be filtered
 function ChatHandler:Init()
-	if type(ChatFrameUtil.AddMessageEventFilter) ~= "function" then
-		return;
-	end
+	if type(ChatFrameUtil.AddMessageEventFilter) ~= "function" then return; end
 
 	for _, evt in ipairs(Constants.CHAT_EVENTS_ALL) do
 		ChatFrameUtil.AddMessageEventFilter(evt, function(...)
