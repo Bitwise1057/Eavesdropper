@@ -35,6 +35,7 @@ function MainChat:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 		return;
 	end
 
+	ED.AdvancedFormatter:DisableNameFormatting(event);
 	if event == "CHAT_MSG_TEXT_EMOTE" or event == "CHAT_MSG_SYSTEM" then
 		local handled, newMessage, newSender = ED.AdvancedFormatter:HandleChecks(chatFrame, event, message, sender, ...);
 		if handled ~= nil then return handled, newMessage, newSender, ...; end
@@ -42,7 +43,6 @@ function MainChat:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 		message = ED.GossipText.SubstitutePlayerPreferredName(message);
 		return false, message, sender, ...;
 	else
-		ED.AdvancedFormatter:DisableNameFormatting();
 		local handled, newMessage, newSender = ED.Keywords:HandleChecks(chatFrame, event, message, sender, ...);
 		if handled ~= nil then return handled, newMessage, newSender, ...; end
 	end
