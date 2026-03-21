@@ -72,7 +72,6 @@ function Eavesdropper_Dedicated_FrameMixin:OnLoad()
 		self.ResizeHandle:Show();
 	end
 
-	self:HandleHoverState(Enums.FRAME.MOUSE_HOVER_STATE.ON);
 	self:ShowTitleBar();
 
 	-- Configure close button
