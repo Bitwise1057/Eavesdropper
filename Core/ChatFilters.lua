@@ -56,13 +56,12 @@ function ChatFilters:GenerateFilterListMenu(menu)
 			end,
 			function()
 				local current = ED.Database:GetSetting("Filters") or {};
-				local newFilters = ED.Utils.ShallowCopy(current);
-
 				local value = current[groupName];
 				if value == nil then
 					value = ED.Constants.DEFAULT_FILTERS[groupName] or false;
 				end
 
+				local newFilters = ED.Utils.ShallowCopy(current);
 				newFilters[groupName] = not value;
 
 				ED.Database:SetSetting("Filters", newFilters);
@@ -76,13 +75,12 @@ function ChatFilters:GenerateFilterListMenu(menu)
 	end
 end
 
----Updates the active chat events based on filter settings
----@param frame table
+---Updates active chat events on a given frame based on current filter settings.
+---Tracks changes via a dirty flag and only refreshes the chat frame if needed.
+---@param frame table?
 function ChatFilters:UpdateFilters(frame)
 	local filters = ED.Database:GetSetting("Filters");
-	if not filters or not frame then
-		return;
-	end
+	if not filters or not frame then return; end
 
 	frame.active_events = frame.active_events or {};
 	local dirty = false;
@@ -106,7 +104,7 @@ function ChatFilters:UpdateFilters(frame)
 	end
 end
 
----Checks if a specific event is currently active
+---Checks whether a specific event is currently active on the given frame.
 ---@param event string
 ---@param frame table?
 ---@return boolean
@@ -118,8 +116,8 @@ function ChatFilters:HasEvent(event, frame)
 	return frame.active_events[event] == true;
 end
 
----Initializes active events for a frame based on filter settings
----@param frame table
+---Initialises active events for a frame based on filter settings.
+---@param frame table?
 function ChatFilters:Init(frame)
 	if not frame then return; end
 	frame.active_events = frame.active_events or {};
@@ -132,11 +130,7 @@ function ChatFilters:Init(frame)
 		if chatTypes then
 			for _, chatType in ipairs(chatTypes) do
 				local event = ResolveEvent(chatType);
-				if enabled then
-					frame.active_events[event] = true;
-				else
-					frame.active_events[event] = nil;
-				end
+				frame.active_events[event] = enabled and true or nil;
 			end
 		end
 	end

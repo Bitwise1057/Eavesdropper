@@ -4,6 +4,7 @@
 ---@class EavesdropperChatFormatter
 local ChatFormatter = {};
 
+---Strips the "CHAT_MSG_" prefix from a WoW event name, returning the bare type.
 ---@param event string
 ---@return string
 local function NormalizeEventType(event)
@@ -13,6 +14,7 @@ local function NormalizeEventType(event)
 	return event;
 end
 
+---Resolves a ChatTypeInfo entry for the given event type, falling back to SAY.
 ---@param eventType string
 ---@return table
 local function ResolveChatInfo(eventType)
@@ -20,30 +22,30 @@ local function ResolveChatInfo(eventType)
 	return ChatTypeInfo[chatType] or ChatTypeInfo.SAY;
 end
 
----Default normal message formatter
----@param event EavesdropperChatEntry
+---Formats a normal chat message, prepending any configured prefix.
+---@param entry EavesdropperChatEntry
 ---@param name string
 ---@return string
-local function MsgFormatNormal(event, name) -- luacheck: no unused (name)
-	local prefix = ED.Constants.MESSAGE_PREFIXES[event.e] or "";
-	local msg = event.m or "";
+local function MsgFormatNormal(entry, name) -- luacheck: no unused (name)
+	local prefix = ED.Constants.MESSAGE_PREFIXES[entry.e] or "";
+	local msg = entry.m or "";
 
-	if event.e == "CHAT_MSG_CHANNEL" then
-		local index = GetChannelName(event.c);
+	if entry.e == "CHAT_MSG_CHANNEL" then
+		local index = GetChannelName(entry.c);
 		if index > 0 then
 			prefix = prefix:gsub("C", index, 1);
 		end
 	end
 
 	return prefix .. msg;
-end;
+end
 
----Formats emote messages
----@param event EavesdropperChatEntry
+---Formats an emote message, prepending the sender short-name and handling split markers and RP colour.
+---@param entry EavesdropperChatEntry
 ---@param name string
 ---@return string
-local function MsgFormatEmote(event, name)
-	local msg = event.m or "";
+local function MsgFormatEmote(entry, name)
+	local msg = entry.m or "";
 	local shortName = strtrim(name:match("^[^-]+") or name);
 
 	local nameDisplayMode = ED.Database:GetSetting("NameDisplayMode");
@@ -71,27 +73,27 @@ local function MsgFormatEmote(event, name)
 	end
 
 	-- handle leading punctuation cases
-	local firstTwo = msg:sub(1,2);
+	local firstTwo = msg:sub(1, 2);
 	if firstTwo == ", " or firstTwo == "'s" then
 		return shortName .. msg;
 	end
 
-	-- fix RP colors if disabled
+	-- Strip inner RP colours when RP colour display is disabled.
 	if not (useRPName and useRPColor) then
 		local outerColor, rest = msg:match("^(|c%x%x%x%x%x%x%x%x)(.*)$");
 		if outerColor then
 			rest = rest:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "");
-			msg = outerColor .. rest .. "|r";
+			msg  = outerColor .. rest .. "|r";
 		end
 	end
 
-	-- skip prepending name for punctuation-starting messages
+	-- Skip prepending name for punctuation-starting messages.
 	if msg:match("^%s*%p") then return msg; end
 
 	return shortName .. " " .. msg;
 end
 
----Formats text emotes
+---Formats a text-emote or roll message, colouring the message body and optionally prepending the sender name.
 ---@param entry EavesdropperChatEntry
 ---@param name string
 ---@return string
@@ -112,13 +114,9 @@ local function MsgFormatTextEmote(entry, name)
 
 	messageText = ED.Utils.WrapTextInColor(messageText, color);
 	return (shortName and (strtrim(shortName) .. " ") or "") .. messageText;
-end;
-
-function ChatFormatter:MsgFormatTextEmote(entry, name)
-	return MsgFormatTextEmote(entry, name);
 end
 
----Formats text emotes
+---Formats a text-emote message body only, stripping the leading sender token and colouring the remainder.
 ---@param entry EavesdropperChatEntry
 ---@param name string
 ---@return string
@@ -164,7 +162,7 @@ setmetatable(MESSAGE_FORMATS, {
 	__index = function() return MsgFormatNormal end;
 });
 
----Returns the RGB color for a chat entry
+---Returns the RGB color for a chat entry, accounting for channel-specific colours.
 ---@param entry EavesdropperChatEntry
 ---@return number r, number g, number b
 local function GetEntryColor(entry)
@@ -182,10 +180,7 @@ local function GetEntryColor(entry)
 	return info.r, info.g, info.b;
 end
 
-function ChatFormatter:GetEntryColor(entry)
-	return GetEntryColor(entry);
-end
-
+---Replaces the emote target's OOC name with their RP name in a formatted text-emote string.
 ---@param entry EavesdropperChatEntry
 ---@param msgText string
 ---@return string
@@ -218,10 +213,13 @@ local function FormatTextEmoteTargetWithRPName(entry, msgText)
 	return msgText;
 end
 
-function ChatFormatter:FormatTextEmoteTargetWithRPName(entry, msgText)
-	return FormatTextEmoteTargetWithRPName(entry, msgText);
-end
+-- Expose formatting helpers for external callers (e.g. AdvancedFormatter).
+ChatFormatter.MsgFormatTextEmote = MsgFormatTextEmote;
+ChatFormatter.MsgFormatTextEmoteNoName = MsgFormatTextEmoteNoName;
+ChatFormatter.FormatTextEmoteTargetWithRPName = FormatTextEmoteTargetWithRPName;
+ChatFormatter.GetEntryColor = GetEntryColor;
 
+---Returns the display name for a chat entry, applying RP name and colour based on current settings.
 ---@param entry EavesdropperChatEntry
 ---@return string name, boolean applyRPName, string? firstName
 function ChatFormatter:GetFormattedName(entry)
@@ -267,13 +265,11 @@ function ChatFormatter:GetFormattedName(entry)
 	return trimmedName, applyRPName, trimmedFirstName;
 end
 
----Formats a chat entry for display
+---Formats a full chat entry for display: timestamp, sender name, message body, and entry colour.
 ---@param entry EavesdropperChatEntry
 ---@return string, string? firstName
 function ChatFormatter:FormatMessage(entry)
-	if not entry or not entry.m then
-		return "";
-	end
+	if not entry or not entry.m then return ""; end
 
 	-- Timestamp
 	local now = time();
@@ -290,8 +286,8 @@ function ChatFormatter:FormatMessage(entry)
 		timestamp = "[" .. timestamp .. "]";
 	end
 
+	-- Age-based timestamp colour (Credits: Listener by tmgpub).
 	local r, g, b;
-	-- (Colors Credits @ Listener by tmgpub)
 	if age >= 600 then
 		r, g, b = 0.47, 0.47, 0.47; -- 0x77
 	elseif age >= 300 then

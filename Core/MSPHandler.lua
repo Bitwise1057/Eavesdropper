@@ -8,17 +8,16 @@ local Constants = ED.Constants;
 local MSP = {};
 
 MSP.cache = {
-	guid = nil;
-	data = nil;
-	time = 0;
+	guid = nil,
+	data = nil,
+	time = 0,
 };
 
+---Returns true if any of the six data slots contain a non-empty value.
 ---@param data string?[]
 ---@return boolean
 local function HasValidMSPData(data)
-	if not data then
-		return false;
-	end
+	if not data then return false; end
 
 	return (data[1] and data[1] ~= "")
 		or (data[2] and data[2] ~= "")
@@ -28,12 +27,11 @@ local function HasValidMSPData(data)
 		or (data[6] and data[6] ~= "");
 end
 
+---Removes a leading honorific or military title from a name if it is in the COMMON_TITLES list.
 ---@param name string
 ---@return string
 local function StripTitle(name)
-	if not name or name == "" then
-		return name;
-	end
+	if not name or name == "" then return name; end
 	local firstWord = name:match("^%s*(%S+)");
 	if firstWord and ED.Constants.COMMON_TITLES[firstWord:lower()] then
 		name = name:gsub("^%s*%S+%s+", "");
@@ -41,6 +39,7 @@ local function StripTitle(name)
 	return name;
 end
 
+---Returns the class colour hex string for a player GUID, using TRP3 if available.
 ---@param playerGUID string
 ---@return string?
 local function GetClassColor(playerGUID)
@@ -58,6 +57,7 @@ local function GetClassColor(playerGUID)
 	return color;
 end
 
+---Retrieves class and race strings from MSP data, falling back to WoW API values.
 ---@param playerName string
 ---@param playerGUID string
 ---@return string className
@@ -73,7 +73,7 @@ local function GetMSPClassAndRace(playerName, playerGUID)
 	return className, raceName;
 end
 
----GetMSPData retrieves name and color from MSP
+---Retrieves name and colour data from MSP fields.
 ---@param playerName string
 ---@param playerGUID string
 ---@return string? fullName
@@ -100,7 +100,7 @@ local function GetMSPData(playerName, playerGUID)
 	return fullName, firstName, nameColor, lastName, className, raceName;
 end
 
----GetTRPColor returns hex color for a TRP3 profile
+---Returns the readable hex colour for a TRP3 profile, using the custom colour if set.
 ---@param profile table?
 ---@param playerGUID string
 ---@return string
@@ -116,7 +116,7 @@ local function GetTRPColor(profile, playerGUID)
 	return color:GenerateHexColor();
 end
 
----GetTRPClassAndRace retrieves class and race from TRP3 profile
+---Retrieves class and race strings from a TRP3 profile, falling back to WoW API values.
 ---@param profile table?
 ---@param playerGUID string
 ---@return string className
@@ -132,7 +132,7 @@ local function GetTRPClassAndRace(profile, playerGUID)
 	return className, raceName;
 end
 
----GetTRPData retrieves name and color from TRP3
+---Retrieves name and colour data from TRP3 profile data.
 ---@param playerName string
 ---@param playerGUID string
 ---@return string? fullName
@@ -164,17 +164,17 @@ local function GetTRPData(playerName, playerGUID)
 	return fullName, firstName, nameColor, lastName, className, raceName;
 end
 
+---Trims a string and returns nil if the result is empty.
 ---@param value string?
 ---@return string?
 local function NormalizeString(value)
-	if not value then return nil; end;
-
+	if not value then return nil; end
 	value = strtrim(value);
-	if value == "" then return nil; end;
-
+	if value == "" then return nil; end
 	return value;
 end
 
+---Returns true if the MSP library is loaded.
 function MSP.IsEnabled()
 	return msp ~= nil;
 end
@@ -182,12 +182,11 @@ end
 local invalidateCache = false;
 
 ---Invalidates the MSP cache, forcing the next TryGetMSPData call to fetch fresh data.
----@return nil
 function MSP.InvalidateCache()
 	invalidateCache = true;
 end
 
----Attempts to retrieve the MSP/TRP3 name and color of a player
+---Attempts to retrieve the MSP/TRP3 name and colour of a player, using a short-lived cache.
 ---@param playerName string
 ---@param playerGUID string
 ---@param forceInvalidate boolean?
@@ -204,7 +203,7 @@ function MSP.TryGetMSPData(playerName, playerGUID, forceInvalidate)
 
 	local now = GetTime();
 
-	-- Return cached result if same GUID, still valid, and has meaningful data
+	-- Return cached result if same GUID, still valid, and has meaningful data.
 	if not invalidateCache and MSP.cache.guid == playerGUID
 		and MSP.cache.data
 		and (now - MSP.cache.time) <= Constants.MSP.CACHE_RESET_TIME
@@ -256,10 +255,10 @@ function MSP.TryGetMSPData(playerName, playerGUID, forceInvalidate)
 		raceName  = NormalizeString(raceName);
 	end
 
-	-- Normalize colors to ColorMixin
+	-- Normalise to ColorMixin, falling back to class colour.
 	nameColor = ED.Utils.NormalizeColor(nameColor) or ED.Utils.NormalizeColor(GetClassColor(playerGUID));
 
-	-- Cache the trimmed result
+	-- Store result in cache.
 	MSP.cache.guid = playerGUID;
 	MSP.cache.time = now;
 	MSP.cache.data = { fullName, firstName, nameColor, lastName, className, raceName };
@@ -268,8 +267,11 @@ function MSP.TryGetMSPData(playerName, playerGUID, forceInvalidate)
 	return fullName, firstName, nameColor, lastName, className, raceName;
 end
 
+---Pending debounce ticker for MSP field update callbacks.
+---@type table?
 local pendingRefresh;
 
+---Registers the MSP field-update callback and wires up keyword/name refresh on change.
 function MSP.Init()
 	if not MSP.IsEnabled() then return; end
 
@@ -277,13 +279,13 @@ function MSP.Init()
 		if ED.Globals.player_sender_name ~= senderID then return; end
 		if not Constants.MSP_RELEVANT_FIELDS[field] then return; end
 
-		-- Cancel any pending refresh for this sender before scheduling a new one
+		-- Cancel any pending refresh before scheduling a new one.
 		if pendingRefresh then
 			pendingRefresh:Cancel();
 			pendingRefresh = nil;
 		end
 
-		-- Debounce: wait 0.5s in case multiple fields update in the same frame
+		-- Debounce: wait 0.5 s in case multiple fields update in the same frame.
 		pendingRefresh = C_Timer.NewTicker(0.5, function()
 			pendingRefresh = nil;
 			MSP.InvalidateCache();

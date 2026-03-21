@@ -9,11 +9,12 @@ local Keywords = {};
 Keywords.List = {};
 Keywords.SortedList = {};
 
+---Timestamp of the next allowed keyword notification.
 ---@type number
 local notificationNextTime = 0;
 
----Build the keyword lookup table from the Settings multiline editbox.
----@return nil
+---Rebuilds the keyword lookup table and sorted list from the HighlightKeywords setting.
+---Applies token substitutions (<firstname>, <lastname>, <oocname>, <class>, <race>).
 function Keywords:ParseList()
 	if not ED or not ED.Database then return; end
 
@@ -21,11 +22,9 @@ function Keywords:ParseList()
 	self.List = {};
 	self.SortedList = {};
 
-	if type(highlightKeywords) ~= "string" or highlightKeywords == "" then
-		return;
-	end
+	if type(highlightKeywords) ~= "string" or highlightKeywords == "" then return; end
 
-	-- Get substitutions data if MSP is enabled.
+	-- Fetch MSP substitution values if MSP is enabled.
 	local firstName, lastName, className, raceName;
 	if ED.MSP.IsEnabled() then
 		local _, fn, _, ln, cn, rn = ED.MSP.TryGetMSPData(ED.Globals.player_sender_name, ED.Globals.player_guid);
@@ -63,7 +62,7 @@ function Keywords:ParseList()
 	table.sort(self.SortedList, function(a, b) return #a > #b; end);
 end
 
----Highlights keywords in a chat message.
+---Scans a chat message for keyword matches, wraps them in the highlight colour, and fires notifications.
 ---@param chatFrame table
 ---@param event string
 ---@param message string
@@ -79,7 +78,7 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 	if ED.Utils.IsOwnPlayer(sender, event) then return; end
 	if not self.SortedList or #self.SortedList == 0 then return; end
 
-	-- Handle TRP NPC talk detection pattern
+	-- Handle TRP NPC talk detection pattern.
 	local msg = message;
 	local trpNPCDetection = false;
 	if event == "CHAT_MSG_EMOTE" and TRP3_API and message == " " then
@@ -91,7 +90,7 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 	local originalLower = msg:lower();
 	local found = false;
 
-	-- Protect links from modification
+	-- Protect item/spell links from being modified by wrapping them in placeholders.
 	local replaced = {};
 	msg = msg:gsub("(|cff[0-9a-f]+|H[^|]+|h[^|]+|h|r)", function(link)
 		replaced[#replaced + 1] = link;
@@ -110,7 +109,9 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 	);
 
 	local allMatches = {};
-	local claimed = {}; -- To avoid double matches (e.g. art and party).
+	-- Tracks character positions already consumed by a match, preventing a shorter keyword
+	-- from matching inside a position already claimed by a longer one (e.g. "art" inside "party").
+	local claimed = {};
 
 	for _, kw in ipairs(self.SortedList) do
 		local searchPos = 1;
@@ -128,7 +129,6 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 			end
 
 			if matchOk then
-				-- Check no position in this range is already claimed
 				local overlap = false;
 				for pos = startPos, endPos do
 					if claimed[pos] then
@@ -150,7 +150,7 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 		end
 	end
 
-	-- Apply replacements back-to-front so earlier positions are not shifted by changes made to later ones.
+	-- Apply replacements back-to-front so earlier positions are not shifted by later changes.
 	table.sort(allMatches, function(a, b) return a[1] > b[1]; end);
 
 	for _, m in ipairs(allMatches) do
@@ -173,7 +173,7 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 			end
 		end
 
-		-- Restore links
+		-- Restore original links from their placeholders.
 		msg = msg:gsub(
 			Constants.KEYWORD_LINK_PLACEHOLDER .. "(%d+)" .. Constants.KEYWORD_LINK_PLACEHOLDER,
 			function(idx)
@@ -182,7 +182,7 @@ function Keywords:HandleChecks(chatFrame, event, message, sender, ...) -- luache
 		);
 
 		if trpNPCDetection then
-			-- Safeguard for people that have not updated TRP to 3.3.3
+			-- Safeguard for TRP versions prior to 3.3.3.
 			if TRP3_API.chat.setNPCMessageName then
 				TRP3_API.chat.setNPCMessageName(msg);
 			end

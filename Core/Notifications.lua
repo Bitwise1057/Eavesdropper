@@ -5,29 +5,26 @@
 local Notifications = {};
 
 ---@type number
-local Notification_CD = 0;
+local notificationCd = 0;
 
----@type tables
 local SharedMedia = LibStub("LibSharedMedia-3.0");
 
 ---@type table<string, {file: string, path: string}>
 local soundCache = {};
 
----Flash the WoW client icon on the taskbar
+---Flashes the WoW client icon on the taskbar.
 function Notifications:FlashTaskbar()
 	FlashClientIcon();
 end
 
----Plays the configured alert sound if the throttle allows it
----@param notifType number Notification type (from ED.Enums.NOTIFICATIONS_TYPE)
+---Plays the configured alert sound for the given notification type, subject to a throttle.
+---@param notifType EavesdropperNotificationsType
 function Notifications:PlayAlertSound(notifType)
 	local now = GetTime();
 	local throttle = ED.Database:GetSetting("NotificationThrottle");
 
-	if now < Notification_CD + throttle then
-		return;
-	end
-	Notification_CD = now;
+	if now < notificationCd + throttle then return; end
+	notificationCd = now;
 
 	local key = ED.Enums.NOTIFICATIONS_TYPE_SOUND_KEYS[notifType];
 	if not key then return; end
@@ -35,7 +32,7 @@ function Notifications:PlayAlertSound(notifType)
 	local soundFile = ED.Database:GetSetting(key);
 	if not soundFile or soundFile == "" then return; end
 
-	-- Check cache: update only if user changed the setting
+	-- Refresh the cached path only if the sound file setting has changed.
 	if not soundCache[key] or soundCache[key].file ~= soundFile then
 		local soundPath = SharedMedia:Fetch("sound", soundFile);
 		soundCache[key] = { file = soundFile, path = soundPath };

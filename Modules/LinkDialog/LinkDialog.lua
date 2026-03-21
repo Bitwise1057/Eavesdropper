@@ -7,22 +7,30 @@ local L = ED.Localization;
 ---@class EavesdropperLinkDialog
 local LinkDialog = {};
 
--- Borrowed from Total RP 3
+---Returns the editBox child of a StaticPopup dialog, handling both API styles.
+---Borrowed from Total RP 3.
+---@param dialog table
+---@return table
 local function GetDialogEditBox(dialog)
 	return dialog.GetEditBox and dialog:GetEditBox() or dialog.editBox;
 end
 
+---Applies ElvUI skin to the dialog's editBox if ElvUITheme is enabled.
+---@param editBox table
 local function SkinEditBox(editBox)
 	local E = ElvUI and ElvUI[1];
 	if not E or not ED.Database:GetSetting("ElvUITheme") then return; end
-	local S = E:GetModule("Skins") if not S then return; end
+	local S = E:GetModule("Skins");
+	if not S then return; end
 
 	S:HandleEditBox(editBox);
 end
 
+---Populates and wires up the editBox for URL display and keyboard interaction.
+---@param editBox table
+---@param url string?
 local function SetupEditBox(editBox, url)
 	editBox:SetText(url or "");
-
 	editBox:HighlightText();
 	editBox:SetFocus();
 
@@ -59,8 +67,8 @@ StaticPopupDialogs["EAVESDROPPER_LINK_DIALOG"] = {
 	preferredIndex = 3,
 };
 
----CreateExternalLinkDialog displays a dialog with an external link.
----@param url string The URL to be displayed in the dialog.
+---Displays a static popup dialog containing the given URL in a copyable editBox.
+---@param url string
 function LinkDialog.CreateExternalLinkDialog(url)
 	local dialog = StaticPopup_Show("EAVESDROPPER_LINK_DIALOG", nil, nil, url);
 	if dialog then

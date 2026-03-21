@@ -28,12 +28,13 @@ PlayerCache.byTime   = {};
 ---@type EavesdropperUtils
 local Utils = ED.Utils;
 
----@type number[] Sorted timestamps for recent activity
+---Sorted timestamps for byTime, newest first. Used for recent-activity iteration.
+---@type number[]
 local sortedTimes = {};
 
----Get a unique timestamp for byTime keys
+---Returns a unique GetTime() value for use as a byTime key.
 ---@return number
-function PlayerCache:_GetUniqueTime()
+function PlayerCache:getUniqueTime()
 	local t = GetTime();
 	while self.byTime[t] do
 		t = t + Constants.PLAYER_CACHE.TIME;
@@ -41,9 +42,8 @@ function PlayerCache:_GetUniqueTime()
 	return t;
 end
 
----Prune cache entries older than TTL seconds.
+---Removes cache entries older than ttl seconds and rebuilds sortedTimes if anything changed.
 ---@param ttl number Time to live in seconds
----@return nil
 function PlayerCache:PruneOldEntries(ttl)
 	if not ttl or ttl <= 0 then return; end
 
@@ -63,20 +63,19 @@ function PlayerCache:PruneOldEntries(ttl)
 		end
 	end
 
-	-- Rebuild sortedTimes only if something changed
+	-- Rebuild sortedTimes only if something was pruned.
 	if changed then
 		wipe(sortedTimes);
 		for t in pairs(self.byTime) do
 			tinsert(sortedTimes, t);
 		end
-		table.sort(sortedTimes, function(a,b) return a>b end);
+		table.sort(sortedTimes, function(a, b) return a > b; end);
 	end
 end
 
----Load the player cache from saved table and prune old entries
+---Loads the player cache from a saved table, rebuilds sortedTimes, and prunes expired entries.
 ---@param cache table? Saved player cache
 ---@param ttl number? Time to live in seconds
----@return nil
 function PlayerCache:LoadFromSaved(cache, ttl)
 	cache = cache or {};
 	ttl = ttl or Constants.PLAYER_CACHE.DEFAULT_TTL;
@@ -90,12 +89,12 @@ function PlayerCache:LoadFromSaved(cache, ttl)
 	for t in pairs(self.byTime) do
 		tinsert(sortedTimes, t);
 	end
-	table.sort(sortedTimes, function(a,b) return a>b end);
+	table.sort(sortedTimes, function(a, b) return a > b; end);
 
 	self:PruneOldEntries(ttl);
 end
 
----Insert or update a sender <-> GUID mapping and save into CharDB
+---Inserts or updates a sender  <-> GUID mapping across all three indices and persists to CharDB.
 ---@param sender string
 ---@param guid string?
 ---@return string sender Full sender name with realm
@@ -118,7 +117,7 @@ function PlayerCache:InsertAndRetrieve(sender, guid)
 		end
 	end
 
-	-- Migrate old messages from bare name to full sender
+	-- Migrate history entries stored under the bare name to the full Name-Realm key.
 	if ED.ChatHistory and Utils.HasRealmSuffix(sender) then
 		local bareName = Utils.StripRealmSuffix(sender);
 		local bareHistory = ED.ChatHistory.history[bareName];
@@ -138,33 +137,34 @@ function PlayerCache:InsertAndRetrieve(sender, guid)
 		end
 	end
 
+	-- Remove the old byTime slot for this sender before reinserting.
 	local oldEntry = self.bySender[sender];
 	if oldEntry and oldEntry.time then
 		self.byTime[oldEntry.time] = nil;
-		for i=#sortedTimes,1,-1 do
+		for i = #sortedTimes, 1, -1 do
 			if sortedTimes[i] == oldEntry.time then
-				tremove(sortedTimes,i);
+				tremove(sortedTimes, i);
 				break;
 			end
 		end
 	end
 
+	-- Evict any bare-name entry now that we have the full Name-Realm.
 	if Utils.HasRealmSuffix(sender) then
 		local bareName = Utils.StripRealmSuffix(sender);
 		self.bySender[bareName] = nil;
 	end
 
-	local cacheTime = self:_GetUniqueTime();
+	local cacheTime = self:getUniqueTime();
 
-	-- Insert/update indices
 	self.bySender[sender] = { guid = guid, time = cacheTime };
 	if guid then
 		self.byGUID[guid] = { sender = sender, time = cacheTime };
 	end
 	self.byTime[cacheTime] = { sender = sender, guid = guid };
-	tinsert(sortedTimes, 1, cacheTime); -- newest first
+	tinsert(sortedTimes, 1, cacheTime); -- Newest first.
 
-	-- Persist to CharDB
+	-- Persist immediately to CharDB.
 	if EavesdropperCharDB then
 		EavesdropperCharDB.playerCache = {
 			bySender = self.bySender,
@@ -176,7 +176,7 @@ function PlayerCache:InsertAndRetrieve(sender, guid)
 	return sender, guid;
 end
 
----Get a PlayerCacheEntryBySender by exact or bare name.
+---Returns the bySender entry for an exact or bare name match.
 ---@param name string
 ---@return PlayerCacheEntryBySender? entry
 function PlayerCache:GetSenderEntry(name)
@@ -194,7 +194,7 @@ function PlayerCache:GetSenderEntry(name)
 	end
 end
 
----Get a PlayerCacheEntryBySender using most recent activity first.
+---Returns the most recently seen full sender name and bySender entry for a given name.
 ---@param name string
 ---@return string? sender
 ---@return PlayerCacheEntryBySender? entry
@@ -213,7 +213,7 @@ function PlayerCache:GetSenderEntryByTime(name)
 	end
 end
 
----Resolve sender name from a GUID, backfilling cache
+---Resolves a sender name from a GUID, backfilling the cache from the WoW API if needed.
 ---@param guid string
 ---@return string? sender
 function PlayerCache:GetSenderDataFromGUID(guid)
@@ -233,7 +233,7 @@ function PlayerCache:GetSenderDataFromGUID(guid)
 	return sender;
 end
 
----Resolve a sender mentioned in a text emote
+---Scans byTime entries to find a sender whose bare name appears as a whole word in the message.
 ---@param message string
 ---@param sourceSender string? Full sender name or Name-Realm
 ---@return string? bareName
@@ -252,16 +252,16 @@ function PlayerCache:ResolveEmoteSender(message, sourceSender)
 		if sender then
 			local bareName = sender:match("^([^%-]+)");
 
-			-- skip self (both bare and full comparison)
+			-- Skip the emote's own sender (both bare and full comparison).
 			if bareName and sender ~= sourceSender and bareName ~= sourceBare then
-
 				local s, e = message:find(bareName, 1, true);
 				if s then
 					local before = message:sub(s - 1, s - 1);
 					local after  = message:sub(e + 1, e + 1);
 
-					-- ensure full word match
-					if (before == "" or before:match("[%s%p]")) and (after  == "" or after:match("[%s%p]")) then
+					-- Ensure full word match.
+					if (before == "" or before:match("[%s%p]"))
+					and (after == "" or after:match("[%s%p]")) then
 						return bareName, sender, data;
 					end
 				end

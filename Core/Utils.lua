@@ -13,10 +13,10 @@ local Utils = {};
 ---@return ColorMixin?
 function Utils.NormalizeColor(color)
 	if type(color) == "string" then
-		-- Strip leading '#' if present
-		if color:sub(1,1) == "#" then color = color:sub(2); end
+		-- Strip leading '#' if present.
+		if color:sub(1, 1) == "#" then color = color:sub(2); end
 
-		-- Convert 6-digit or 8-digit hex string to ColorMixin
+		-- Convert 6-digit or 8-digit hex string to ColorMixin.
 		if #color == 6 then
 			return CreateColorFromHexString("ff" .. color);
 		elseif #color == 8 then
@@ -24,13 +24,13 @@ function Utils.NormalizeColor(color)
 		end
 
 	elseif type(color) == "table" then
-		-- Table with r,g,b,[a] -> ColorMixin
+		-- Table with r,g,b,[a] -> ColorMixin.
 		if color.r and color.g and color.b then
 			return CreateColor(color.r, color.g, color.b, color.a or 1);
 		end
 
 	elseif type(color) == "userdata" and color.WrapTextInColorCode then
-		-- Already a ColorMixin
+		-- Already a ColorMixin.
 		return color;
 	end
 
@@ -76,9 +76,7 @@ end
 ---@return string
 function Utils.StripColorCodes(text)
 	if type(text) ~= "string" then return text; end
-
 	text = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "");
-
 	return text;
 end
 
@@ -133,7 +131,6 @@ function Utils.WrapTextInColor(text, color)
 	return color:WrapTextInColorCode(text);
 end
 
-
 ---RGBtoHex Converts 0–1 RGB values to a WoW color escape sequence
 ---@param r number
 ---@param g number
@@ -173,6 +170,7 @@ end
 -- TABLE UTILITIES
 -- ============================================================================
 
+---Returns a new table with all top-level key-value pairs copied from tbl.
 ---@param tbl table
 ---@return table
 function Utils.ShallowCopy(tbl)
@@ -183,6 +181,7 @@ function Utils.ShallowCopy(tbl)
 	return copy;
 end
 
+---Returns a fully independent recursive copy of tbl, or the value itself if not a table.
 ---@param tbl any
 ---@return any
 function Utils.DeepCopy(tbl)
@@ -320,16 +319,13 @@ end
 ---@param output string|table The output to be printed, either a string or a table.
 ---@param command? string The optional command prefix to display before the output.
 function Utils.Write(output, command)
-	if not output then
-		return;
-	end
+	if not output then return; end
 
 	if type(output) == "table" then
 		output = table.concat(output, "|n");
 	end
 
 	local formattedOutput = ("|cnGREEN_FONT_COLOR:%s|r|cnWHITE_FONT_COLOR:%s|r"):format(command and (command .. " ") or "", output);
-
 	Print(formattedOutput);
 end
 
@@ -337,12 +333,9 @@ end
 ---@param commands table<string, string> Table where keys are descriptions and values are commands
 ---@param noprefix boolean? Whether or not the prefix of "Eavesdropper" should be shown
 function Utils.WriteCommandTable(commands, noprefix)
-	if not commands or next(commands) == nil then
-		return;
-	end
+	if not commands or next(commands) == nil then return; end
 
 	Print(ED.Localization.SLASH_COMMAND_HEADER);
-	-- Iterate through each command and print on its own line
 	for description, command in pairs(commands) do
 		local formattedOutput = ("|cnGREEN_FONT_COLOR:%s|r |cnWHITE_FONT_COLOR:%s|r"):format(command, description);
 		if noprefix then
@@ -353,6 +346,10 @@ function Utils.WriteCommandTable(commands, noprefix)
 	end
 end
 
+---Builds a human-readable priority string for the current target/focus mode combination.
+---@param targetPriority EavesdropperTargetPriority
+---@param focusTarget EavesdropperFocusTarget
+---@return string
 function Utils.CreatePriorityString(targetPriority, focusTarget)
 	local Enums = ED.Enums;
 	local L = ED.Localization;
@@ -373,7 +370,7 @@ function Utils.CreatePriorityString(targetPriority, focusTarget)
 
 	local entry = Enums.TARGET_PRIORITY_STRING_MAP[targetPriority];
 	local priority = entry and L[entry.priority];
-	local secondary = entry and entry.secondary	and L[entry.secondary];
+	local secondary = entry and entry.secondary and L[entry.secondary];
 
 	local allowFocus = focusTarget ~= FocusTarget.IGNORE;
 	local focus = allowFocus and L.TARGETING_PRIORITY_FOCUS or nil;
