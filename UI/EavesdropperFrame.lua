@@ -73,9 +73,7 @@ function Eavesdropper_FrameMixin:OnLoad()
 	end
 
 	-- Configure title button
-	local titleBtn = self.TitleBar.TitleButton;
-	self.titlebar_name = "Eavesdropper";
-	titleBtn.Text:SetText(self.titlebar_name);
+	self:UpdateTitleBar();
 
 	hooksecurefunc(self.ChatBox, "RefreshDisplay", function()
 		self:OnChatboxRefresh();
@@ -133,6 +131,20 @@ end
 -- ============================================================
 -- Layout / Appearance
 -- ============================================================
+
+---Updates the name in the title bar
+function Eavesdropper_FrameMixin:UpdateTitleBar()
+	local newName = "Eavesdropper";
+	if ED.Database:GetSetting("UpdateTitleBarWithName") and self.eavesdropped_player then
+		local _, firstName = ED.MSP.TryGetMSPData(self.eavesdropped_player, self.eavesdropped_player_guid);
+		newName = ED.Utils.StripColorCodes(ED.Utils.StripRealmSuffix(firstName or self.eavesdropped_player));
+	end
+
+	if newName == self.titlebar_name then return; end
+
+	self.titlebar_name = newName;
+	self.TitleBar.TitleButton.Text:SetText(self.titlebar_name);
+end
 
 ---Restore window position, size, resize handle, and close button from the database
 function Eavesdropper_FrameMixin:RestoreLayout()
@@ -229,8 +241,10 @@ function Eavesdropper_FrameMixin:UpdateTarget()
 	if target and (companionSupport or magnifiedName) then
 		self.players[target] = 1;
 		self.eavesdropped_player = target;
+		self.eavesdropped_player_guid = magnifiedGUID;
 	else
 		self.eavesdropped_player = nil;
+		self.eavesdropped_player_guid = nil;
 	end
 
 	-- Refresh when target changed or chat is scrolled to the bottom
@@ -256,21 +270,11 @@ function Eavesdropper_FrameMixin:RefreshChat()
 	local maxMessages = ED.Database:GetSetting("MaxHistory");
 	local player = self.eavesdropped_player;
 
-	-- Reset title to the default before any messages are loaded
-	self.titlebar_name = "Eavesdropper";
-	self.TitleBar.TitleButton.Text:SetText(self.titlebar_name);
-
 	if player then
 		self:PopulateHistoryMessages(player, maxMessages);
-
-		-- Update title from player name directly; covers the case where AddMessage never fired.
-		if ED.Database:GetSetting("UpdateTitleBarWithName") then
-			local displayName = ED.Utils.StripColorCodes(ED.Utils.StripRealmSuffix(player));
-			self.titlebar_name = displayName;
-			self.TitleBar.TitleButton.Text:SetText(displayName);
-		end
 	end
 
+	self:UpdateTitleBar();
 	self.refreshing = false;
 end
 
@@ -295,14 +299,8 @@ function Eavesdropper_FrameMixin:AddMessage(entry, fromHistory)
 	end
 
 	local r, g, b = ED.ChatFormatter.GetEntryColor(entry);
-	local formatted, firstName = ED.ChatFormatter:FormatMessage(entry);
+	local formatted = ED.ChatFormatter:FormatMessage(entry);
 	self.ChatBox:AddMessage(formatted, r, g, b);
-
-	if firstName then
-		self.titlebar_name = ED.Utils.StripColorCodes(firstName);
-	end
-	local displayName = ED.Database:GetSetting("UpdateTitleBarWithName") and self.titlebar_name or "Eavesdropper";
-	self.TitleBar.TitleButton.Text:SetText(displayName);
 end
 
 ---Apply all profile settings: font, filters, layout, colors, history, and settings UI

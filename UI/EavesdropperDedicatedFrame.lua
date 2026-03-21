@@ -87,15 +87,7 @@ function Eavesdropper_Dedicated_FrameMixin:OnLoad()
 
 	-- Configure title button; prefer MSP display name, fall back to bare player name
 	local titleBtn = self.TitleBar.TitleButton;
-	local newPlayer, newGuid = ED.PlayerCache:InsertAndRetrieve(player);
-	if newPlayer and newGuid then
-		local _, firstName = ED.MSP.TryGetMSPData(newPlayer, newGuid);
-		self.titlebar_name = firstName;
-	end
-	if not self.titlebar_name then
-		self.titlebar_name = ED.Utils.StripRealmSuffix(player);
-	end
-	titleBtn.Text:SetText(self.titlebar_name);
+	self:UpdateTitleBar();
 	titleBtn:SetScript("OnClick", function()
 		ED.Config:ShowConfigMenu(self, true);
 	end);
@@ -184,6 +176,24 @@ end
 -- Layout / appearance
 -- ============================================================
 
+---Updates the name in the title bar
+function Eavesdropper_Dedicated_FrameMixin:UpdateTitleBar()
+	local newName = self.eavesdropped_player;
+
+	local newPlayer, newGuid = ED.PlayerCache:InsertAndRetrieve(self.eavesdropped_player);
+	if newPlayer and newGuid then
+		local _, firstName = ED.MSP.TryGetMSPData(newPlayer, newGuid);
+		newName = ED.Utils.StripColorCodes(ED.Utils.StripRealmSuffix(firstName or newPlayer));
+	else
+		newName = ED.Utils.StripRealmSuffix(newName);
+	end
+
+	if newName == self.titlebar_name then return; end
+
+	self.titlebar_name = newName;
+	self.TitleBar.TitleButton.Text:SetText(self.titlebar_name);
+end
+
 ---Restore resize handle and close button from local frame state (not the database)
 function Eavesdropper_Dedicated_FrameMixin:RestoreLayout()
 	if not ED.Database then return; end
@@ -231,12 +241,11 @@ function Eavesdropper_Dedicated_FrameMixin:RefreshChat()
 	local maxMessages = ED.Database:GetSetting("MaxHistory");
 	local player = self.eavesdropped_player;
 
-	self.TitleBar.TitleButton.Text:SetText(self.titlebar_name);
-
 	if player then
 		self:PopulateHistoryMessages(player, maxMessages);
 	end
 
+	self:UpdateTitleBar();
 	self.refreshing = false;
 end
 
@@ -261,12 +270,8 @@ function Eavesdropper_Dedicated_FrameMixin:AddMessage(entry, fromHistory)
 	end
 
 	local r, g, b = ED.ChatFormatter.GetEntryColor(entry);
-	local formatted, firstName = ED.ChatFormatter:FormatMessage(entry);
+	local formatted = ED.ChatFormatter:FormatMessage(entry);
 	self.ChatBox:AddMessage(formatted, r, g, b);
-
-	-- Always update the title bar from the formatted sender name
-	self.titlebar_name = ED.Utils.StripColorCodes(firstName);
-	self.TitleBar.TitleButton.Text:SetText(self.titlebar_name);
 end
 
 ---Override of the base TryAddMessage to handle the new-message indicator
