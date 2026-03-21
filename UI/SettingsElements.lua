@@ -7,6 +7,11 @@ local Constants = ED.Constants;
 ---@class EavesdropperSettingsElements
 local SettingsElements = {};
 
+-- ============================================================
+-- Header elements
+-- ============================================================
+
+---Creates a large title with a description line beneath it
 function SettingsElements.CreateTitleWithDescription(parent, titleText, descriptionText)
 	local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
 	title:SetPoint("TOPLEFT", 20, -8);
@@ -21,6 +26,7 @@ function SettingsElements.CreateTitleWithDescription(parent, titleText, descript
 	return description;
 end
 
+---Creates a large title with no description
 function SettingsElements.CreateTitle(parent, titleText)
 	local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
 	title:SetPoint("TOPLEFT", 20, -8);
@@ -29,6 +35,7 @@ function SettingsElements.CreateTitle(parent, titleText)
 	return title;
 end
 
+---Creates a medium subtitle with an optional dynamic subtitle line
 function SettingsElements.CreateSubTitle(parent, titleText, subTitleText, data)
 	local container = CreateFrame("Frame", nil, parent);
 	container:SetWidth(parent:GetWidth());
@@ -45,7 +52,7 @@ function SettingsElements.CreateSubTitle(parent, titleText, subTitleText, data)
 	-- Subtitle (optional)
 	local subTitle = container:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
 	subTitle:SetSpacing(4);
-	subTitle:SetJustifyH("CENTER"); -- center horizontally
+	subTitle:SetJustifyH("CENTER");
 	subTitle:SetPoint("TOP", title, "BOTTOM", 0, -8); -- spacing under title
 	subTitle:SetWidth(container:GetWidth() - 8);
 
@@ -83,6 +90,10 @@ function SettingsElements.CreateSubTitle(parent, titleText, subTitleText, data)
 
 	return container;
 end
+
+-- ============================================================
+-- Tooltip helpers
+-- ============================================================
 
 local function AttachTooltip(frame, title, description, anchorFrame, anchor, isFocused)
 	if not title or not description then return; end
@@ -134,7 +145,7 @@ local function AttachMultiLineEditBoxTooltip(backdrop, scrollFrame, editBox, tit
 		end
 	end
 
-	-- Keep tooltip visible while focused
+	-- Keep tooltip visible while the edit box is focused
 	editBox:HookScript("OnEditFocusGained", function()
 		GameTooltip:SetOwner(backdrop, "ANCHOR_TOP");
 		GameTooltip:SetText(title, WHITE_FONT_COLOR:GetRGB());
@@ -147,20 +158,21 @@ local function AttachMultiLineEditBoxTooltip(backdrop, scrollFrame, editBox, tit
 	end);
 end
 
+-- ============================================================
+-- Layout constants
+-- ============================================================
+
 local OUTER_PADDING = 10;
 local LABEL_WIDTH = 145;
 
-function SettingsElements.CreateDescription(parent, descriptionText)
-	local description = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
-	description:SetText(descriptionText or "");
-	description:SetPoint("LEFT", parent, "LEFT", OUTER_PADDING + 8, 0);
-	description:SetHeight(Constants.SETTINGS.WIDGET_HEIGHT);
+-- ============================================================
+-- Shared layout helpers
+-- ============================================================
 
-	return description;
-end
-
+---Creates a left-label / right-control pair anchored inside parent
 local function CreateLabeledFrame(parent, data)
 	local labelText = data.label or "";
+
 	local left = CreateFrame("Frame", nil, parent);
 	left:SetWidth(LABEL_WIDTH);
 	left:SetPoint("LEFT", parent, "LEFT", OUTER_PADDING, 0);
@@ -185,13 +197,26 @@ local function CreateLabeledFrame(parent, data)
 	return left, right, label;
 end
 
+-- ============================================================
+-- Widget constructors
+-- ============================================================
+
+---Creates a plain description font string anchored to the left of parent
+function SettingsElements.CreateDescription(parent, descriptionText)
+	local description = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+	description:SetText(descriptionText or "");
+	description:SetPoint("LEFT", parent, "LEFT", OUTER_PADDING + 8, 0);
+	description:SetHeight(Constants.SETTINGS.WIDGET_HEIGHT);
+
+	return description;
+end
+
 local function CreateCheckbox(parent, data)
 	local _, right = CreateLabeledFrame(parent, data);
 
 	local widget = CreateFrame("CheckButton", nil, right, "SettingsCheckBoxTemplate");
 	widget:SetPoint("LEFT", right);
 	widget:SetSize(Constants.SETTINGS.WIDGET_HEIGHT, Constants.SETTINGS.WIDGET_HEIGHT);
-
 	widget:SetMotionScriptsWhileDisabled(true);
 	widget:EnableMouse(true);
 
@@ -209,9 +234,7 @@ local function CreateCheckbox(parent, data)
 	end
 
 	widget:SetScript("OnClick", function(self)
-		if not self:IsEnabled() then
-			return;
-		end
+		if not self:IsEnabled() then return; end
 
 		local checked = self:GetChecked();
 		if type(data.get) == "function" and checked ~= data.get() then
@@ -307,7 +330,7 @@ local function CreateColorSwatch(parent, data)
 			color = { r = 0, g = 1, b = 0, a = 1 };
 		end
 		ApplyColor(color);
-	end;
+	end
 
 	widget:Refresh();
 
@@ -319,9 +342,9 @@ local function CreateColorSwatch(parent, data)
 end
 
 local function CreateSlider(parent, data)
-	local _, right = CreateLabeledFrame(parent, data)
+	local _, right = CreateLabeledFrame(parent, data);
 
-	local widget = CreateFrame("Slider", nil, right, "MinimalSliderWithSteppersTemplate")
+	local widget = CreateFrame("Slider", nil, right, "MinimalSliderWithSteppersTemplate");
 	widget:SetPoint("LEFT", right, "LEFT", 0, 0);
 	widget:SetPoint("RIGHT", right, "RIGHT", -25, 0); -- leave space for RightText
 	widget:SetPoint("CENTER", right, "CENTER");
@@ -360,14 +383,11 @@ local function CreateSlider(parent, data)
 	local lastValue;
 
 	widget.Slider:SetScript("OnValueChanged", function(_, val)
-		if IsDisabled() then
-			return;
-		end
+		if IsDisabled() then return; end
 
 		local rounded = RoundToStep(val);
 		if rounded ~= lastValue then
 			lastValue = rounded;
-
 			UpdateText(rounded);
 
 			if type(data.set) == "function" then
@@ -408,7 +428,6 @@ local function CreateDropDown(parent, data)
 	widget:SetPoint("LEFT", right, "LEFT", 0, 0);
 	widget:SetPoint("RIGHT", right, "RIGHT", 0, 0);
 	widget:SetPoint("CENTER", right, "CENTER");
-
 	widget:SetMotionScriptsWhileDisabled(true);
 
 	widget.settingKey = data.settingKey;
@@ -462,9 +481,7 @@ local function CreateDropDown(parent, data)
 			end
 
 			local function SetSelected(index)
-				if disabled then
-					return;
-				end
+				if disabled then return; end
 				if type(data.set) == "function" then
 					data.set(index);
 				end
@@ -557,7 +574,7 @@ local function CreateMultiLineEditBox(parent, data)
 			self:SetText(data.get() or "");
 			self:HighlightText(0, 0);
 		end
-	end;
+	end
 
 	if type(data.set) == "function" then
 		local function SaveValue(self)
@@ -664,7 +681,6 @@ local function CreateEditBox(parent, data)
 					self:ClearFocus();
 					return;
 				end
-
 				data.set(self:GetText());
 			end);
 		else
@@ -673,7 +689,6 @@ local function CreateEditBox(parent, data)
 					self:ClearFocus();
 					return;
 				end
-
 				data.set(self:GetText());
 				self:SetText("");
 				self:ClearFocus();
@@ -690,12 +705,6 @@ local function CreateEditBox(parent, data)
 	ED.ElvUI.RegisterSkinnableElement(widget, "editbox");
 
 	return widget;
-end
-
-local function WrapButtonClick(original)
-	return function(self, ...)
-		original(self, ...);
-	end
 end
 
 local function CreateButton(parent, data)
@@ -717,12 +726,10 @@ local function CreateButton(parent, data)
 	end
 
 	if type(data.func) == "function" then
-		widget:SetScript("OnClick", WrapButtonClick(function(self, ...)
-			if IsDisabled() then
-				return;
-			end
+		widget:SetScript("OnClick", function(self, ...)
+			if IsDisabled() then return; end
 			data.func(self, ...);
-		end));
+		end);
 	end
 
 	widget:Refresh();
@@ -736,7 +743,11 @@ local function CreateButton(parent, data)
 	return widget;
 end
 
----CreateInset creates a skinnable inset frame inside the parent with provided widget data.
+-- ============================================================
+-- Inset / composite elements
+-- ============================================================
+
+---Creates a skinnable inset frame inside the parent with provided widget data.
 ---Positions the inset relative to a previous element, parent's top, or parent's bottom.
 ---@param parent table The parent frame to attach the inset frame to.
 ---@param insetData table List of widget data entries describing the inset contents.
@@ -763,7 +774,6 @@ function SettingsElements.CreateInset(parent, insetData, bottomOfParent, relativ
 	infoInset:SetPoint("RIGHT", parent, "RIGHT", -10, 0);
 	infoInset:SetHeight(75);
 
-
 	local logo, title, author, version, build, bsky;
 	for _, data in ipairs(insetData) do
 		local entryType = data.type or "logo";
@@ -781,7 +791,7 @@ function SettingsElements.CreateInset(parent, insetData, bottomOfParent, relativ
 		elseif entryType == "version" then
 			version = infoInset:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
 			version:SetText(data.text or "");
-			version:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 5, -2)
+			version:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 5, -2);
 		elseif entryType == "build" then
 			build = CreateFrame("Button", nil, infoInset, "UIPanelDynamicResizeButtonTemplate");
 			build:SetText(data.text or "");
@@ -817,6 +827,11 @@ function SettingsElements.CreateInset(parent, insetData, bottomOfParent, relativ
 	return infoInset;
 end
 
+-- ============================================================
+-- Element factory
+-- ============================================================
+
+---Dispatches to the appropriate widget constructor based on data.type
 function SettingsElements.CreateElement(parent, data)
 	local frame = CreateFrame("Frame", nil, parent);
 	frame:SetPoint("LEFT", 0, 0);
