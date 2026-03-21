@@ -398,9 +398,9 @@ function Utils.CheckNewlyAdded(buildAdded)
 	if not featureVersion then return false; end
 
 	-- In dev builds, match solely on the Blizzard build number
-    if ED.Globals.addon_version == "@project-version@" then
-        return featureBuild == tostring(select(4, GetBuildInfo()));
-    end
+	if ED.Globals.addon_version == "@project-version@" then
+		return featureBuild == tostring(select(4, GetBuildInfo()));
+	end
 
 	local featureMajor, featureMinor, featurePatch = featureVersion:match("^(%d+)%.(%d+)%.(%d+)$");
 	local addonMajor, addonMinor, addonPatch = ED.Globals.addon_version:match("^(%d+)%.(%d+)%.(%d+)$");
