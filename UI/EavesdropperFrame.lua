@@ -10,12 +10,36 @@ local Enums = ED.Enums;
 ---@class EavesdropperFrameModule
 local FrameModule = {};
 
-local L = ED.Localization;
-
 -- Private frame state
 local EAVESDROP_TARGET = nil;
 
-Eavesdropper_FrameMixin = {};
+---Inherit all shared frame behaviour; frame-specific methods are defined below
+Eavesdropper_FrameMixin = CreateFromMixins(Eavesdropper_SharedFrameMixin);
+
+-- ============================================================
+-- Main Frame Getters (saved in DB)
+-- ============================================================
+
+---@return boolean
+function Eavesdropper_FrameMixin:IsMouseEnabled()
+	if not ED.Database then return true; end
+	return ED.Database:GetSetting("EnableMouse");
+end
+
+---@return boolean
+function Eavesdropper_FrameMixin:IsWindowLocked()
+	return not ED.Database or ED.Database:GetSetting("LockWindow") or false;
+end
+
+---@return boolean
+function Eavesdropper_FrameMixin:IsScrollLocked()
+	return ED.Database ~= nil and ED.Database:GetSetting("LockScroll") or false;
+end
+
+---@return boolean
+function Eavesdropper_FrameMixin:IsTitleBarLocked()
+	return ED.Database ~= nil and ED.Database:GetSetting("LockTitleBar") or false;
+end
 
 -- ============================================================
 -- OnLoad / OnHide
@@ -28,12 +52,7 @@ function Eavesdropper_FrameMixin:OnLoad()
 	self.isMouseOver = false;
 	self.titlebar_name = nil;
 
-	self.ChatBox:SetJustifyH("LEFT");
-	self.ChatBox:SetIndentedWordWrap(true);
-	self.ChatBox:SetHyperlinksEnabled(true);
-	self.ChatBox:SetFading(false);
-	self.ChatBox:SetMaxLines(300);
-	self.ChatBox.ScrollMarker.Text:SetText(L.SCROLLMARKER_TEXT);
+	Eavesdropper_SharedFrameMixin.InitChatBox(self);
 
 	if ED.Database and not ED.Database:GetSetting("LockWindow") then
 		self.ResizeHandle:Show();
@@ -43,9 +62,7 @@ function Eavesdropper_FrameMixin:OnLoad()
 
 	-- Configure close button
 	local closeBtn = self.TitleBar.CloseButton;
-	closeBtn:SetNormalAtlas("uitools-icon-close");
-	closeBtn:SetPushedAtlas("uitools-icon-close");
-	closeBtn:SetHighlightAtlas("uitools-icon-close");
+	Eavesdropper_SharedFrameMixin.InitCloseButton(closeBtn);
 	closeBtn:SetScript("OnClick", function()
 		self:Hide();
 		ED.Database:SetCharSetting("WindowVisible", false);
@@ -73,87 +90,13 @@ end
 -- Mouse / Interaction
 -- ============================================================
 
-function Eavesdropper_FrameMixin:OnHyperlinkClick(link, text, button)
-	if ED.Database and not ED.Database:GetSetting("EnableMouse") then return; end
-
-	-- Suppress rapid clicks when scroll position just changed
-	if GetTime() < (self.clickblock or 0) + Constants.FRAME.CLICKBLOCK_TIME then return; end
-
-	local linkType, value = link:match("^(.-):(.*)$");
-
-	-- Open edurls directly in the chat edit box
-	if linkType == "edurl" and value then
-		local editBox = ChatFrameUtil.ChooseBoxForSend();
-		if not editBox:IsShown() then
-			ChatFrameUtil.ActivateChat(editBox);
-		end
-		editBox:Insert(value);
-		return;
-	end
-
-	SetItemRef(link, text, button, DEFAULT_CHAT_FRAME);
-
-	self.fade_time = GetTime();
-end
-
-function Eavesdropper_FrameMixin:OnScrollMarkerMouseUp()
-	self.ChatBox:ScrollToBottom();
-	self:OnChatboxRefresh();
-end
-
-function Eavesdropper_FrameMixin:OnChatboxRefresh()
-	if self.ChatBox:GetScrollOffset() ~= 0 then
-		if not self.ChatBox.ScrollMarker:IsShown() then
-			self.ChatBox.ScrollMarker:Show();
-			self.ChatBox:SetPoint("BOTTOM", self.ChatBox.ScrollMarker, "TOP", 0, 1);
-		end
-	else
-		if self.ChatBox.ScrollMarker:IsShown() then
-			self.ChatBox.ScrollMarker:Hide();
-			self.ChatBox:SetPoint("BOTTOM", self, 0, 2);
-		end
-	end
-end
-
----Returns true if the cursor is over any part of this frame or its chrome
-function Eavesdropper_FrameMixin:IsHoveringOverEavesdropperFrame()
-	-- Check Eavesdropper frame itself.
-	if self and self:IsMouseOver() then
-		return true;
-	end
-	-- Check TitleBar and children.
-	if self.TitleBar and (self.TitleBar:IsMouseOver() or self.TitleBar.CloseButton:IsMouseOver() or self.TitleBar.TitleButton:IsMouseOver()) then
-		return true;
-	end
-	-- Check ResizeHandle.
-	if self.ResizeHandle and self.ResizeHandle:IsMouseOver() then
-		return true;
-	end
-	return false;
-end
-
 function Eavesdropper_FrameMixin:OnEnter()
 	if self.isMouseOver then return; end
 	self.isMouseOver = true;
 	self:HandleHoverState(Enums.FRAME.MOUSE_HOVER_STATE.ON);
 end
 
-function Eavesdropper_FrameMixin:OnLeave()
-	if not self:IsHoveringOverEavesdropperFrame() then
-		self.isMouseOver = false;
-		self:HandleHoverState(Enums.FRAME.MOUSE_HOVER_STATE.OFF);
-	end
-end
-
-function Eavesdropper_FrameMixin:OnDragStart()
-	-- Only drag when the cursor is on the title bar
-	local isTitlebar = GetMouseFoci()[1] == self.TitleBar;
-	if not ED.Database or ED.Database:GetSetting("LockWindow") or not isTitlebar then return; end
-
-	self:StopMovingOrSizing();
-	self:StartMoving();
-end
-
+---Persist window position after a drag; intentionally not called from the base
 function Eavesdropper_FrameMixin:OnDragStop()
 	self:StopMovingOrSizing();
 
@@ -163,6 +106,7 @@ function Eavesdropper_FrameMixin:OnDragStop()
 	ED.Database:SetSetting("WindowPosition", { point = point, relativePoint = relativePoint, x = x, y = y });
 end
 
+---Persist window size and position after a resize
 function Eavesdropper_FrameMixin:OnResizeFinished()
 	if not ED.Database then return; end
 
@@ -170,61 +114,6 @@ function Eavesdropper_FrameMixin:OnResizeFinished()
 	local point, _, relativePoint, x, y = self:GetPoint(1);
 	ED.Database:SetSetting("WindowSize", { width = w, height = h });
 	ED.Database:SetSetting("WindowPosition", { point = point, relativePoint = relativePoint, x = x, y = y });
-end
-
--- Unused — reserved for future use
-function Eavesdropper_FrameMixin:OnSizeChanged()
-end
-
-function Eavesdropper_FrameMixin:OnMouseWheel(delta)
-	if ED.Database and ED.Database:GetSetting("LockScroll") then return; end
-
-	if delta > 0 then
-		if IsAltKeyDown() then
-			self.ChatBox:ScrollToTop();
-		elseif IsControlKeyDown() then
-			ED.ChatBox:AdjustFontSize(self, Enums.FRAME.SCROLL_DIRECTION.UP);
-		else
-			self.ChatBox:ScrollUp();
-		end
-	else
-		if IsAltKeyDown() then
-			self.ChatBox:ScrollToBottom();
-		elseif IsControlKeyDown() then
-			ED.ChatBox:AdjustFontSize(self, Enums.FRAME.SCROLL_DIRECTION.DOWN);
-		else
-			self.ChatBox:ScrollDown();
-		end
-	end
-
-	self.fade_time = GetTime();
-end
-
----Mouse-click propagation depends on EnableMouse; handled without OnUpdate
-function Eavesdropper_FrameMixin:UpdateMouseLock()
-	local isLocked = ED.Database and ED.Database:GetSetting("EnableMouse");
-
-	-- Always keep the parent frame mouse-enabled
-	self:EnableMouse(true);
-
-	if not isLocked then
-		-- Ghost mode: pass all clicks and motion through to the world
-		self:SetPropagateMouseClicks(true);
-		self:SetPropagateMouseMotion(true);
-
-		if self.SetMouseMotionEnabled then
-			self:SetMouseMotionEnabled(true);
-			self:SetMouseClickEnabled(true);
-		end
-	else
-		-- Normal mode: consume clicks, block world interaction
-		self:SetPropagateMouseClicks(false);
-		self:SetPropagateMouseMotion(false);
-
-		if self.SetMouseMotionEnabled then
-			self:SetMouseMotionEnabled(true);
-		end
-	end
 end
 
 ---Returns true if the frame is currently tracking name
@@ -245,6 +134,7 @@ end
 -- Layout / Appearance
 -- ============================================================
 
+---Restore window position, size, resize handle, and close button from the database
 function Eavesdropper_FrameMixin:RestoreLayout()
 	if not ED.Database then return; end
 
@@ -272,55 +162,6 @@ function Eavesdropper_FrameMixin:RestoreLayout()
 	end
 end
 
-function Eavesdropper_FrameMixin:ApplyThemeColors()
-	if not ED.Database then return; end
-
-	-- Background color
-	local background = self.Background;
-	if background then
-		local bg = ED.Database:GetSetting("ColorBackground");
-		if type(bg) ~= "table" then
-			bg = { r = 0, g = 0, b = 0, a = 0.5 };
-		end
-		background:SetColorTexture(bg.r, bg.g, bg.b, bg.a);
-	end
-
-	-- Title bar color
-	if self.TitleBar and self.TitleBar.Background then
-		local tb = ED.Database:GetSetting("ColorTitleBar");
-		if type(tb) ~= "table" then
-			tb = { r = 0, g = 0, b = 0, a = 0.25 };
-		end
-		self.TitleBar.Background:SetColorTexture(tb.r, tb.g, tb.b, tb.a);
-	end
-end
-
-function Eavesdropper_FrameMixin:ShowTitleBar(show)
-	if ED.Database:GetSetting("LockTitleBar") then
-		show = Enums.FRAME.MOUSE_HOVER_STATE.ON;
-	end
-
-	if show then
-		self.TitleBar:Show();
-		self.ChatBox:SetPoint("TOP", self.TitleBar, "BOTTOM", 0, -1);
-	else
-		self.TitleBar:Hide();
-		self.ChatBox:SetPoint("TOP", self, 0, -2);
-	end
-end
-
-function Eavesdropper_FrameMixin:ShowResizeHandle(show)
-	if not ED.Database:GetSetting("LockWindow") and show and not self.ResizeHandle:IsShown() then
-		self.ResizeHandle:Show();
-	elseif not show and self.ResizeHandle:IsShown() then
-		self.ResizeHandle:Hide();
-	end
-end
-
-function Eavesdropper_FrameMixin:HandleHoverState(show)
-	self:ShowTitleBar(show);
-end
-
 -- ============================================================
 -- Visibility
 -- ============================================================
@@ -340,7 +181,7 @@ function Eavesdropper_FrameMixin:HandleVisibility()
 			shouldShow = false;
 		end
 	elseif not ED.Database:GetCharSetting("WindowVisible") then
-		-- HideWhenEmpty is off; fall back to last closed position
+		-- HideWhenEmpty is off; fall back to last saved position
 		shouldShow = false;
 	end
 
@@ -356,14 +197,15 @@ end
 -- Target tracking
 -- ============================================================
 
----Update the eavesdropped target based on mouseover, target, and magnifier
+---Update the eavesdropped target based on the magnifier, then refresh if needed
 function Eavesdropper_FrameMixin:UpdateTarget()
 	ED.Debug:Print("UpdateTarget");
 	if InCombatLockdown() then return; end
 
 	-- Resolve target from magnifier
 	local magnifiedName, magnifiedGUID = ED.Magnifier:GetMagnified();
-	local target = magnifiedName or (magnifiedGUID and canaccessvalue(magnifiedGUID) and ED.PlayerCache:GetSenderDataFromGUID(magnifiedGUID));
+	local target = magnifiedName
+		or (magnifiedGUID and canaccessvalue(magnifiedGUID) and ED.PlayerCache:GetSenderDataFromGUID(magnifiedGUID));
 
 	-- Nothing to track and nothing previously tracked
 	if not target and not EAVESDROP_TARGET then return; end
@@ -414,24 +256,12 @@ function Eavesdropper_FrameMixin:RefreshChat()
 	local maxMessages = ED.Database:GetSetting("MaxHistory");
 	local player = self.eavesdropped_player;
 
+	-- Reset title to the default before any messages are loaded
 	self.titlebar_name = "Eavesdropper";
 	self.TitleBar.TitleButton.Text:SetText(self.titlebar_name);
 
 	if player then
-		-- Try full name (with realm) first, fall back to bare name
-		local chatFull = ED.ChatHistory:GetPlayerHistory(player, maxMessages);
-		if chatFull and #chatFull > 0 then
-			for _, entry in ipairs(chatFull) do
-				self:AddMessage(entry, true);
-			end
-		else
-			local chatBare = ED.ChatHistory:GetPlayerHistory(ED.Utils.StripRealmSuffix(player), maxMessages);
-			if chatBare and #chatBare > 0 then
-				for _, entry in ipairs(chatBare) do
-					self:AddMessage(entry, true);
-				end
-			end
-		end
+		self:PopulateHistoryMessages(player, maxMessages);
 
 		-- Update title from player name directly; covers the case where AddMessage never fired.
 		if ED.Database:GetSetting("UpdateTitleBarWithName") then
@@ -473,16 +303,6 @@ function Eavesdropper_FrameMixin:AddMessage(entry, fromHistory)
 	end
 	local displayName = ED.Database:GetSetting("UpdateTitleBarWithName") and self.titlebar_name or "Eavesdropper";
 	self.TitleBar.TitleButton.Text:SetText(displayName);
-end
-
----Safe wrapper to add a chat message
----@param entry EavesdropperChatEntry
-function Eavesdropper_FrameMixin:TryAddMessage(entry)
-	if self.ChatBox:GetScrollOffset() == 0 then
-		self.clickblock = GetTime();
-	end
-
-	self:AddMessage(entry);
 end
 
 ---Apply all profile settings: font, filters, layout, colors, history, and settings UI
