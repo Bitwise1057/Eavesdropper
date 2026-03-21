@@ -15,10 +15,15 @@ local LibDBIcon = LibStub:GetLibrary("LibDBIcon-1.0");
 ---@param self table
 ---@param button string
 local function OnClick(self, button) -- luacheck: no unused (self)
-	if button == "LeftButton" then
-		ED.Settings:ShowSettings();
-	elseif button == "RightButton" then
-		ED.Settings:ShowSettings(4);
+	if not IsShiftKeyDown() then
+		if button == "LeftButton" then
+			ED.Settings:ShowSettings();
+		elseif button == "RightButton" then
+			ED.Settings:ShowSettings(4);
+		end
+	else
+		ED.Frame:SetShown(not ED.Frame:IsShown());
+		ED.Database:SetCharSetting("WindowVisible", ED.Frame:IsShown());
 	end
 end
 
