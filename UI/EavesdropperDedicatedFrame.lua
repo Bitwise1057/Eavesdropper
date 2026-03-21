@@ -175,12 +175,10 @@ end
 ---Position is intentionally not persisted; dedicated frames reset on reload
 function Eavesdropper_Dedicated_FrameMixin:OnDragStop()
 	self:StopMovingOrSizing();
-	-- Position is intentionally not persisted; dedicated frames reset on reload
 end
 
 ---Size is intentionally not persisted; dedicated frames reset on reload
 function Eavesdropper_Dedicated_FrameMixin:OnResizeFinished()
-	-- Size is intentionally not persisted; dedicated frames reset on reload
 end
 
 -- ============================================================
