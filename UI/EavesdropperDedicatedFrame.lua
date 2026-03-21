@@ -40,17 +40,17 @@ function Eavesdropper_Dedicated_FrameMixin:OnLoad()
 	self.ChatBox.ScrollMarker.Text:SetText(L.SCROLLMARKER_TEXT);
 
 	-- Frame-local state (not persisted to DB)
-	self.LockWindow = false;
-	self.LockTitleBar = true;
+	self.lockWindow = false;
+	self.lockTitleBar = true;
 	self:HandleHoverState(Enums.FRAME.MOUSE_HOVER_STATE.ON);
-	self.HideCloseButton = false;
-	self.LockScroll = false;
-	self.EnableMouse = false;
+	self.hideCloseButton = false;
+	self.lockScroll = false;
+	self.mouseEnabled = false;
 
 	-- Inherit font size from main frame settings
 	self.FontSize = ED.Database:GetSetting("FontSize");
 
-	if not self.LockWindow then
+	if not self.lockWindow then
 		self.ResizeHandle:Show();
 	end
 
@@ -65,7 +65,7 @@ function Eavesdropper_Dedicated_FrameMixin:OnLoad()
 		self:Hide();
 	end);
 
-	if self.HideCloseButton then
+	if self.hideCloseButton then
 		self.TitleBar.CloseButton:Hide();
 	end
 
@@ -136,7 +136,7 @@ end
 -- ============================================================
 
 function Eavesdropper_Dedicated_FrameMixin:OnHyperlinkClick(link, text, button)
-	if not self.EnableMouse then return; end
+	if not self.mouseEnabled then return; end
 
 	-- Suppress rapid clicks when scroll position just changed
 	if GetTime() < (self.clickblock or 0) + Constants.FRAME.CLICKBLOCK_TIME then return; end
@@ -220,7 +220,7 @@ end
 function Eavesdropper_Dedicated_FrameMixin:OnDragStart()
 	-- Only drag when the cursor is on the title bar
 	local isTitlebar = GetMouseFoci()[1] == self.TitleBar;
-	if self.LockWindow or not isTitlebar then return; end
+	if self.lockWindow or not isTitlebar then return; end
 
 	self:StopMovingOrSizing();
 	self:StartMoving();
@@ -240,7 +240,7 @@ function Eavesdropper_Dedicated_FrameMixin:OnSizeChanged()
 end
 
 function Eavesdropper_Dedicated_FrameMixin:OnMouseWheel(delta)
-	if self.LockScroll then return; end
+	if self.lockScroll then return; end
 
 	if delta > 0 then
 		if IsAltKeyDown() then
@@ -265,7 +265,7 @@ end
 
 -- This is a bit more involved as we don't use OnUpdate to check OnEnter/OnLeave checks for the frame
 function Eavesdropper_Dedicated_FrameMixin:UpdateMouseLock()
-	local isLocked = self.EnableMouse;
+	local isLocked = self.mouseEnabled;
 
 	-- Always keep the parent frame mouse-enabled
 	self:EnableMouse(true);
@@ -297,13 +297,13 @@ end
 function Eavesdropper_Dedicated_FrameMixin:RestoreLayout()
 	if not ED.Database then return; end
 
-	if not self.LockWindow then
+	if not self.lockWindow then
 		self.ResizeHandle:Show();
 	else
 		self.ResizeHandle:Hide();
 	end
 
-	if self.HideCloseButton then
+	if self.hideCloseButton then
 		self.TitleBar.CloseButton:Hide();
 	else
 		self.TitleBar.CloseButton:Show();
@@ -334,7 +334,7 @@ function Eavesdropper_Dedicated_FrameMixin:ApplyThemeColors()
 end
 
 function Eavesdropper_Dedicated_FrameMixin:ShowTitleBar(show)
-	if self.LockTitleBar then
+	if self.lockTitleBar then
 		show = Enums.FRAME.MOUSE_HOVER_STATE.ON;
 	end
 
@@ -348,7 +348,7 @@ function Eavesdropper_Dedicated_FrameMixin:ShowTitleBar(show)
 end
 
 function Eavesdropper_Dedicated_FrameMixin:ShowResizeHandle(show)
-	if not self.LockWindow and show and not self.ResizeHandle:IsShown() then
+	if not self.lockWindow and show and not self.ResizeHandle:IsShown() then
 		self.ResizeHandle:Show();
 	elseif not show and self.ResizeHandle:IsShown() then
 		self.ResizeHandle:Hide();
