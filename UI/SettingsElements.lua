@@ -856,6 +856,13 @@ function SettingsElements.CreateElement(parent, data)
 		widget = CreateColorSwatch(frame, data);
 	end
 
+	if data.buildAdded and ED.Utils.CheckNewlyAdded(data.buildAdded) then
+		local newPip = widget:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		widget.newPip = newPip;
+		newPip:SetPoint("CENTER", widget, "TOPLEFT");
+		newPip:SetText("|A:UI-HUD-MicroMenu-Communities-Icon-Notification:21:21|a");
+	end
+
 	frame:SetHeight(height);
 
 	return frame, widget;

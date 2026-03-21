@@ -393,4 +393,28 @@ function Utils.CreatePriorityString(targetPriority, focusTarget)
 	return "|cnGREEN_FONT_COLOR:" .. output .. "|r";
 end
 
+function Utils.CheckNewlyAdded(buildAdded)
+	local featureVersion, featureBuild = string.match(buildAdded, "([^|]+)|([^|]+)");
+	if not featureVersion then return false; end
+
+	-- In dev builds, match solely on the Blizzard build number
+    if ED.Globals.addon_version == "@project-version@" then
+        return featureBuild == tostring(select(4, GetBuildInfo()));
+    end
+
+	local featureMajor, featureMinor, featurePatch = featureVersion:match("^(%d+)%.(%d+)%.(%d+)$");
+	local addonMajor, addonMinor, addonPatch = ED.Globals.addon_version:match("^(%d+)%.(%d+)%.(%d+)$");
+	if not featureMajor or not addonMajor then return false; end
+
+	featureMajor, featureMinor, featurePatch = tonumber(featureMajor), tonumber(featureMinor), tonumber(featurePatch);
+	addonMajor, addonMinor, addonPatch = tonumber(addonMajor), tonumber(addonMinor), tonumber(addonPatch);
+
+	-- Feature is active for the entire matching major.minor window (e.g. all 0.3.x)
+	if addonMajor == featureMajor and addonMinor == featureMinor and addonPatch >= featurePatch then
+		return true;
+	end
+
+	return false;
+end
+
 ED.Utils = Utils;
