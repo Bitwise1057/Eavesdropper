@@ -21,7 +21,7 @@ end
 
 ---Substitutes the player's preferred name into NPC dialogue, respecting display mode settings.
 ---@param npcDialogue string?
----@return string
+---@return string?
 function NPCDialogue.SubstitutePlayerPreferredName(npcDialogue)
 	if not npcDialogue then return; end
 	if ED.Database:GetSetting("NPCAndQuestNameDisplayMode") == 3 or not ED.Database:GetSetting("UseRPNameInNPCDialogue") then
