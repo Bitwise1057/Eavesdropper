@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.  
 
+## [Unreleased]
+
+### Fixed
+- Resolved a rare issue where "Format Quest Text" would fail for specific NPCs that had no actual dialogue to display ([#51](https://github.com/Raenore/Eavesdropper/pull/51)).  
+
 ## [0.3.0] - 2026-03-22  
 Significant feature update introducing Dedicated Windows for unique targets, RP name integration with Dialogue UI, and localized Russian support.  
 
