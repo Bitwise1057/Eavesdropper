@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
   - Includes a global setting (enabled by default) that saves your Group Name, Player List, and Display Mode even after logging out or reloading.  
 - Implemented a persistence upgrade for Dedicated Windows ([#55](https://github.com/Raenore/Eavesdropper/pull/55)).  
   - Includes a global setting (enabled by default) that automatically re-opens your active Dedicated Windows after a UI reload or game restart.  
+- The title bar button (which opens the window menu) now dynamically resizes based on its text.  
+  - Whether it shows "Eavesdropper," a target name, or a group name, the button will now expand or shrink to fit the text while maintaining a clean minimum width.  
 
 ### Changed
 - Improved window dragging by allowing you to move windows by clicking on the title text button ([#54](https://github.com/Raenore/Eavesdropper/pull/54), by [Peterodox](https://www.curseforge.com/members/peterodox/projects)).  
