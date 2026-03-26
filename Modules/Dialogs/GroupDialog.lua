@@ -21,6 +21,7 @@ StaticPopupDialogs["EAVESDROPPER_NAME_GROUP"] = {
 	maxLetters = MaxGroupNameLength,
 	whileDead = true,
 	hideOnEscape = true,
+	preferredIndex = 3,
 	---@param self table
 	---@param data { sender: string }
 	OnAccept = function(self, data)
@@ -42,7 +43,7 @@ StaticPopupDialogs["EAVESDROPPER_NAME_GROUP"] = {
 		local popup = self:GetParent();
 		local button1 = _G[popup:GetName() .. "Button1"];
 		if not button1 then return; end
-		local name = string.trim(self.EditBox:GetText());
+		local name = string.trim(self:GetText());
 		button1:SetEnabled(name ~= "" and not ED.GroupFrame:HasFrameWithName(name));
 	end,
 	---@param self EditBox
@@ -52,7 +53,7 @@ StaticPopupDialogs["EAVESDROPPER_NAME_GROUP"] = {
 	---@param self EditBox
 	---@param data { sender: string }
 	EditBoxOnEnterPressed = function(self, data)
-		local name = string.trim(self.EditBox:GetText());
+		local name = string.trim(self:GetText());
 		if name ~= "" and not ED.GroupFrame:HasFrameWithName(name) then
 			ED.GroupFrame:CreateNamedFrame(name, data and data.sender);
 			StaticPopup_Hide("EAVESDROPPER_NAME_GROUP");
@@ -72,6 +73,7 @@ StaticPopupDialogs["EAVESDROPPER_RENAME_GROUP"] = {
 	maxLetters = MaxGroupNameLength,
 	whileDead = true,
 	hideOnEscape = true,
+	preferredIndex = 3,
 	---@param self table
 	---@param data { frame: EavesdropperGroupFrame }
 	OnAccept = function(self, data)
