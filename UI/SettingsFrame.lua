@@ -961,7 +961,9 @@ function Eavesdropper_SettingsMixin:OnLoad()
 			tooltip = L.PROFILES_NEWPROFILE_HELP,
 			get = function() end,
 			set = function(val)
-				ED.Database:CreateProfile(val);
+				ED.ConfirmDialog:Show(L.PROFILES_CONFIRM_NEWPROFILE:format(val), function()
+					ED.Database:CreateProfile(val);
+				end);
 			end,
 		},
 		{

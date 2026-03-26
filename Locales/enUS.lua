@@ -210,23 +210,24 @@ L = {
 	PROFILES_TITLE = "Profiles",
 
 	PROFILES_CURRENTPROFILE = "Current Profile",
-	PROFILES_CURRENTPROFILE_HELP = "The profile to use for this character.",
+	PROFILES_CURRENTPROFILE_HELP = "The active configuration profile for this character.",
 
 	PROFILES_NEWPROFILE = "New Profile",
-	PROFILES_NEWPROFILE_HELP = "Create a new profile. Enter a name and press Enter to save it.",
+	PROFILES_NEWPROFILE_HELP = "Create a new configuration profile.|n|n- Enter a unique name and press Enter to open the confirmation prompt.",
 
 	PROFILES_COPYFROM = "Copy From",
-	PROFILES_COPYFROM_HELP = "Copy all settings from an existing profile into your currently active profile.",
+	PROFILES_COPYFROM_HELP = "Import all settings from an existing profile into your current one.|n|n|cnWARNING_FONT_COLOR:Note: This will overwrite your current settings once confirmed.|r",
 
 	PROFILES_RESETBUTTON = "Reset Profile",
-	PROFILES_RESETBUTTON_HELP = "Reset all settings in the current profile back to their original defaults.",
+	PROFILES_RESETBUTTON_HELP = "Restore all settings in the active profile to their original defaults.",
 
 	PROFILES_DELETEPROFILE = "Delete Profile",
-	PROFILES_DELETEPROFILE_HELP = "Permanently remove the selected profile from the Eavesdropper database.",
+	PROFILES_DELETEPROFILE_HELP = "Permanently remove a profile from the database.|n|n|cnWARNING_FONT_COLOR:Note: You cannot delete the profile currently in use.|r",
 
-	PROFILES_CONFIRM_COPYFROM = "Are you sure you want to copy all settings from profile '%s'?",
-	PROFILES_CONFIRM_RESET = "Are you sure you want to reset the current profile to its defaults?",
-	PROFILES_CONFIRM_DELETE = "Are you sure you want to delete profile '%s'?",
+	PROFILES_CONFIRM_NEWPROFILE = "Are you sure you want to create the profile '%s'?",
+	PROFILES_CONFIRM_COPYFROM = "Are you sure you want to copy all settings from '%s'? This will overwrite your current configuration.",
+	PROFILES_CONFIRM_RESET = "Are you sure you want to reset the current profile to its original defaults?",
+	PROFILES_CONFIRM_DELETE = "Are you sure you want to permanently delete the profile '%s'?",
 
 	ADDONINFO_BUILD = "|cnNORMAL_FONT_COLOR:Build:|r %s",
 	ADDONINFO_BUILD_OUTDATED = title .. " is not optimized for this game build.|n|n|cnWARNING_FONT_COLOR:This may cause unexpected behavior.|r",
