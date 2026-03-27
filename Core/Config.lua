@@ -40,6 +40,11 @@ local function SetupSounds()
 		SharedMedia:Register("sound", sound.key, sound.fid);
 	end
 
+	local localSoundPath = ED.Constants.LOCAL_SOUND_PATH;
+	for _, sound in ipairs(ED.Constants.LOCAL_SOUND_LIST) do
+		SharedMedia:Register("sound", sound.key, localSoundPath .. sound.fileName);
+	end
+
 	for _, soundName in ipairs(SharedMedia:List("sound")) do
 		Config.soundList[soundName] = soundName;
 	end
