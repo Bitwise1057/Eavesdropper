@@ -93,6 +93,26 @@ local function MsgFormatEmote(entry, name)
 	return shortName .. " " .. msg;
 end
 
+---Group-aware emote formatter: delegates to MsgFormatEmote, then ensures the
+---sender name is visible so multi-player group windows remain legible.
+---@param entry EavesdropperChatEntry
+---@param name string
+---@return string
+local function MsgFormatEmoteGroup(entry, name)
+	local result = MsgFormatEmote(entry, name);
+	local shortName = strtrim(name:match("^[^-]+") or name);
+
+	---Strip WoW colour escapes for a plain-text prefix check.
+	local plainResult = result:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "");
+	local plainName = shortName:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "");
+
+	if plainResult:sub(1, #plainName) ~= plainName then
+		return shortName .. " " .. result;
+	end
+
+	return result;
+end
+
 ---Formats a text-emote or roll message, colouring the message body and optionally prepending the sender name.
 ---@param entry EavesdropperChatEntry
 ---@param name string
@@ -134,6 +154,27 @@ local function MsgFormatTextEmoteNoName(entry, name) -- luacheck: no unused (nam
 	return messageText;
 end;
 
+---Group-aware text-emote formatter: always prepends the sender name, even when
+---the sender is the current player, so group windows remain identifiable.
+---@param entry EavesdropperChatEntry
+---@param name string
+---@return string
+local function MsgFormatTextEmoteGroup(entry, name)
+	local messageText = entry.m or "";
+	local shortName = name:match("^[^-]+") or name;
+
+	---Always strip the leading sender token for group display.
+	local firstSpace = messageText:find(" ", 1, true) or 0;
+	messageText = messageText:sub(firstSpace + 1);
+
+	local eventType = entry.e:match("^CHAT_MSG_(.+)$") or entry.e;
+	local info = ResolveChatInfo(eventType);
+	local color = CreateColor(info.r or 1, info.g or 1, info.b or 1);
+
+	messageText = ED.Utils.WrapTextInColor(messageText, color);
+	return strtrim(shortName) .. " " .. messageText;
+end
+
 ---@type table<string, fun(entry:EavesdropperChatEntry, name:string):string>
 local MESSAGE_FORMATS = {
 	SAY                  = MsgFormatNormal,
@@ -156,6 +197,58 @@ local MESSAGE_FORMATS = {
 
 setmetatable(MESSAGE_FORMATS, {
 	__index = function() return MsgFormatNormal end;
+});
+
+---Formats a normal message for a group window, always embedding the sender name.
+---Verb events produce "Name says: msg"; prefix events produce "[Party] Name: msg".
+---@param entry EavesdropperChatEntry
+---@param name string
+---@return string
+local function MsgFormatNormalGroup(entry, name)
+	local msg = entry.m or "";
+	local verb = ED.Constants.GROUP_EVENT_VERBS[entry.e];
+
+	if verb then
+		return name .. " " .. verb .. ": " .. msg;
+	end
+
+	local prefix = ED.Constants.MESSAGE_PREFIXES[entry.e] or "";
+
+	if entry.e == "CHAT_MSG_CHANNEL" then
+		local index = GetChannelName(entry.c);
+		if index > 0 then
+			prefix = prefix:gsub("C", index, 1);
+		end
+	end
+
+	---"[Party] Name: msg", "[Raid] Name: msg", etc.
+	return prefix .. name .. ": " .. msg;
+end
+
+---@type table<string, fun(entry:EavesdropperChatEntry, name:string):string>
+local GROUP_MESSAGE_FORMATS = {
+	SAY                  = MsgFormatNormalGroup,
+	PARTY                = MsgFormatNormalGroup,
+	PARTY_LEADER         = MsgFormatNormalGroup,
+	RAID                 = MsgFormatNormalGroup,
+	RAID_LEADER          = MsgFormatNormalGroup,
+	RAID_WARNING         = MsgFormatNormalGroup,
+	YELL                 = MsgFormatNormalGroup,
+	INSTANCE_CHAT        = MsgFormatNormalGroup,
+	INSTANCE_CHAT_LEADER = MsgFormatNormalGroup,
+	GUILD                = MsgFormatNormalGroup,
+	OFFICER              = MsgFormatNormalGroup,
+	CHANNEL              = MsgFormatNormalGroup,
+	WHISPER              = MsgFormatNormalGroup,
+	WHISPER_INFORM       = MsgFormatNormalGroup,
+
+	EMOTE      = MsgFormatEmoteGroup,
+	TEXT_EMOTE = MsgFormatTextEmoteGroup,
+	ROLL       = MsgFormatTextEmoteGroup,
+};
+
+setmetatable(GROUP_MESSAGE_FORMATS, {
+	__index = function() return MsgFormatNormalGroup; end,
 });
 
 ---Returns the RGB color for a chat entry, accounting for channel-specific colours.
@@ -217,13 +310,14 @@ ChatFormatter.GetEntryColor = GetEntryColor;
 
 ---Returns the display name for a chat entry, applying RP name and colour based on current settings.
 ---@param entry EavesdropperChatEntry
+---@param forceDisplayMode boolean? If true, force first name usage.
 ---@return string name, boolean applyRPName, string? firstName
-function ChatFormatter:GetFormattedName(entry)
+function ChatFormatter:GetFormattedName(entry, forceDisplayMode)
 	local name = entry.s;
 
 	local fullName, firstName, nameColor = ED.MSP.TryGetMSPData(name, entry.g);
 
-	local nameDisplayMode = ED.Database:GetSetting("NameDisplayMode");
+	local nameDisplayMode = forceDisplayMode or ED.Database:GetSetting("NameDisplayMode");
 	local useRPName = nameDisplayMode ~= 3;
 	local useRPNameForTargets = ED.Database:GetSetting("UseRPNameForTargets");
 	local useRPNameInRolls = ED.Database:GetSetting("UseRPNameInRolls");
@@ -239,7 +333,7 @@ function ChatFormatter:GetFormattedName(entry)
 		applyRPName = useRPName and useRPNameForTargets;
 	end
 
-	if not firstName then
+	if not firstName or not useRPName then
 		name = ED.Utils.StripRealmSuffix(name);
 	end
 
@@ -263,8 +357,11 @@ end
 
 ---Formats a full chat entry for display: timestamp, sender name, message body, and entry colour.
 ---@param entry EavesdropperChatEntry
----@return string, string? firstName
-function ChatFormatter:FormatMessage(entry)
+---@param forGroup boolean? If true, uses group-aware formatting that always embeds the sender name.
+---@param forceDisplayMode boolean? If true, force specific display mode.
+---@return string formattedMsg
+---@return string? firstName
+function ChatFormatter:FormatMessage(entry, forGroup, forceDisplayMode)
 	if not entry or not entry.m then return ""; end
 
 	-- Timestamp
@@ -298,12 +395,12 @@ function ChatFormatter:FormatMessage(entry)
 	timestamp = ED.Utils.WrapTextInColor(timestamp, timestampColor) .. " ";
 
 	-- Name handling
-	local name, applyRPName, firstName = ChatFormatter:GetFormattedName(entry);
+	local name, applyRPName, firstName = ChatFormatter:GetFormattedName(entry, forceDisplayMode);
 
 	-- Format message
 	local eventType = NormalizeEventType(entry.e);
-	local formatFunc = MESSAGE_FORMATS[eventType];
-	local msgText = formatFunc(entry, name);
+	local formatTable = forGroup and GROUP_MESSAGE_FORMATS or MESSAGE_FORMATS;
+	local msgText = formatTable[eventType](entry, name);
 
 	-- Apply entry color
 	local entryR, entryG, entryB = GetEntryColor(entry);

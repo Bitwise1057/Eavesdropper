@@ -22,6 +22,7 @@ L = {
 	FILTER = "Filter",
 	FILTER_HELP = "Choose which types of messages are visible in Eavesdropper.|n|n- Toggling a filter only changes what is currently shown.|n- No data is actually deleted; hidden messages will reappear if the filter is turned back on.|n|n|cnWARNING_FONT_COLOR:Note: Filters are applied instantly.|r",
 
+	EMPTYLABEL_TEXT = "Empty Group",
 	SCROLLMARKER_TEXT = "Scroll to Bottom",
 
 	FILTER_PUBLIC = "Public",
@@ -152,13 +153,25 @@ L = {
 	MINIMAP = "Minimap",
 
 	DEDICATED_WINDOWS = "Dedicated Windows",
-	DEDICATED_WINDOWS_HELP = "Allows the creation of separate, independent windows to track specific units.|n|n* Global setting - persists across all profiles.|n|n|cnWARNING_FONT_COLOR:Note: Disabling this setting will close all independent windows.|r",
+	DEDICATED_WINDOWS_HELP = "Allows the creation of separate, independent windows to track specific units.|n|n* Global setting - persists across all profiles.|n|n|cnWARNING_FONT_COLOR:Note: Disabling this setting will close all independent dedicated windows.|r",
 
-	DEDICATED_WINDOWS_UNIT_POPUPS = "Quick-Access Menu",
-	DEDICATED_WINDOWS_UNIT_POPUPS_HELP = "Adds 'Eavesdropper' options to the standard right-click menus on unit frames (Player, Target, Party, etc.) and chat names.|n|n- Use this to quickly open a dedicated window for a specific character.|n|n* Global setting - persists across all profiles.",
+	NEW_WINDOWS_UNIT_POPUPS = "Quick-Access Menu",
+	NEW_WINDOWS_UNIT_POPUPS_HELP = "Adds 'Eavesdropper' options to the standard right-click menus on unit frames (Player, Target, Party, etc.) and chat names.|n|n- Use this to quickly open a window for a specific character.|n|n* Global setting - persists across all profiles.",
 
-	DEDICATED_WINDOWS_NEW_INDICATOR = "New Message Indicator",
-	DEDICATED_WINDOWS_NEW_INDICATOR_HELP = "Displays a visual alert on any dedicated window that receives a new message.|n|n- The indicator clears automatically after 10 seconds or immediately upon hovering over the window.",
+	NEW_WINDOWS_NEW_INDICATOR = "New Message Indicator",
+	NEW_WINDOWS_NEW_INDICATOR_HELP = "Displays a visual alert on a window that receives a new message.|n|n- The indicator clears automatically after 10 seconds or immediately upon hovering over the window.|n|n* Global setting - persists across all profiles.",
+
+	DEDICATED_WINDOWS_PERSIST = "Save Windows",
+	DEDICATED_WINDOWS_PERSIST_HELP = "Toggles whether currently open Dedicated Windows are restored after a game restart or UI reload.|n|nThe following data is preserved:|n- List of opened windows|n|n* Global setting - persists across all profiles.|n|n|cnWARNING_FONT_COLOR:Note: Visual settings such as font size and window positions are not saved and will reset.|r",
+
+	GROUP_WINDOWS = "Group Windows",
+	GROUP_WINDOWS_HELP = "Allows the creation of separate, independent windows to track multiple users simultaneously (e.g., DMs or Friends).|n|n* Global setting - persists across all profiles.|n|n|cnWARNING_FONT_COLOR:Note: Disabling this setting will close all independent group windows.|r",
+
+	GROUP_WINDOWS_PERSIST = "Save Groups",
+	GROUP_WINDOWS_PERSIST_HELP = "Toggles whether Group Window configurations are saved across game restarts or UI reloads.|n|nThe following data is preserved:|n- Group Window name|n- List of included players|n- Name Display Mode settings|n|n* Global setting - persists across all profiles.|n|n|cnWARNING_FONT_COLOR:Note: Visual settings such as font size and window positions are not saved and will reset.|r",
+
+	GROUP_OPTIONS = "Group Options",
+	GROUP_RENAME = "Change Group Name",
 
 	MINIMAP_BUTTON = "Minimap Button",
 	MINIMAP_BUTTON_HELP = "Toggles the display of the minimap button.|n|n* Global setting - persists across all profiles.",
@@ -177,6 +190,9 @@ L = {
 
 	DEDICATED = "Dedicated",
 	DEDICATED_HELP = "Messages received in Dedicated Windows.",
+
+	GROUP = "Group",
+	GROUP_HELP = "Messages received in Group Windows.",
 
 	NOTIFICATIONS_PLAY_SOUND = "Play Sound",
 	NOTIFICATIONS_PLAY_SOUND_HELP = "Toggles whether Eavesdropper plays an audible alert for this notification type.",
@@ -236,6 +252,10 @@ L = {
 
 	UNIT_POPUPS_EAVESDROPPER_OPTIONS_HEADER = "Eavesdropper Options",
 	UNIT_POPUPS_EAVESDROP_ON = "Eavesdrop On",
+	UNIT_POPUPS_EAVESDROP_GROUP = "Eavesdrop Group",
+	UNIT_POPUPS_EAVESDROP_GROUP_NEW = "Create New",
+
+	POPUP_EAVESDROP_GROUP = "Eavesdropper Group name.|nEnter to confirm.",
 
 	-- Message Prefixes (keep them shorthand)
 	MSG_PREFIX_PARTY = "P",
@@ -247,6 +267,10 @@ L = {
 	MSG_PREFIX_RAID_WARNING = "RW",
 	MSG_PREFIX_WHISPER_FROM = "W From",
 	MSG_PREFIX_WHISPER_TO = "W To",
+
+	MSG_VERB_SAY = "says",
+	MSG_VERB_YELL = "yells",
+	MSG_VERB_WHISPER = "whispers",
 };
 
 ---@class ED.L : ED.Locale.enUS, ED.Localization

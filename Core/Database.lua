@@ -20,11 +20,18 @@ local Database = {};
 ---@class EavesdropperGlobal
 ---@field MinimapButton EavesdropperGlobalMinimapButton?
 ---@field SettingsWindowPosition EavesdropperWindowPosition?
+---@field DedicatedWindowsPersist boolean?
+---@field GroupWindowsPersist boolean?
 ---@field WelcomeMessage boolean?
 local GLOBAL_DEFAULTS = {
 	DedicatedWindows = true,
 	DedicatedWindowsNewIndicator = true,
 	DedicatedWindowsUnitPopups = true,
+	DedicatedWindowsPersist = true,
+	GroupWindows = true,
+	GroupWindowsNewIndicator = true,
+	GroupWindowsUnitPopups = true,
+	GroupWindowsPersist = true,
 	MinimapButton = {
 		Hide = false,
 		ShowAddonCompartmentButton = true,
@@ -64,6 +71,9 @@ local GLOBAL_DEFAULTS = {
 ---@field NotificationEmotesSound boolean?
 ---@field NotificationEmotesSoundFile string?
 ---@field NotificationEmotesFlashTaskbar boolean?
+---@field NotificationGroupSound boolean?
+---@field NotificationGroupSoundFile string?
+---@field NotificationGroupFlashTaskbar boolean?
 ---@field NotificationKeywordsSound boolean?
 ---@field NotificationKeywordsSoundFile string?
 ---@field NotificationKeywordsFlashTaskbar boolean?
@@ -118,6 +128,9 @@ local DEFAULT_PROFILE = {
 	NotificationEmotesSound = true,
 	NotificationEmotesSoundFile = "UI_VoiceChat_ChatMessageIncomingActive",
 	NotificationEmotesFlashTaskbar = true,
+	NotificationGroupSound = true,
+	NotificationGroupSoundFile = "UI_VoiceChat_TalkStart",
+	NotificationGroupFlashTaskbar = true,
 	NotificationKeywordsSound = true,
 	NotificationKeywordsSoundFile = "UI_VoiceChat_ChatMessageIncoming",
 	NotificationKeywordsFlashTaskbar = true,
@@ -215,6 +228,8 @@ end
 ---@field history table
 ---@field playerCache table
 ---@field settings EavesdropperCharSettings
+---@field dedicatedFrames string[]
+---@field groupFrames EavesdropperSavedGroupFrame[]
 
 ---Initialises or migrates the character-specific chat database, clearing history on version change.
 function Database:InitCharacterDatabase()
@@ -227,8 +242,10 @@ function Database:InitCharacterDatabase()
 
 	local charDB = EavesdropperCharDB;
 
-	-- Ensure settings table exists for older DB versions.
+	-- Ensure settings, dedicatedFrames, and groupFrames tables exist for older DB versions.
 	charDB.settings = charDB.settings or {};
+	charDB.dedicatedFrames = charDB.dedicatedFrames or {};
+	charDB.groupFrames = charDB.groupFrames or {};
 
 	if charDB.version ~= ED.Globals.addon_version then
 		charDB.version = ED.Globals.addon_version;
@@ -403,6 +420,9 @@ end
 ---| "NotificationEmotesSound"
 ---| "NotificationEmotesSoundFile"
 ---| "NotificationEmotesFlashTaskbar"
+---| "NotificationGroupSound"
+---| "NotificationGroupSoundFile"
+---| "NotificationGroupFlashTaskbar"
 ---| "NotificationKeywordsSound"
 ---| "NotificationKeywordsSoundFile"
 ---| "NotificationKeywordsFlashTaskbar"
@@ -527,6 +547,11 @@ end
 ---| "DedicatedWindows"
 ---| "DedicatedWindowsNewIndicator"
 ---| "DedicatedWindowsUnitPopups"
+---| "DedicatedWindowsPersist"
+---| "GroupWindows"
+---| "GroupWindowsNewIndicator"
+---| "GroupWindowsUnitPopups"
+---| "GroupWindowsPersist"
 ---| "MinimapButton"
 ---| "SettingsWindowPosition"
 ---| "WelcomeMessage"

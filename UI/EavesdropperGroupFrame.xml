@@ -5,9 +5,9 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
-	<Frame name="Eavesdropper_Dedicated_FrameTemplate" mixin="Eavesdropper_Dedicated_FrameMixin" virtual="true" parent="UIParent"
+	<Frame name="Eavesdropper_Group_FrameTemplate" mixin="Eavesdropper_Group_FrameMixin" virtual="true" parent="UIParent"
 			toplevel="true" movable="true" clampedToScreen="true" resizable="true" dontSavePosition="true" frameStrata="BACKGROUND">
-		<Size x="200" y="200"/>
+		<Size x="350" y="200"/>
 		<ResizeBounds>
 			<minResize>
 				<AbsDimension x="200" y="100"/>
@@ -74,6 +74,33 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 						</Scripts>
 					</AnimationGroup>
 				</Animations>
+			</Frame>
+
+			<Frame parentKey="EmptyLabel" hidden="true">
+				<Size>
+					<AbsDimension x="0" y="16"/>
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" relativeTo="$parent" x="2" y="2"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" x="-2" y="2"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Highlight" setAllPoints="true">
+							<Color r="0" g="0" b="0" a="0.25"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString parentKey="Text" inherits="GameFontNormalSmall" setAllPoints="true" justifyH="CENTER" justifyV="CENTER">
+							<Color r="1" g="1" b="1" a="1"/>
+						</FontString>
+					</Layer>
+					<Layer level="HIGHLIGHT">
+						<Texture parentKey="Background" setAllPoints="true">
+							<Color r="1" g="1" b="1" a="0.15"/>
+						</Texture>
+					</Layer>
+				</Layers>
 			</Frame>
 
 			<!-- Title Bar -->
