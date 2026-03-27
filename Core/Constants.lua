@@ -309,6 +309,15 @@ Constants.KEYWORD_LINK_PLACEHOLDER = "\001\001";
 ---@type number
 Constants.KEYWORDS_NOTIFICATION_CD = 0.15;
 
+---Local sound entries registered with LibSharedMedia on startup.
+---@type table<number, table<string, string>>
+Constants.LOCAL_SOUND_LIST = {
+	{ key = "ListenerBeep"; fileName = "Listener\\ListenerBeep.ogg" }, -- Source: Listener by Tammya (MIT)
+	{ key = "ListenerPoke"; fileName = "Listener\\ListenerPoke.ogg" }, -- Source: Listener by Tammya (MIT)
+};
+
+Constants.LOCAL_SOUND_PATH = "Interface\\AddOns\\Eavesdropper\\Sounds\\";
+
 ---Throttle for magnifier updates when the target changes.
 ---@type number
 Constants.MAGNIFIER_CHANGE_THROTTLE = 0.15;
