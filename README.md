@@ -2,12 +2,12 @@
 Eavesdropper helps you stay immersed in busy RP environments by focusing on the interactions that matter most. 
 
 **Key Features:**
-- **History Window:** A focused, real-time feed for your current target or mouseover.
-- **Dedicated Windows:** Create unique, independent windows for specific targets to track multiple conversations simultaneously.
-- **Group Windows:** Combine multiple targets into a single shared window for party or small-group interactions.
-- **Keyword Highlights:** Custom keywords highlighted in chat with optional sound alerts.
-- **Notification Support:** Play a sound and flash the taskbar when your target performs an action, or when a Blizzard emote is directed at you, or a Dedicated Window receives a message.
-- **Seamless Multi-Message Compatibility:** Built-in support for multi-message addons like Chattery, EmoteSplitter, and Yapper.
+- **History Window:** A focused, real-time feed for your current target or mouseover.  
+- **Dedicated Windows:** Create unique, independent windows for specific targets to track multiple conversations simultaneously.  
+- **Group Windows:** Combine multiple targets into a single shared window for party or small-group interactions.  
+- **Keyword Highlights:** Custom keywords highlighted in chat with optional sound alerts.  
+- **Notification Support:** Play a sound and flash the taskbar when your target performs an action, a Blizzard emote is directed at you, or a Dedicated/Group Window receives a message.  
+- **Seamless Multi-Message Compatibility:** Built-in support for multi-message addons like Chattery, EmoteSplitter, and Yapper.  
 - **Advanced RP Name Formatting:** Replaces standard names with RP names in rolls, Blizzard emotes, NPC dialogue, and Quest Text (via Dialogue UI).
 
 Available on [CurseForge](https://www.curseforge.com/wow/addons/eavesdropper), [Wago.io](https://addons.wago.io/addons/eavesdropper), and [WoWInterface](https://www.wowinterface.com/downloads/info27060-Eavesdropper.html)!  
@@ -42,9 +42,14 @@ Each Dedicated Window has its own unique:
 *Click the image to view it in full size.*
 
 ## Group Windows
-Consolidate interactions from multiple specific players into a single Eavesdropper window by right-clicking a unit portrait or chat name, select **"Eavesdrop Group"**, and either create a new group or add the player to an existing one.
-
+Consolidate interactions from multiple specific players into a single Eavesdropper window by right-clicking a unit portrait or chat name, selecting **"Eavesdrop Group"**, and either creating a new group or adding the player to an existing one.
 Ideal for keeping track of a small party or a specific "circle" of characters within a crowded environment.
+
+Each Group Window has its own unique:  
+- Filters  
+- Font Size  
+- New Message indicator  
+- Notifications (Sounds & Flash)
 
 **Note:** Group Windows offer partial persistence: **Group Name**, **Player List**, and **Display Mode** are saved through UI reloads or logouts.
 
@@ -57,10 +62,10 @@ Never miss a mention. Define custom keywords to be highlighted in the main chat 
 ![Keywords](Previews/Keywords/Tooltip.png)
 
 ## Notifications
-Eavesdropper can play a sound notification and flash the taskbar when:
-- Your current target takes an action (e.g., `/say`, emotes, etc.).
-- A Blizzard emote is directed at you (e.g., `/point` or `/wave`).
-- A new message is received in a **Dedicated Window**.
+Eavesdropper can play a sound notification and flash the taskbar when:  
+- Your current target takes an action (e.g., `/say`, emotes, etc.).  
+- A Blizzard emote is directed at you (e.g., `/point` or `/wave`).  
+- A new message is received in a **Dedicated or Group Window**.
 
 ![Notifications](Previews/Notifications/Notifications.png)
 
@@ -75,7 +80,10 @@ While Eavesdropper is designed to be broadly compatible, the following addons ar
 ![Multi-Message Support](Previews/MultiMessageSupport/MultiMessageSupport.png)
 
 ## Advanced RP Name Formatting
-Eavesdropper can replace standard character names with their respective RP names across various situations:
+Eavesdropper cab reokace standard character names with their respective RP names across the entire UI.  
+This formatting applies to **all Eavesdropper windows** (History, Dedicated, and Group) and can optionally be enabled for the **main chat window**.  
+
+**Supported Situations:**
 - **Blizzard Emotes:** Replaces names in emotes like `/point`, `/wave`, or `/bow`.
 - **Rolls:** Shows RP names in `/roll` results.
 - **NPC Dialogue:** Replaces your name when NPCs speak to you in chat (`/say`, `/whisper`, etc.).
