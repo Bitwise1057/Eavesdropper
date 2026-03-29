@@ -206,7 +206,7 @@ end
 local function pruneProfile(profile)
 	for key, value in pairs(profile) do
 		local def = DEFAULT_PROFILE[key];
-		if def == nil then
+		if def == nil then -- luacheck: ignore 542 (empty if branch)
 			-- No default exists for this key; leave it untouched.
 		elseif type(value) == "table" then
 			if type(def) == "table" then
