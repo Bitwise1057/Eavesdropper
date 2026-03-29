@@ -281,6 +281,14 @@ function Database:InitCharacterDatabase()
 	ED.PlayerCache:LoadFromSaved(charDB.playerCache, 3600);
 end
 
+---Checks whether a profile with the given name exists.
+---@param profileName string
+---@return boolean exists
+function Database:ProfileExists(profileName)
+	if not EavesdropperDB or not EavesdropperDB.profiles or not profileName then return false; end
+	return EavesdropperDB.profiles[profileName] ~= nil;
+end
+
 ---Switches to a different profile.
 ---@param profileName string Name of the profile to switch to.
 ---@return nil
@@ -340,6 +348,42 @@ end
 function Database:CreateProfile(profileName)
 	if not profileName or profileName == "" then return false; end
 	self:SetProfile(profileName);
+	return true;
+end
+
+---Renames an existing profile and updates all character bindings that reference it.
+---@param oldName string The current name of the profile.
+---@param newName string The desired new name.
+---@return boolean success
+function Database:RenameProfile(oldName, newName)
+	if not EavesdropperDB or not EavesdropperDB.profiles then return false; end
+	if not oldName or not EavesdropperDB.profiles[oldName] then return false; end
+	if oldName == "Default" then return false; end
+	if not newName or newName == "" then return false; end
+	if self:ProfileExists(newName) then return false; end
+
+	local db = EavesdropperDB;
+
+	---Move profile data from the old key to the new key.
+	db.profiles[newName] = db.profiles[oldName];
+	db.profiles[oldName] = nil;
+
+	---Reassign every character binding that pointed at the old name.
+	for charKey, profName in pairs(db.profileKeys) do
+		if profName == oldName then
+			db.profileKeys[charKey] = newName;
+		end
+	end
+
+	---If the current character was on the renamed profile, update the live reference.
+	if self.currentProfile == db.profiles[newName] then
+		ED.Frame:ApplyProfileSettings();
+	end
+
+	if ED.SettingsFrame then
+		ED.SettingsFrame:RefreshWidgets();
+	end
+
 	return true;
 end
 

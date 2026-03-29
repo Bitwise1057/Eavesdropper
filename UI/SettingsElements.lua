@@ -1,6 +1,8 @@
 -- Copyright The Eavesdropper Authors
 -- SPDX-License-Identifier: Apache-2.0
 
+local L = ED.Localization;
+
 ---@type EavesdropperConstants
 local Constants = ED.Constants;
 
@@ -490,14 +492,36 @@ local function CreateDropDown(parent, data)
 			local disabledValues = type(data.disabledValues) == "function" and data.disabledValues() or data.disabledValues or {};
 			for _, entry in ipairs(entries) do
 				local text, value = entry[1], entry[2];
+				local dropdownOption;
 
 				local isEntryDisabled = disabled or (disabledValues[value] == true);
 				if data.style == "button" then
-					root:CreateButton(text, SetSelected, value)
-						:SetEnabled(not isEntryDisabled);
+					dropdownOption = root:CreateButton(text, SetSelected, value);
+					dropdownOption:SetEnabled(not isEntryDisabled);
 				else
-					root:CreateRadio(text, IsSelected, SetSelected, value)
-						:SetEnabled(not isEntryDisabled);
+					dropdownOption = root:CreateRadio(text, IsSelected, SetSelected, value);
+					dropdownOption:SetEnabled(not isEntryDisabled);
+				end
+
+				if data.gearButton and text ~= "Default" then
+					dropdownOption:AddInitializer(function(button, description, menu) -- luacheck: no unused (description)
+						local gearButton = MenuTemplates.AttachAutoHideGearButton(button);
+						gearButton:SetPoint("RIGHT");
+						gearButton:SetScript("OnClick", function()
+							menu:Close();
+							StaticPopupDialogs["EAVESDROPPER_RENAME_PROFILE"].text = L.POPUP_RENAME_PROFILE:format(text);
+							StaticPopup_Show("EAVESDROPPER_RENAME_PROFILE", nil, nil, { oldName = text });
+						end);
+
+						MenuUtil.HookTooltipScripts(gearButton, function(tooltip)
+							GameTooltip_SetTitle(tooltip, L.PROFILES_RENAMEPROFILE);
+							GameTooltip_AddNormalLine(tooltip, L.PROFILES_RENAMEPROFILE_HELP);
+						end);
+
+						-- Perhaps one day, this is the Block/Cancel button
+						-- local cancelButton = MenuTemplates.AttachAutoHideCancelButton(button);
+						-- cancelButton:SetPoint("RIGHT", gearButton, "LEFT", -3, 0);
+					end);
 				end
 			end
 

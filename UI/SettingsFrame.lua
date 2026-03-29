@@ -1053,6 +1053,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 			type = "dropdown",
 			label = L.PROFILES_CURRENTPROFILE,
 			tooltip = L.PROFILES_CURRENTPROFILE_HELP,
+			gearButton = true,
 			values = function() return ED.Database:GetAllProfiles(); end,
 			get = function() return ED.Database:GetProfileName(); end,
 			set = function(val)

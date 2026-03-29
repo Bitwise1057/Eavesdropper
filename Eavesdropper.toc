@@ -77,6 +77,7 @@ Modules\ElvUI\ElvUI.lua
 Modules\Dialogs\ConfirmDialog.lua
 Modules\Dialogs\GroupDialog.lua
 Modules\Dialogs\LinkDialog.lua
+Modules\Dialogs\RenameDialog.lua
 Modules\Minimap\Minimap.lua
 Modules\NPCDialogue\NPCDialogue.lua
 Modules\QuestText\QuestText.lua
