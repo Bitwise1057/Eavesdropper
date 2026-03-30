@@ -408,6 +408,13 @@ stds.wow = {
 			},
 		},
 
+		MenuTemplates = {
+			fields = {
+				"AttachAutoHideCancelButton",
+				"AttachAutoHideGearButton",
+			},
+		},
+
 		MenuUtil = {
 			fields = {
 				"CreateButton",
@@ -418,6 +425,7 @@ stds.wow = {
 				"CreateTitle",
 				"GetElementText",
 				"HideTooltip",
+				"HookTooltipScripts",
 				"SetElementText",
 				"ShowTooltip",
 			},

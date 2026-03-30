@@ -226,10 +226,10 @@ L = {
 	PROFILES_TITLE = "Profiles",
 
 	PROFILES_CURRENTPROFILE = "Current Profile",
-	PROFILES_CURRENTPROFILE_HELP = "The active configuration profile for this character.",
+	PROFILES_CURRENTPROFILE_HELP = "Select or rename one of your available profiles for this character.",
 
 	PROFILES_NEWPROFILE = "New Profile",
-	PROFILES_NEWPROFILE_HELP = "Create a new configuration profile.|n|n- Enter a unique name and press Enter to open the confirmation prompt.",
+	PROFILES_NEWPROFILE_HELP = "Create a new profile and apply it to this character.|n|n- Enter a unique name and press Enter to open the confirmation prompt.",
 
 	PROFILES_COPYFROM = "Copy From",
 	PROFILES_COPYFROM_HELP = "Import all settings from an existing profile into your current one.|n|n|cnWARNING_FONT_COLOR:Note: This will overwrite your current settings once confirmed.|r",
@@ -238,12 +238,15 @@ L = {
 	PROFILES_RESETBUTTON_HELP = "Restore all settings in the active profile to their original defaults.",
 
 	PROFILES_DELETEPROFILE = "Delete Profile",
-	PROFILES_DELETEPROFILE_HELP = "Permanently remove a profile from the database.|n|n|cnWARNING_FONT_COLOR:Note: You cannot delete the profile currently in use.|r",
+	PROFILES_DELETEPROFILE_HELP = "Permanently remove a profile from the database.|n|n|cnWARNING_FONT_COLOR:Note: You cannot delete the 'Default' profile or the one currently in use.|r",
 
 	PROFILES_CONFIRM_NEWPROFILE = "Are you sure you want to create the profile '%s'?",
 	PROFILES_CONFIRM_COPYFROM = "Are you sure you want to copy all settings from '%s'? This will overwrite your current configuration.",
 	PROFILES_CONFIRM_RESET = "Are you sure you want to reset the current profile to its original defaults?",
 	PROFILES_CONFIRM_DELETE = "Are you sure you want to permanently delete the profile '%s'?",
+
+	PROFILES_RENAMEPROFILE = "Rename Profile",
+	PROFILES_RENAMEPROFILE_HELP = "Choose a new name for the current profile.",
 
 	ADDONINFO_BUILD = "|cnNORMAL_FONT_COLOR:Build:|r %s",
 	ADDONINFO_BUILD_OUTDATED = title .. " is not optimized for this game build.|n|n|cnWARNING_FONT_COLOR:This may cause unexpected behavior.|r",
@@ -256,6 +259,7 @@ L = {
 	UNIT_POPUPS_EAVESDROP_GROUP_NEW = "Create New",
 
 	POPUP_EAVESDROP_GROUP = "Eavesdropper Group name.|nEnter to confirm.",
+	POPUP_RENAME_PROFILE = "Rename profile '%s'.|nEnter to confirm.",
 
 	-- Message Prefixes (keep them shorthand)
 	MSG_PREFIX_PARTY = "P",
