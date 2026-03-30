@@ -6,6 +6,18 @@ local RenameDialog = {};
 
 local MaxProfileNameLength = 32;
 
+---Attempts to rename the profile from oldName to the trimmed text in the edit box.
+---@param oldName string?
+---@param newName string
+---@return boolean success
+local function tryRename(oldName, newName)
+	local trimmed = string.trim(newName);
+	if not oldName or trimmed == "" or trimmed == oldName then return false; end
+	if ED.Database:ProfileExists(trimmed) then return false; end
+	ED.Database:RenameProfile(oldName, trimmed);
+	return true;
+end
+
 StaticPopupDialogs["EAVESDROPPER_RENAME_PROFILE"] = {
 	button1 = ACCEPT,
 	button2 = CANCEL,
@@ -15,20 +27,16 @@ StaticPopupDialogs["EAVESDROPPER_RENAME_PROFILE"] = {
 	hideOnEscape = true,
 	preferredIndex = 3,
 	OnAccept = function(self, data)
-		local newName = string.trim(self.EditBox:GetText());
-		if data and data.oldName and newName ~= data then
-			ED.Database:RenameProfile(data.oldName, newName);
-		end
+		tryRename(data and data.oldName, self.EditBox:GetText());
 	end,
 	OnShow = function(self, data)
 		local button1 = _G[self:GetName() .. "Button1"];
 		if button1 then
 			button1:Disable();
 		end
-		if data and data.oldName then
-			self.EditBox:SetText(data.oldName or "");
-			self.EditBox:HighlightText();
-		end
+		local currentName = data and data.oldName or "";
+		self.EditBox:SetText(currentName);
+		self.EditBox:HighlightText();
 		self.EditBox:SetFocus();
 	end,
 	EditBoxOnTextChanged = function(self, data)
@@ -47,14 +55,8 @@ StaticPopupDialogs["EAVESDROPPER_RENAME_PROFILE"] = {
 		StaticPopup_Hide("EAVESDROPPER_RENAME_PROFILE");
 	end,
 	EditBoxOnEnterPressed = function(self, data)
-		local newName = string.trim(self:GetText());
-		if data and data.oldName then
-			local currentName = data.oldName or "";
-			local isDuplicate = ED.Database:ProfileExists(newName);
-			if newName ~= "" and not isDuplicate and newName ~= currentName then
-				ED.Database:RenameProfile(data.oldName, newName);
-				StaticPopup_Hide("EAVESDROPPER_RENAME_PROFILE");
-			end
+		if tryRename(data and data.oldName, self:GetText()) then
+			StaticPopup_Hide("EAVESDROPPER_RENAME_PROFILE");
 		end
 	end,
 };
