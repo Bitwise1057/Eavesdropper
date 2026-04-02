@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [0.4.1] - 2026-03-xx
+## [0.4.1] - 2026-04-xx  
 Minor patch introducing the ability to rename profiles and internal data optimizations.  
 
 ### Added
@@ -10,8 +10,9 @@ Minor patch introducing the ability to rename profiles and internal data optimiz
 
 ### Fixed
 - Optimized how data is stored locally, there should be no user-facing changes ([#64](https://github.com/Raenore/Eavesdropper/pull/64)).  
+- Resolved a rare issue where a player's name color would fail to load if their character data wasn't already cached ([#67](https://github.com/Raenore/Eavesdropper/pull/67)).  
 
-## [0.4.0] - 2026-03-28 
+## [0.4.0] - 2026-03-28  
 Significant feature update introducing Group Windows, session persistence for dedicated frames, and various quality-of-life UI improvements.  
 
 ### Added
