@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [0.4.0] - 2026-03-28 
+## [0.4.1] - 2026-04-04  
+Minor patch introducing the ability to rename profiles and internal data optimizations.  
+
+### Added
+- You can now rename existing profiles in the profile switching dropdown by clicking the small gear icon when hovering over them ([#63](https://github.com/Raenore/Eavesdropper/pull/63)).  
+
+### Fixed
+- Optimized how data is stored locally, there should be no user-facing changes ([#64](https://github.com/Raenore/Eavesdropper/pull/64)).  
+- Resolved a rare issue where a player's name color would fail to load if their character data wasn't already cached ([#67](https://github.com/Raenore/Eavesdropper/pull/67)).  
+
+## [0.4.0] - 2026-03-28  
 Significant feature update introducing Group Windows, session persistence for dedicated frames, and various quality-of-life UI improvements.  
 
 ### Added
@@ -69,7 +79,8 @@ Significant feature update introducing Dedicated Windows for unique targets, RP 
 ## Full Changelog  
 The complete changelog, including older versions, can always be found on [Eavesdropper's GitHub Wiki](https://github.com/Raenore/Eavesdropper/wiki/Full-Changelog).  
 
-[unreleased]: https://github.com/Raenore/Eavesdropper/compare/0.4.0...HEAD
+[unreleased]: https://github.com/Raenore/Eavesdropper/compare/0.4.1...HEAD
+[0.4.1]: https://github.com/Raenore/Eavesdropper/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/Raenore/Eavesdropper/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/Raenore/Eavesdropper/compare/0.2.4...0.3.0
 [0.2.4]: https://github.com/Raenore/Eavesdropper/compare/0.2.3...0.2.4
