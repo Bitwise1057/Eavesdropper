@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.  
 
-## [0.4.1] - 2026-04-xx  
+## [0.4.1] - 2026-04-04  
 Minor patch introducing the ability to rename profiles and internal data optimizations.  
 
 ### Added
