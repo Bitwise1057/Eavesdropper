@@ -172,13 +172,6 @@ local function AttachMultiLineEditBoxTooltip(backdrop, scrollFrame, editBox, tit
 end
 
 -- ============================================================
--- Layout constants
--- ============================================================
-
-local OUTER_PADDING = 10;
-local LABEL_WIDTH = 145;
-
--- ============================================================
 -- Shared layout helpers
 -- ============================================================
 
@@ -187,7 +180,7 @@ local function CreateLabeledFrame(parent, data)
 	local labelText = data.label or "";
 
 	local left = CreateFrame("Frame", nil, parent);
-	left:SetWidth(LABEL_WIDTH);
+	left:SetWidth(Constants.SETTINGS.LABEL_WIDTH);
 	left:SetPoint("LEFT", parent, "LEFT", Constants.SETTINGS.OPTION_OFFSET, 0);
 	left:SetPoint("TOP", parent, "TOP");
 	left:SetPoint("BOTTOM", parent, "BOTTOM");
