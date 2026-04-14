@@ -43,32 +43,21 @@ end
 
 function Eavesdropper_SettingsMixin:AddTab()
 	local tabs = self.Tabs;
-	local tab = CreateFrame("Button", nil, self, "Eavesdropper_SettingsMenuTabTopTemplate");
+	local tab = CreateFrame("Button", nil, self.CategoryList, "Eavesdropper_SettingsCategoryListButtonTemplate");
 
 	if tIndexOf(tabs, tab) == nil then
 		table.insert(tabs, tab);
 	end
 
 	local tabCount = #tabs;
+
 	if tabCount > 1 then
-		tab:SetPoint("TOPLEFT", tabs[tabCount - 1], "TOPRIGHT", 5, 0);
+		tab:SetPoint("TOPLEFT", tabs[tabCount - 1], "BOTTOMLEFT", 0, -2);
 	else
-		tab:SetPoint("TOPLEFT", 10, -20);
+		tab:SetPoint("TOPLEFT", 0, -16);
 	end
 
-	local tabIndex = tabCount;
-
-	local function OnShow(tabButton)
-		PanelTemplates_TabResize(tabButton, 15, nil, 65);
-		PanelTemplates_DeselectTab(tabButton);
-	end
-
-	local function OnClick()
-		self:SetTab(tabIndex);
-	end
-
-	tab:SetScript("OnShow", OnShow);
-	tab:SetScript("OnClick", OnClick);
+	tab.tabIndex = tabCount;
 
 	ED.ElvUI.RegisterSkinnableElement(tab, "toptabbutton");
 
@@ -89,7 +78,10 @@ function Eavesdropper_SettingsMixin:SetTab(index)
 		end
 	end
 
-	PanelTemplates_SetTab(self, index);
+	for _, tab in ipairs(self.Tabs) do
+		tab:SetSelected(tab.tabIndex == index);
+	end
+
 	self.selectedTab = index;
 	lastSelectedTab = index;
 end
@@ -100,8 +92,8 @@ end
 
 ---Creates a non-scrollable panel for a settings tab
 function Eavesdropper_SettingsMixin:AddFrame()
-	local frame = CreateFrame("Frame", nil, self);
-	frame:SetPoint("TOP", 0, -65);
+	local frame = CreateFrame("Frame", nil, self.SettingsList);
+	frame:SetPoint("TOP", 0, -4);
 	frame:SetPoint("LEFT");
 	frame:SetPoint("RIGHT");
 	frame:SetPoint("BOTTOM");
@@ -116,15 +108,15 @@ end
 
 ---Creates a scrollable panel for a settings tab
 function Eavesdropper_SettingsMixin:AddScrollableFrame()
-	local frame = CreateFrame("Frame", nil, self);
-	frame:SetPoint("TOP", 0, -65);
+	local frame = CreateFrame("Frame", nil, self.SettingsList);
+	frame:SetPoint("TOP", 0, 0);
 	frame:SetPoint("LEFT");
 	frame:SetPoint("RIGHT");
 	frame:SetPoint("BOTTOM");
 
-	local paddingLeft, paddingRight, paddingTop, paddingBottom = 0, 25, 0, 16;
+	local paddingLeft, paddingRight, paddingTop, paddingBottom = 0, 25, 4, 4;
 
-	local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "ScrollFrameTemplate");
+	local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "Eavesdropper_SettingsScrollFrameTemplate");
 	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", paddingLeft, -paddingTop);
 	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -paddingRight, paddingBottom);
 
@@ -154,6 +146,9 @@ end
 ---Populates a tab panel with a list of options
 function Eavesdropper_SettingsMixin:PopulateTab(tab, options)
 	local previousContainer = nil;
+
+	tinsert(options, {type = "spacer"}); -- Additional spacer to the bottom so the last widget doesn't touch the bottom of border
+
 	for _, data in ipairs(options) do
 		local container, widget;
 		local padding = -Constants.SETTINGS.PADDING_HEIGHT;
@@ -165,18 +160,17 @@ function Eavesdropper_SettingsMixin:PopulateTab(tab, options)
 		elseif data.type == "description" then
 			container = SettingsElements.CreateDescription(tab, data.label);
 			widget = nil;
+		elseif data.type == "spacer" then
+			container = CreateFrame("Frame", nil, tab);
+			container:SetSize(2, Constants.SETTINGS.PADDING_HEIGHT_TITLE);
 		else
 			container, widget = SettingsElements.CreateElement(tab, data);
 		end
 
-		if data.type == "editbox_multiline" then
-			padding = Constants.SETTINGS.PADDING_MULTILINE_EDITBOX;
-		end
-
 		if previousContainer then
-			container:SetPoint("TOP", previousContainer, "BOTTOM", 0, padding);
+			container:SetPoint("TOPLEFT", previousContainer, "BOTTOMLEFT", 0, padding);
 		else
-			container:SetPoint("TOP", tab, "TOP", 0, -5);
+			container:SetPoint("TOPLEFT", tab, "TOPLEFT", 0, padding);
 		end
 
 		if widget then
@@ -195,14 +189,12 @@ end
 -- ============================================================
 
 function Eavesdropper_SettingsMixin:OnLoad()
-	ButtonFrameTemplate_HidePortrait(self);
-	ButtonFrameTemplate_HideButtonBar(self);
 	tinsert(UISpecialFrames, self:GetName());
-	self.Inset:Hide();
+
 	self.Tabs = {};
 	self.Views = {};
 
-	self:SetTitle(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. SETTINGS);
+	self.NineSlice.Text:SetText(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. SETTINGS);
 
 	self.CloseButton:SetScript("OnClick", function()
 		self:Hide();
@@ -213,6 +205,17 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		self:ClearAllPoints();
 		self:SetPoint(pos.point, UIParent, pos.relativePoint, pos.x, pos.y);
 	end
+
+	self.Bg.InnerShadow:SetTexture("Interface/AddOns/Eavesdropper/Resources/SettingsPanelInnerShadow.png");
+
+	-- Add a divider between CategoryList and SettingsList
+	local line = self.CategoryList:CreateTexture(nil, "OVERLAY");
+	line:SetPoint("TOP", self.CategoryList, "TOPRIGHT", 0, -6);
+	line:SetPoint("BOTTOM", self.CategoryList, "BOTTOMRIGHT", 0, 6);
+	line:SetColorTexture(0.25, 0.25, 0.25);
+	line:SetWidth(PixelUtil.ConvertPixelsToUIForRegion(1, line));
+	line:SetTexelSnappingBias(0);
+	line:SetSnapToPixelGrid(false);
 
 	-- Create tabs and their panels
 	local generalTab = self:AddTab();
@@ -230,8 +233,6 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	local profilesTab = self:AddTab();
 	profilesTab:SetText(L.PROFILES_TITLE);
 	local profilesPanel = self:AddFrame();
-
-	PanelTemplates_SetNumTabs(self, #self.Tabs);
 
 	-- --------------------------------------------------------
 	-- General options
@@ -962,10 +963,6 @@ function Eavesdropper_SettingsMixin:OnLoad()
 			end,
 		},
 		{
-			type = "description",
-			label = L.KEYWORDS_LIST,
-		},
-		{
 			type = "editbox_multiline",
 			label = L.KEYWORDS_LIST,
 			tooltip = L.KEYWORDS_LIST_HELP,
@@ -1159,13 +1156,30 @@ function Eavesdropper_SettingsMixin:OnLoad()
 
 	SettingsElements.CreateInset(profilesPanel, insetWidgets, true);
 
-	local totalWidth = 0;
+	-- Adjust category list and button width
+	local labelPaddingLeft = Constants.SETTINGS.CATEGORY_BUTTON_TEXT_OFFSET;
+	local labelPaddingRight = 24;
+	local maxLabelWidth = 80;
+
 	for _, tab in ipairs(self.Tabs) do
-		PanelTemplates_TabResize(tab, 15, nil, 65);
-		PanelTemplates_DeselectTab(tab);
-		totalWidth = totalWidth + tab:GetWidth() + 8; -- 8px spacing between tabs
+		local labelWidth = tab.Text:GetWidth();
+		if labelWidth > maxLabelWidth then
+			maxLabelWidth = labelWidth;
+		end
 	end
-	self:SetWidth(totalWidth);
+
+
+	local categoryButtonWidth = math.ceil(labelPaddingLeft + maxLabelWidth + labelPaddingRight);
+	self.CategoryList:SetWidth(categoryButtonWidth);
+	for _, tab in ipairs(self.Tabs) do
+		tab.Text:ClearAllPoints();
+		tab.Text:SetPoint("LEFT", tab, "LEFT", labelPaddingLeft, 1);
+		tab:SetWidth(categoryButtonWidth);
+	end
+
+	local settingsListWidth = 380;
+	local frameHeight = 380;
+	self:SetSize(categoryButtonWidth + settingsListWidth, frameHeight);
 
 	ED.ElvUI.RegisterSkinnableElement(self, "frame");
 end
@@ -1195,14 +1209,55 @@ function Eavesdropper_SettingsMixin:OnShow()
 	ED.Frame.settingsOpened = true;
 	ED.Frame:HandleVisibility();
 	ED.ElvUI.SkinRegisteredElements();
-	-- self:RefreshWidgets() unnecessary (?)
 	local tabToShow = lastSelectedTab or 1;
 	self:SetTab(tabToShow);
+	self:RefreshWidgets()
 end
 
 function Eavesdropper_SettingsMixin:OnHide()
 	ED.Frame.settingsOpened = false;
 	ED.Frame:HandleVisibility();
+end
+
+-- ============================================================
+-- Category list button
+-- ============================================================
+
+Eavesdropper_SettingsCategoryListButtonMixin = {};
+
+function Eavesdropper_SettingsCategoryListButtonMixin:OnEnter()
+	self:UpdateVisual();
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:OnLeave()
+	self:UpdateVisual();
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:OnClick()
+	ED.SettingsFrame:SetTab(self.tabIndex);
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:SetText(text)
+	self.Text:SetText(text);
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:SetSelected(isSelected)
+	self.isSelected = isSelected;
+	self:UpdateVisual();
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:UpdateVisual()
+	if self.isSelected or self:IsMouseMotionFocus() then
+		self.Text:SetTextColor(1, 1, 1);
+		if self.isSelected then
+			self.Texture:SetAtlas("Options_List_Active");
+		else
+			self.Texture:SetAtlas("Options_List_Hover");
+		end
+	else
+		self.Text:SetTextColor(1, 0.82, 0);
+		self.Texture:SetTexture(nil);
+	end
 end
 
 -- ============================================================
@@ -1229,3 +1284,8 @@ function Settings:Init()
 end
 
 ED.Settings = Settings;
+
+
+C_Timer.After(1, function()
+	Settings:ShowSettings();
+end);

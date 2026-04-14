@@ -5,11 +5,55 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
-	<Frame name="Eavesdropper_SettingsMenuTemplate" mixin="Eavesdropper_SettingsMixin" virtual="true" enableMouse="true" hidden="true" registerForDrag="LeftButton" movable="true" clampedToScreen="true" topLevel="true" inherits="ButtonFrameTemplate">
-		<Size x="280" y="380"/>
+	<Frame name="Eavesdropper_SettingsMenuTemplate" mixin="Eavesdropper_SettingsMixin" virtual="true" enableMouse="true" hidden="true" registerForDrag="LeftButton" movable="true" clampedToScreen="true" topLevel="true">
+		<Size x="480" y="380"/>
 		<Anchors>
 			<Anchor point="CENTER"/>
 		</Anchors>
+		<Frames>
+			<Frame parentKey="Bg" inherits="FlatPanelBackgroundTemplate" frameLevel="0">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="3" y="-18"/>
+					<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="InnerShadow" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame parentKey="NineSlice" useParentLevel="true" inherits="NineSlicePanelTemplate">
+				<KeyValues>
+					<KeyValue key="layoutType" value="ButtonFrameTemplateNoPortraitMinimizable" type="string"/>
+				</KeyValues>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="Text" inherits="GameFontNormal" wordwrap="false">
+							<Anchors>
+								<Anchor point="TOP" x="0" y="-5"/>
+								<Anchor point="LEFT" x="60"/>
+								<Anchor point="RIGHT" x="-60"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Button parentKey="CloseButton" inherits="UIPanelCloseButtonDefaultAnchors"/>
+
+			<Frame parentKey="CategoryList">
+				<Size x="120"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" y="-20"/>
+					<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOMLEFT"/>
+				</Anchors>
+			</Frame>
+			<Frame parentKey="SettingsList">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.CategoryList" relativePoint="TOPRIGHT"/>
+					<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT"/>
+				</Anchors>
+			</Frame>
+		</Frames>
 		<Scripts>
 			<OnLoad method="OnLoad"/>
 			<OnDragStart method="OnDragStart"/>
@@ -21,5 +65,48 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
 	<Button name="Eavesdropper_SettingsMenuTabTopTemplate" virtual="true" inherits="PanelTopTabButtonTemplate">
 	</Button>
+
+	<Button name="Eavesdropper_SettingsCategoryListButtonTemplate" mixin="Eavesdropper_SettingsCategoryListButtonMixin" virtual="true">
+		<Size x="120" y="25"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="Texture" setAllPoints="true"/>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Text" inherits="GameFontNormal" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="LEFT" x="20" y="1"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="NewFeature" inherits="NewFeatureLabelTemplate" frameStrata="HIGH" scale=".8" frameLevel="100" hidden="true">
+				<Size x="1" y="1"/>
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" x="-4" y="-10" relativeKey="$parent.Label" relativePoint="LEFT"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnEnter method="OnEnter"/>
+			<OnLeave method="OnLeave"/>
+			<OnClick method="OnClick"/>
+		</Scripts>
+	</Button>
+
+	<ScrollFrame name="Eavesdropper_SettingsScrollFrameTemplate" virtual="true">
+		<KeyValues>
+			<KeyValue key="scrollBarHideIfUnscrollable" value="true" type="boolean"/>
+			<KeyValue key="scrollBarHideTrackIfThumbExceedsTrack" value="true" type="boolean"/>
+			<KeyValue key="scrollBarX" value="6" type="number"/>
+			<KeyValue key="scrollBarTopY" value="-10" type="number"/>
+			<KeyValue key="scrollBarBottomY" value="10" type="number"/>
+		</KeyValues>
+
+		<Scripts>
+			<OnLoad function="ScrollFrame_OnLoad"/>
+		</Scripts>
+	</ScrollFrame>
 
 </Ui>
