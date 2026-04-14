@@ -209,13 +209,26 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	self.Bg.InnerShadow:SetTexture("Interface/AddOns/Eavesdropper/Resources/SettingsPanelInnerShadow.png");
 
 	-- Add a divider between CategoryList and SettingsList
-	local line = self.CategoryList:CreateTexture(nil, "OVERLAY");
-	line:SetPoint("TOP", self.CategoryList, "TOPRIGHT", 0, -6);
-	line:SetPoint("BOTTOM", self.CategoryList, "BOTTOMRIGHT", 0, 6);
-	line:SetColorTexture(0.25, 0.25, 0.25);
-	line:SetWidth(PixelUtil.ConvertPixelsToUIForRegion(1, line));
-	line:SetTexelSnappingBias(0);
-	line:SetSnapToPixelGrid(false);
+	local function CreateLine(parent, relativeTo, orientation, lineShrink, offset)
+		local line = parent:CreateTexture(nil, "OVERLAY");
+		if orientation == "vertical" then
+			line:SetPoint("TOP", relativeTo, "TOPRIGHT", offset, -lineShrink);
+			line:SetPoint("BOTTOM", relativeTo, "BOTTOMRIGHT", offset, lineShrink);
+			line:SetWidth(PixelUtil.ConvertPixelsToUIForRegion(1, line));
+		else
+			line:SetPoint("LEFT", relativeTo, "TOPLEFT", lineShrink, offset);
+			line:SetPoint("RIGHT", relativeTo, "TOPRIGHT", -lineShrink, offset);
+			line:SetHeight(PixelUtil.ConvertPixelsToUIForRegion(1, line));
+		end
+		line:SetColorTexture(0.25, 0.25, 0.25);
+		line:SetTexelSnappingBias(0);
+		line:SetSnapToPixelGrid(false);
+	end
+
+	if C_AddOns.IsAddOnLoaded("ElvUI") then
+		CreateLine(self.CategoryList, self, "horizontal", 3, -24); -- Horizontal divider below the title, for ElvUI skinned window
+	end
+	CreateLine(self.CategoryList, self.CategoryList, "vertical", 6, 0); -- Vertical divider between CategoryList and SettingsList
 
 	-- Create tabs and their panels
 	local generalTab = self:AddTab();

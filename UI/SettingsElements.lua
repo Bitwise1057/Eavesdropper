@@ -818,12 +818,9 @@ end
 ---@param topOffset number? Optional vertical offset (default -5 if relativeTo, -20 otherwise).
 ---@return Frame infoInset The created inset frame containing the widgets.
 function SettingsElements.CreateInset(parent, insetData, bottomOfParent, relativeTo, topOffset)
-	local infoInset = CreateFrame("Frame", nil, parent); -- "InsetFrameTemplate"
-	local bg = infoInset:CreateTexture(nil, "BACKGROUND");
-	bg:SetAllPoints(true);
-	bg:SetColorTexture(0, 0, 0, 0.5);
+	local infoInset = CreateFrame("Frame", nil, parent, "InsetFrameTemplate");
 
-	local padding = 10; -- Constants.SETTINGS.OPTION_OFFSET;
+	local padding = 10;
 
 	if bottomOfParent then
 		infoInset:SetPoint("BOTTOM", parent, "BOTTOM", 0, padding + 3);
