@@ -434,6 +434,7 @@ stds.wow = {
 
 		PixelUtil = {
 			fields = {
+				"ConvertPixelsToUIForRegion",
 				"SetPoint",
 				"SetSize",
 			},
