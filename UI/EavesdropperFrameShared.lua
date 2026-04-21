@@ -247,6 +247,15 @@ function Eavesdropper_SharedFrameMixin:UpdateMouseLock()
 			self:SetMouseMotionEnabled(true);
 		end
 	end
+
+	-- Enable/Disable OnHyperlinkClick
+	-- This delay is essential otherwise it won't take effect
+	RunNextFrame(function()
+		self:SetHyperlinksEnabled(isEnabled);
+		if self.ChatBox then
+			self.ChatBox:SetHyperlinksEnabled(isEnabled);
+		end
+	end);
 end
 
 -- ============================================================
