@@ -51,8 +51,8 @@ local GLOBAL_DEFAULTS = {
 
 ---@class EavesdropperProfile
 ---@field ApplyOnMainChat boolean?
----@field ColorBackground table?
----@field ColorTitleBar table?
+---@field ColorBackground EavesdropperColor
+---@field ColorTitleBar EavesdropperColor
 ---@field CompanionSupport boolean?
 ---@field ElvUITheme boolean?
 ---@field EnableKeywords boolean?
