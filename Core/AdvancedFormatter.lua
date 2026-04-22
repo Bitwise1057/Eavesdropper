@@ -45,6 +45,7 @@ local function CreateChatName(event, _, _, sender, _, _, _, _, _, _, _, _, _, gu
 		e = event,
 		s = sender,
 		g = guid,
+		sm = false,
 	};
 
 	local senderFormatted, _ = ED.ChatFormatter:GetFormattedName(entry);
@@ -124,6 +125,7 @@ function AdvancedFormatter:HandleChecks(chatFrame, event, message, sender, ...) 
 		m = msgText,
 		s = msgSender,
 		g = guid, -- Can be tied to Companion Information
+		sm = false,
 	};
 
 	local name, applyRPName = ED.ChatFormatter:GetFormattedName(entry);

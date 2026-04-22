@@ -107,6 +107,7 @@ function Debug:InjectTestEntry(groupName, event, class, senderName, message)
 		m = message,
 		s = coloredName,
 		g = nil,
+		sm = false,
 		test = true,
 	};
 

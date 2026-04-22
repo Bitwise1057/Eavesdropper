@@ -9,7 +9,9 @@
 ---@field s string Sender (Name-Realm)
 ---@field c string? Uppercase channel token (no spaces)
 ---@field p boolean? True if own player wrote the message
----@field g string Player GUID
+---@field g string? Player GUID, generally always set but nil for test messages.
+---@field sm string? Split Marker (so old messages don't break on changing them).
+---@field test boolean? For debug messages, true for test and generally nil otherwise.
 
 ---@class EavesdropperChatHistory
 ---@field history table<string, EavesdropperChatEntry[]> Per-sender chat history
@@ -306,6 +308,7 @@ function ChatHistory:AddEntry(event, sender, message, language, guid, channel)
 		m = message,
 		s = sender,
 		g = guid, -- Can be tied to Companion Information.
+		sm = false,
 	};
 
 	if channel then
