@@ -80,8 +80,17 @@ local function MsgFormatEmote(entry, name)
 	local stripped = msg:match("^||%s*(.*)");
 	if stripped then return stripped; end
 
-	local splitMarker = RetrieveSplitMarker();
-	if msg:sub(1, #splitMarker) == splitMarker then
+	-- Check if a split marker was prior identified, use that
+	local splitMarker = entry.sm;
+	if splitMarker == false then
+		splitMarker = RetrieveSplitMarker();
+		if msg:sub(1, #splitMarker) == splitMarker then
+			entry.sm = splitMarker;
+			return msg;
+		else
+			entry.sm = nil;
+		end
+	elseif splitMarker and msg:sub(1, #splitMarker) == splitMarker then
 		return msg;
 	end
 
@@ -219,8 +228,17 @@ setmetatable(MESSAGE_FORMATS, {
 local function MsgFormatNormalGroup(entry, name)
 	local msg = entry.m or "";
 
-	local splitMarker = RetrieveSplitMarker();
-	if msg:sub(1, #splitMarker) == splitMarker then
+	-- Check if a split marker was prior identified, use that
+	local splitMarker = entry.sm;
+	if splitMarker == false then
+		splitMarker = RetrieveSplitMarker();
+		if msg:sub(1, #splitMarker) == splitMarker then
+			entry.sm = splitMarker;
+			return msg;
+		else
+			entry.sm = nil;
+		end
+	elseif splitMarker and msg:sub(1, #splitMarker) == splitMarker then
 		return msg;
 	end
 
