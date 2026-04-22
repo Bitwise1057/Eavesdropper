@@ -1278,6 +1278,96 @@ function Eavesdropper_SettingsMixin:OnHide()
 end
 
 -- ============================================================
+-- Screenshot Helper
+-- ============================================================
+
+function Eavesdropper_SettingsMixin:SetAlphaChannelMode(mode)
+	-- mode 1: All Widgets turn black + white fullscreen backdrop
+	-- mode 2: Widgets use original colors + black fullscreen backdrop
+	-- other : Disable
+
+	local showFullScreenBackdrop = mode == 1 or mode == 2;
+	local enableColorizing = mode == 1;
+	local a = mode == 1 and 0 or 1;
+
+	local function SetupFunc(object)
+		if object:IsObjectType("FontString") then
+			if enableColorizing then
+				if not object.originalColor then
+					local r, g, b = object:GetTextColor();
+					object.originalColor = {r = r, g = g, b = b};
+				end
+				object:SetTextColor(a, a, a);
+				object:SetFixedColor(true);
+			else
+				if object.originalColor then
+					local color = object.originalColor;
+					object:SetTextColor(color.r, color.g, color.b);
+				end
+				object:SetFixedColor(false);
+			end
+		elseif object:IsObjectType("Texture") then
+			if enableColorizing then
+				if not object.originalColor then
+					local r, g, b = object:GetVertexColor();
+					object.originalColor = {r = r, g = g, b = b};
+				end
+				object:SetVertexColor(a, a, a);
+			else
+				if object.originalColor then
+					local color = object.originalColor;
+					object:SetVertexColor(color.r, color.g, color.b);
+				end
+			end
+		end
+
+		if object.GetRegions then
+			for _, region in ipairs({object:GetRegions()}) do
+				SetupFunc(region);
+			end
+		end
+
+		if object.GetChildren then
+			for _, child in ipairs({object:GetChildren()}) do
+				SetupFunc(child);
+			end
+		end
+	end
+
+	SetupFunc(self);
+
+	self.Background.BackgroundColor:SetVertexColor(1, 1, 1);
+
+	if enableColorizing then
+		self.NineSlice.Text:SetText(nil);
+	else
+		self.NineSlice.Text:SetText(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. SETTINGS);
+	end
+
+	if showFullScreenBackdrop then
+		if not self.fullscreenBackdrop then
+			self.fullscreenBackdrop = self:CreateTexture(nil, "BACKGROUND", nil, -2);
+			self.fullscreenBackdrop:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, 0);
+			self.fullscreenBackdrop:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", 0, 0);
+		end
+		self.fullscreenBackdrop:Show();
+		self.fullscreenBackdrop:SetVertexColor(1, 1, 1);
+		if mode == 1 then
+			self.fullscreenBackdrop:SetColorTexture(1, 1, 1);
+			self.Background.BackgroundColor:SetColorTexture(0, 0, 0, 0.95);
+		else
+			self.fullscreenBackdrop:SetColorTexture(0, 0, 0);
+			self.Background.BackgroundColor:SetColorTexture(0.12, 0.12, 0.12, 0.95);
+		end
+	else
+		self.Background.BackgroundColor:SetColorTexture(0.12, 0.12, 0.12, 0.95);
+		if self.fullscreenBackdrop then
+			self.fullscreenBackdrop:Hide();
+		end
+	end
+end
+
+-- ============================================================
 -- Category list button
 -- ============================================================
 
