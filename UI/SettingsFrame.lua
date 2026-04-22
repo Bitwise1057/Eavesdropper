@@ -206,6 +206,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		self:SetPoint(pos.point, UIParent, pos.relativePoint, pos.x, pos.y);
 	end
 
+	self.Background.BackgroundColor:SetColorTexture(0.12, 0.12, 0.12, 0.95);
 	self.Background.InnerShadow:SetTexture("Interface/AddOns/Eavesdropper/Resources/SettingsPanelInnerShadow.png");
 
 	-- Add a divider between CategoryList and SettingsList

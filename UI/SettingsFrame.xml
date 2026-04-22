@@ -11,12 +11,15 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 			<Anchor point="CENTER"/>
 		</Anchors>
 		<Frames>
-			<Frame parentKey="Background" inherits="FlatPanelBackgroundTemplate" frameLevel="0">
+			<Frame parentKey="Background" frameLevel="0">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="3" y="-18"/>
 					<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
 				</Anchors>
 				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="BackgroundColor" setAllPoints="true"/>
+					</Layer>
 					<Layer level="OVERLAY">
 						<Texture parentKey="InnerShadow" setAllPoints="true"/>
 					</Layer>
