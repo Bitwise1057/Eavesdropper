@@ -29,6 +29,8 @@ local Database = {};
 ---@field GroupWindowsPersist boolean?
 ---@field MinimapButton EavesdropperGlobalMinimapButton?
 ---@field SettingsWindowPosition EavesdropperWindowPosition?
+---@field GroupWindowsNPCSpeechDetectionNameShown boolean?
+---@field GroupWindowsPersist boolean?
 ---@field WelcomeMessage boolean?
 
 ---@type EavesdropperGlobal
@@ -39,6 +41,7 @@ local GLOBAL_DEFAULTS = {
 	DedicatedWindowsPersist = true,
 	GroupWindows = true,
 	GroupWindowsNewIndicator = true,
+	GroupWindowsNPCSpeechDetectionNameShown = false,
 	GroupWindowsUnitPopups = true,
 	GroupWindowsPersist = true,
 	MinimapButton = {
@@ -627,6 +630,7 @@ end
 ---| "DedicatedWindowsPersist"
 ---| "GroupWindows"
 ---| "GroupWindowsNewIndicator"
+---| "GroupWindowsNPCSpeechDetectionNameShown"
 ---| "GroupWindowsUnitPopups"
 ---| "GroupWindowsPersist"
 ---| "MinimapButton"

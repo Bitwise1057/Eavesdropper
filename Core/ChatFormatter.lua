@@ -88,8 +88,9 @@ end
 ---Formats an emote message, prepending the sender short-name and handling split markers and RP colour.
 ---@param entry EavesdropperChatEntry
 ---@param name string
+---@param forGroup boolean? If true, called from a group context.
 ---@return string
-local function MsgFormatEmote(entry, name)
+local function MsgFormatEmote(entry, name, forGroup)
 	local msg = entry.m or "";
 
 	local nameDisplayMode = ED.Database:GetSetting("NameDisplayMode");
@@ -118,8 +119,10 @@ local function MsgFormatEmote(entry, name)
 		end
 	end
 
-	-- Skip prepending name for punctuation-starting messages.
-	if msg:match("^%s*%p") then return msg; end
+	-- Skip prepending name for punctuation-starting messages by default;
+	-- only show the name when in a group context and the user setting is enabled.
+	local skipName = not (forGroup and ED.Database:GetGlobalSetting("GroupWindowsNPCSpeechDetectionNameShown"));
+	if skipName and msg:match("^%s*%p") then return msg; end
 
 	return name .. " " .. msg;
 end
@@ -130,7 +133,7 @@ end
 ---@param name string
 ---@return string
 local function MsgFormatEmoteGroup(entry, name)
-	local result = MsgFormatEmote(entry, name);
+	local result = MsgFormatEmote(entry, name, true);
 
 	--[[
 	Kept for archival purposes (for now), this adds names for multi-msg.
