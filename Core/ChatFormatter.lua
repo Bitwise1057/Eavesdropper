@@ -22,6 +22,28 @@ local function ResolveChatInfo(eventType)
 	return ChatTypeInfo[chatType] or ChatTypeInfo.SAY;
 end
 
+---Retrieve current split marker, default is "»" but it can be different per addon.
+---Chattery, EmoteSplitter and Yapper are supported by default.
+---@return string
+local function RetrieveSplitMarker()
+	local splitMarker = "»";
+
+	local ok, result = pcall(function()
+		if Chattery then
+			return Chattery.Settings.GetSetting(Chattery.Setting.SplitMarker);
+		elseif YapperAPI then
+			return YapperAPI:GetDelineator();
+		elseif EmoteSplitter and EmoteSplitter.db then
+			return EmoteSplitter.db.global.premark;
+		end
+	end);
+	if ok and result then
+		splitMarker = result;
+	end
+
+	return splitMarker;
+end
+
 ---Formats a normal chat message, prepending any configured prefix.
 ---@param entry EavesdropperChatEntry
 ---@param name string
@@ -55,22 +77,7 @@ local function MsgFormatEmote(entry, name)
 	local stripped = msg:match("^||%s*(.*)");
 	if stripped then return stripped; end
 
-	-- check for split markers, default is "»" but it can be different per addon
-	-- Chattery, EmoteSplitter and Yapper are supported by default
-	-- (bar no changes on their part since addition)
-	local splitMarker = "»";
-	local ok, result = pcall(function()
-		if Chattery then
-			return Chattery.Settings.GetSetting(Chattery.Setting.SplitMarker);
-		elseif YapperAPI then
-			return YapperAPI:GetDelineator();
-		elseif EmoteSplitter and EmoteSplitter.db then
-			return EmoteSplitter.db.global.premark;
-		end
-	end);
-	if ok and result then
-		splitMarker = result;
-	end
+	local splitMarker = RetrieveSplitMarker();
 
 	if msg:sub(1, #splitMarker) == splitMarker then
 		return msg;
