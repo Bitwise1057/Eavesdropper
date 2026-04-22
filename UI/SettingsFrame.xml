@@ -11,14 +11,19 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 			<Anchor point="CENTER"/>
 		</Anchors>
 		<Frames>
-			<Frame parentKey="Background" frameLevel="0">
+			<Frame parentKey="Background" useParentLevel="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="3" y="-18"/>
 					<Anchor point="BOTTOMRIGHT" x="-3" y="3"/>
 				</Anchors>
 				<Layers>
 					<Layer level="BACKGROUND">
-						<Texture parentKey="BackgroundColor" setAllPoints="true"/>
+						<Texture parentKey="BackgroundColor">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="0" y="0"/>
+								<Anchor point="BOTTOMRIGHT" x="1" y="0"/>
+							</Anchors>
+						</Texture>
 					</Layer>
 					<Layer level="OVERLAY">
 						<Texture parentKey="InnerShadow" setAllPoints="true"/>
