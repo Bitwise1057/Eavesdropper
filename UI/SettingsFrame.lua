@@ -1307,6 +1307,7 @@ function Eavesdropper_SettingsMixin:SetAlphaChannelMode(mode)
 				if object.originalColor then
 					local color = object.originalColor;
 					object:SetTextColor(color.r, color.g, color.b);
+					object.originalColor = nil;
 				end
 				object:SetFixedColor(false);
 			end
@@ -1321,6 +1322,7 @@ function Eavesdropper_SettingsMixin:SetAlphaChannelMode(mode)
 				if object.originalColor then
 					local color = object.originalColor;
 					object:SetVertexColor(color.r, color.g, color.b);
+					object.originalColor = nil;
 				end
 			end
 		end
