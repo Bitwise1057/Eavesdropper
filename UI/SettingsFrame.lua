@@ -1194,12 +1194,12 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	if not string.match(version, "%d") then
 		version = "0.0.0"; -- Show 0.0.0 instead of {@project-version@} for internal build
 	end
-	local aboutPanel, aboutCategoryListButton = self:CreateCategory(string.format("%s  |cn%s:%s|r", L.ABOUT_TITLE, versionTextColor, version), false, nil, true);
+	local _, aboutCategoryListButton = self:CreateCategory(string.format("%s  |cn%s:%s|r", L.ABOUT_TITLE, versionTextColor, version), false, nil, true);
 
-	aboutCategoryListButton:SetScript("OnEnter", function(_self)
-		_self:UpdateVisual();
+	aboutCategoryListButton:SetScript("OnEnter", function(button)
+		button:UpdateVisual();
 
-		GameTooltip:SetOwner(_self, "ANCHOR_RIGHT");
+		GameTooltip:SetOwner(button, "ANCHOR_RIGHT");
 		GameTooltip:AddDoubleLine(L.ADDONINFO_BUILD:format(ED.Utils.OutputBuild(true)), L.ADDONINFO_VERSION:format(ED.Globals.addon_version), 1, 1, 1, 1, 1, 1);
 
 		if ED.Utils.ValidateLatestBuild() then
@@ -1211,8 +1211,8 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		GameTooltip:Show();
 	end);
 
-	aboutCategoryListButton:SetScript("OnLeave", function(_self)
-		_self:UpdateVisual();
+	aboutCategoryListButton:SetScript("OnLeave", function(button)
+		button:UpdateVisual();
 		GameTooltip:Hide();
 	end);
 
