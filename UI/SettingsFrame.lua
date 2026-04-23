@@ -232,6 +232,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	self.Views = {};
 
 	self.NineSlice.Text:SetText(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. SETTINGS);
+	NineSliceUtil.DisableSharpening(self.NineSlice);
 
 	self.CloseButton:SetScript("OnClick", function()
 		self:Hide();

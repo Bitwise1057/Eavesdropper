@@ -432,6 +432,12 @@ stds.wow = {
 			},
 		},
 
+		NineSliceUtil = {
+			fields = {
+				"DisableSharpening",
+			},
+		},
+
 		PixelUtil = {
 			fields = {
 				"ConvertPixelsToUIForRegion",
