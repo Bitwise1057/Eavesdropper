@@ -1201,7 +1201,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		button:UpdateVisual();
 
 		GameTooltip:SetOwner(button, "ANCHOR_RIGHT");
-		GameTooltip:AddDoubleLine(L.ADDONINFO_BUILD:format(ED.Utils.OutputBuild(true)), L.ADDONINFO_VERSION:format(ED.Globals.addon_version), 1, 1, 1, 1, 1, 1);
+		GameTooltip:AddDoubleLine(L.ADDONINFO_VERSION:format(ED.Globals.addon_version), L.ADDONINFO_BUILD:format(ED.Utils.OutputBuild(true)), 1, 1, 1, 1, 1, 1);
 
 		if ED.Utils.ValidateLatestBuild() then
 			GameTooltip:AddLine(L.ADDONINFO_BUILD_CURRENT, 1, 1, 1, true);
