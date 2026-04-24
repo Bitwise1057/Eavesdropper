@@ -67,7 +67,7 @@ local function ConvertMarkdownToDataProvider()
 				-- Convert url [text](url)
 				text = string.gsub(text, gitRefRemovalPattern, "");
 
-				local linkName, linkURL = string.match(text, urlMatchPattern); -- luacheck: no unused (linkURL)
+				local linkName, linkURL = string.match(text, urlMatchPattern);
 				while linkName do
 					local isSupportedURL = false;
 					for _, keyword in ipairs(supportedURL) do
@@ -155,7 +155,7 @@ end
 
 Eavesdropper_ChangelogTextContainerMixin = {};
 
-function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkEnter(link, text, region, left, bottom, width, height)
+function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkEnter(link, text, region, left, bottom, width, height) -- luacheck: no unused
 	GameTooltip:SetOwner(self, "ANCHOR_PRESERVE");
 	GameTooltip:ClearAllPoints();
 	GameTooltip:SetPoint("BOTTOMLEFT", region, "TOPLEFT", left + width, bottom);
@@ -168,7 +168,7 @@ function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkLeave()
 	GameTooltip:Hide();
 end
 
-function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkClick(link, text, button, region, left, bottom, width, height)
+function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkClick(link, text, button, region, left, bottom, width, height) -- luacheck: no unused
 	if button == "LeftButton" then
 		local url = string.match(link, "url:([^:]+):0");
 		if url then
