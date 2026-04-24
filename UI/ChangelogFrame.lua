@@ -30,13 +30,11 @@ local supportedURL = {
 
 local function ConvertMarkdownToDataProvider()
 	local dataProvider = CreateDataProvider();
-	local match = string.match;
-	local gsub = string.gsub;
 	local index = 0;
 
 	local urlMatchPattern = "%[([^]]+)%]%(([^%)]+)%)"; -- [text](url) Preserve text only
 	local urlRemovalPattern = "%[[^]]+%]%([^%)]+%)";
-	local gitRefRemovalPattern = "%s*%(%[[^]]+%]%([^%)]+%)%)"; -- ([#1](url)) Remove entirely
+	local gitRefRemovalPattern = "%s*%(%[#.-%([^%)]+%)%s*%)"; -- ([#1](url)) or ([#1](url) and [#2](url)) Remove entirely
 
 	local function ColorizeText(text, color)
 		return "|cn" .. color .. ":" .. text .. "|r";
@@ -48,6 +46,7 @@ local function ConvertMarkdownToDataProvider()
 			-- Process the start of the line
 			local tag;
 			local text;
+			local rightText;
 
 			for _, style in ipairs(styleList) do
 				text = string.match(line, style.pattern);
@@ -59,9 +58,9 @@ local function ConvertMarkdownToDataProvider()
 
 			if text then
 				-- Convert url [text](url)
-				text = gsub(text, gitRefRemovalPattern, "");
+				text = string.gsub(text, gitRefRemovalPattern, "");
 
-				local linkName, linkURL = match(text, urlMatchPattern); -- luacheck: no unused (linkURL)
+				local linkName, linkURL = string.match(text, urlMatchPattern); -- luacheck: no unused (linkURL)
 				while linkName do
 					local isSupportedURL = false;
 					for _, keyword in ipairs(supportedURL) do
@@ -82,14 +81,22 @@ local function ConvertMarkdownToDataProvider()
 					linkName, linkURL = string.match(text, urlMatchPattern);
 				end
 
-				if tag == "h1" or tag == "h2" then
-					text = gsub(text, "%[([^]]+)%]", "|cffffd100%1|r"); -- Make version [0.0.0] yellow
-					text = gsub(text, "(%s+[-%d%s]+)", "|cff808080%1|r"); -- Make Date - 2026-12-08 grey
+				if tag == "h1" then
+					text = string.gsub(text, "%[([^]]+)%]", ColorizeText("%1", "NORMAL_FONT_COLOR")); -- Make version [0.0.0] yellow
+				elseif tag == "h2" then
+					text = string.gsub(text, "%[([^%]]+)%]", "%1");
+					local versionText, dateText = string.match(text, "(%d+%.%d+%.%d+)%s*%-%s*(%d+%-%d+%-%d+)");
+					if versionText then
+						text = ColorizeText(versionText, "NORMAL_FONT_COLOR");
+						rightText = ColorizeText(dateText, "HIGHLIGHT_FONT_COLOR");
+					end
+				elseif tag == "h3" then
+					text = ColorizeText(text, "NORMAL_FONT_COLOR"); -- Make ### yellow
 				end
 
-				text = gsub(text, "%*%*([^%*]+)%*%*", "|cffffd100%1|r"); -- Colorize **bold**
+				text = string.gsub(text, "%*%*([^%*]+)%*%*", ColorizeText("%1", "NORMAL_FONT_COLOR")); -- Colorize **bold** yellow
 
-				dataProvider:Insert({index = index, tag = tag, text = text});
+				dataProvider:Insert({index = index, tag = tag, text = text, rightText = rightText});
 			end
 		end
 	end
@@ -202,10 +209,10 @@ function Eavesdropper_ChangelogFrameMixin:OnLoad()
 
 		if tag == "li" then
 			frame.Bullet:Show();
-			frame.Bullet:SetColorTexture(1, 1, 1);
+			frame.Bullet:SetColorTexture(0.8, 0.8, 0.8);
 		elseif tag == "li2" then
 			frame.Bullet:Show();
-			frame.Bullet:SetColorTexture(0.5, 0.5, 0.5);
+			frame.Bullet:SetColorTexture(0.4, 0.4, 0.4);
 		else
 			frame.Bullet:Hide();
 		end
@@ -214,7 +221,13 @@ function Eavesdropper_ChangelogFrameMixin:OnLoad()
 		frame.Text:SetWidth(width);
 		frame.Text:SetText(elementData.text);
 
-		frame:SetSize(width, frame.Text:GetHeight() + spacingBefore + spacingAfter);
+		frame.RightText:ClearAllPoints();
+		frame.RightText:SetPoint("BOTTOMRIGHT", frame.Divider, "BOTTOMRIGHT", 0, dividerOffsetV + 1);
+		frame.RightText:SetText(elementData.rightText);
+		frame.RightText:SetShown(elementData.rightText ~= nil);
+
+
+		frame:SetSize(contentWidth, frame.Text:GetHeight() + spacingBefore + spacingAfter);
 	end
 
 	view:SetElementInitializer("Eavesdropper_ChangelogTextContainerTemplate", TextContainerInitializer);
