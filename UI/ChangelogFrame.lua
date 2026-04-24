@@ -95,7 +95,6 @@ local function CalculateFramePadding(elementData)
 	return spacingBefore, spacingAfter;
 end
 
-
 local function SetupFont(fontString, elementData)
 	if elementData.tag == "h1" then
 		fontString:SetFontObject("GameFontNormalLarge");
@@ -111,7 +110,6 @@ local function SetupFont(fontString, elementData)
 		fontString:SetTextColor(1, 1, 1);
 	end
 end
-
 
 Eavesdropper_ChangelogFrameMixin = {};
 
@@ -161,6 +159,7 @@ function Eavesdropper_ChangelogFrameMixin:OnLoad()
 
 		frame:SetSize(width, frame.Text:GetHeight() + spacingBefore + spacingAfter);
 	end
+
 	view:SetElementInitializer("Eavesdropper_ChangelogTextContainerTemplate", TextContainerInitializer);
 	--view:SetElementResetter(TextContainerResetter); -- Unused for now
 
@@ -182,7 +181,6 @@ function Eavesdropper_ChangelogFrameMixin:LoadChangelog()
 	end
 	self.ScrollBox:SetDataProvider(self.dataProvider);
 end
-
 
 function Changelogs:SetMarkdown(markdown)
 	self.currentMarkdown = markdown;

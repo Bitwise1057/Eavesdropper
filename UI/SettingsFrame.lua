@@ -269,7 +269,6 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	end
 	CreateLine(self.CategoryList, self.CategoryList, "vertical", 6, 0); -- Vertical divider between CategoryList and SettingsList
 
-
 	-- --------------------------------------------------------
 	-- General options
 	-- --------------------------------------------------------
@@ -1219,8 +1218,6 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	end);
 
 	ED.Changelogs:CreateChangelogFrame(aboutPanel);
-
-	--CreateFrame("")
 
 
 	-- ReIndex Categories
