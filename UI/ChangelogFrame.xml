@@ -23,7 +23,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 						<Anchor point="TOP" relativeKey="$parent.Text" relativePoint="BOTTOM" y="-6"/>
 					</Anchors>
 					<Size x="350" y="1"/>
-					<Color r="1" g="1" b="1" a="0.2"/>
+					<Color r="1" g="1" b="1" a="0.15"/>
 				</Texture>
 
 				<FontString parentKey="RightText" inherits="GameFontHighlight" justifyH="RIGHT" hidden="true"/>
@@ -43,13 +43,6 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture setAllPoints="true" hidden="true">
-					<Color r="0" g="0" b="0" a="0.5"/>
-				</Texture>
-				<Texture parentKey="Background" file="Interface\AddOns\Eavesdropper\Resources\SettingsPanelInset.png" setAllPoints="true">
-					<TextureSliceMode mode="Tiled"/>
-					<TextureSliceMargins left="8" right="8" top="8" bottom="8"/>
-				</Texture>
 				<FontString parentKey="PlaceholderText" inherits="GameFontNormal" hidden="true"/>
 			</Layer>
 		</Layers>
@@ -59,8 +52,8 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					<KeyValue key="canInterpolateScroll" value="true" type="boolean"/>
 				</KeyValues>
 				<Anchors>
-					<Anchor point="TOPLEFT" x="0" y="-6"/>
-					<Anchor point="BOTTOMRIGHT" x="-24" y="4"/>
+					<Anchor point="TOPLEFT" x="0" y="-4"/>
+					<Anchor point="BOTTOMRIGHT" x="-24" y="2"/>
 				</Anchors>
 			</Frame>
 			<EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar" frameStrata="HIGH">
@@ -68,7 +61,7 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					<KeyValue key="canInterpolateScroll" value="true" type="boolean"/>
 				</KeyValues>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-12" y="-10"/>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-12" y="-9"/>
 					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-12" y="8"/>
 				</Anchors>
 			</EventFrame>

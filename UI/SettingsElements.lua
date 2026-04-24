@@ -880,23 +880,39 @@ function SettingsElements.CreateDeveloperInfoFrame(parent)
 	authorFontString:SetPoint("LEFT", infoFrame, "LEFT", 0, 0);
 
 	local websites = {
-		{name = "Blusky", link = "https://bsky.app/profile/dawnsong.me", texCoords = {0, 0.25, 0, 0.25}},
-		{name = "CurseForge", link = "https://www.curseforge.com/wow/addons/eavesdropper", texCoords = {0.25, 0.5, 0, 0.25}},
-		{name = "Wago.io", link = "https://addons.wago.io/addons/eavesdropper", texCoords = {0.5, 0.75, 0, 0.25}},
+		{name = "Bluesky", link = "https://bsky.app/profile/dawnsong.me", icon = "Bluesky.png", tooltip = L.ADDONINFO_BLUESKY_SHILL_HELP},
+		{name = "CurseForge", link = "https://www.curseforge.com/wow/addons/eavesdropper", icon = "CurseForge.png"},
+		{name = "Wago Addons", link = "https://addons.wago.io/addons/eavesdropper", icon = "Wago.png"},
 	};
 
 	local buttonSize = 24;
-	local buttonGap = 4;
-	local buttonTexture = "Interface/AddOns/Eavesdropper/Resources/SettingsPanelLogoButton.png";
+	local buttonGap = 6;
+	local buttonIconSize = 24;
+	local buttonTexturePrefix = "Interface/AddOns/Eavesdropper/Resources/Logo-";
+
+	local function LogoButton_SetHighlighted(self, isHighlighted)
+		if isHighlighted then
+			self.Texture:SetVertexColor(1, 1, 1);
+		else
+			self.Texture:SetVertexColor(0.6, 0.6, 0.6);
+		end
+	end
 
 	local function LogoButton_OnEnter(self)
+		LogoButton_SetHighlighted(self, true);
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 		GameTooltip:SetText(self.info.name, 1, 1, 1);
+		if self.info.tooltip then
+			GameTooltip:AddLine(self.info.tooltip, 1, 0.82, 0, true);
+		else
+			GameTooltip:AddLine(L.VISIT_ADDON_PAGE_TOOLTIP:format(self.info.name), 1, 0.82, 0, true);
+		end
 		GameTooltip:AddLine(L.CLICK_TO_COPY, 1, 1, 1, false);
 		GameTooltip:Show();
 	end
 
-	local function LogoButton_OnLeave()
+	local function LogoButton_OnLeave(self)
+		LogoButton_SetHighlighted(self, false);
 		GameTooltip:Hide();
 	end
 
@@ -905,25 +921,29 @@ function SettingsElements.CreateDeveloperInfoFrame(parent)
 		ED.LinkDialog.CreateExternalLinkDialog(self.info.link);
 	end
 
+	local function LogoButton_OnMouseDown(self)
+		self:SetAlpha(0.8);
+	end
+
+	local function LogoButton_OnMouseUp(self)
+		self:SetAlpha(1);
+	end
+
 	for i, info in ipairs(websites) do
 		local logoButton = CreateFrame("Button", nil, infoFrame);
 		logoButton:SetSize(buttonSize, buttonSize);
 		logoButton.Texture = logoButton:CreateTexture(nil, "OVERLAY");
-		logoButton.Texture:SetSize(32, 32);
+		logoButton.Texture:SetSize(buttonIconSize, buttonIconSize);
 		logoButton.Texture:SetPoint("CENTER", 0, 0);
-		logoButton.Texture:SetTexture(buttonTexture);
-		logoButton.Texture:SetTexCoord(unpack(info.texCoords));
-		logoButton.Highlight = logoButton:CreateTexture(nil, "HIGHLIGHT");
-		logoButton.Highlight:SetPoint("TOPLEFT", logoButton.Texture, "TOPLEFT", 0, 0);
-		logoButton.Highlight:SetPoint("BOTTOMRIGHT", logoButton.Texture, "BOTTOMRIGHT", 0, 0);
-		logoButton.Highlight:SetTexture(buttonTexture);
-		logoButton.Highlight:SetTexCoord(unpack(info.texCoords));
-		logoButton.Highlight:SetBlendMode("ADD");
+		logoButton.Texture:SetTexture(buttonTexturePrefix .. info.icon);
 		logoButton:SetPoint("RIGHT", infoFrame, "RIGHT", (-#websites + i) * (buttonSize + buttonGap), 0);
 		logoButton.info = info;
 		logoButton:SetScript("OnEnter", LogoButton_OnEnter);
 		logoButton:SetScript("OnLeave", LogoButton_OnLeave);
 		logoButton:SetScript("OnClick", LogoButton_OnClick);
+		logoButton:SetScript("OnMouseDown", LogoButton_OnMouseDown);
+		logoButton:SetScript("OnMouseUp", LogoButton_OnMouseUp);
+		LogoButton_SetHighlighted(logoButton, false);
 	end
 
 	return infoFrame

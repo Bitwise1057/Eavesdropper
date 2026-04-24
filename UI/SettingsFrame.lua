@@ -1228,6 +1228,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	local infoFrame = SettingsElements.CreateDeveloperInfoFrame(aboutPanel);
 	infoFrame:SetPoint("TOPLEFT", aboutPanel, "TOPLEFT", 12, -8);
 	infoFrame:SetPoint("TOPRIGHT", aboutPanel, "TOPRIGHT", -12, -8);
+	CreateLine(infoFrame, infoFrame, "horizontal", -12, -34);
 
 	-- ReIndex Categories
 	local function SortFunc(a, b)

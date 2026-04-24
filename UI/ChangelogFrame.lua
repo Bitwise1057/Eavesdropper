@@ -129,7 +129,7 @@ local function CalculateFramePadding(elementData)
 	local spacingAfter = paragraphSpacingAfter;
 	if elementData.tag == "h1" or elementData.tag == "h2" then
 		if elementData.index == 1 then
-			spacingBefore = 0;
+			spacingBefore = paragraphSpacingBefore;
 		else
 			spacingBefore = spacingBefore + paragraphSpacingBefore; -- Extra
 		end
@@ -179,7 +179,7 @@ function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkClick(link, text, b
 	if button == "LeftButton" then
 		local url = string.match(link, "url:([^:]+):0");
 		if url then
-			url = "https://"..url;
+			url = "https://" .. url;
 			ED.LinkDialog.CreateExternalLinkDialog(url);
 		end
 	end
@@ -279,10 +279,10 @@ function Changelogs:CreateChangelogFrame(container)
 	if ChangelogFrame then return; end
 
 	local frame = CreateFrame("Frame", nil, container, "Eavesdropper_ChangelogFrameTemplate");
-	local padding = 10;
+	local padding = 0;
 	frame:ClearAllPoints();
 	frame:SetPoint("TOPLEFT", container, "TOPLEFT", padding, -42);
-	frame:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -3 - padding, 4 + padding);
+	frame:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -3 - padding, 3 + padding);
 end
 
 ED.Changelogs = Changelogs;
