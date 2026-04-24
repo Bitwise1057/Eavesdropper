@@ -202,8 +202,10 @@ function Eavesdropper_SettingsMixin:CreateCategory(categoryName, isScrollable, o
 
 	if isScrollable then
 		frame, scrollChild = self:AddScrollableFrame();
+		frame:Hide();
 	else
 		frame = self:AddFrame();
+		frame:Hide();
 	end
 
 	frame.categoryListBtton = categoryListBtton;
@@ -1217,7 +1219,11 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		GameTooltip:Hide();
 	end);
 
-	ED.Changelogs:CreateChangelogFrame(aboutPanel);
+	aboutPanel:SetScript("OnShow", function()
+		-- Create ChangelogFrame after clicking About
+		aboutPanel:SetScript("OnShow", nil);
+		ED.Changelogs:CreateChangelogFrame(aboutPanel);
+	end);
 
 
 	-- ReIndex Categories

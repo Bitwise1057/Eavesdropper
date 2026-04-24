@@ -10,11 +10,11 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 			<Layer level="OVERLAY">
 				<FontString parentKey="Text" inherits="GameFontHighlight" justifyH="LEFT" spacing="2"/>
 
-				<Texture parentKey="Bullet" snapToPixelGrid="false" texelSnappingBias="0.0" hidden="true">
+				<Texture parentKey="Bullet" file="Interface\AddOns\Eavesdropper\Resources\ChangelogBullet" snapToPixelGrid="false" texelSnappingBias="0.0" hidden="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent.Text" relativePoint="TOPLEFT" x="-6" y="-4"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent.Text" relativePoint="TOPLEFT" x="-6" y="-1"/>
 					</Anchors>
-					<Size x="4" y="4"/>
+					<Size x="10" y="10"/>
 					<Color r="1" g="1" b="1"/>
 				</Texture>
 
@@ -46,8 +46,11 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 				<Texture setAllPoints="true" hidden="true">
 					<Color r="0" g="0" b="0" a="0.5"/>
 				</Texture>
-
-				<FontString parentKey="PlaceholderParagraph" inherits="GameFontNormal" hidden="true"/>
+                <Texture parentKey="Background" file="Interface\AddOns\Eavesdropper\Resources\SettingsPanelInset.png" setAllPoints="true">
+                    <TextureSliceMode mode="Tiled"/>
+                    <TextureSliceMargins left="8" right="8" top="8" bottom="8"/>
+                </Texture>
+				<FontString parentKey="PlaceholderText" inherits="GameFontNormal" hidden="true"/>
 			</Layer>
 		</Layers>
 		<Frames>
@@ -56,8 +59,8 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					<KeyValue key="canInterpolateScroll" value="true" type="boolean"/>
 				</KeyValues>
 				<Anchors>
-					<Anchor point="TOPLEFT" x="0" y="0"/>
-					<Anchor point="BOTTOMRIGHT" x="-20" y="0"/>
+					<Anchor point="TOPLEFT" x="0" y="-6"/>
+					<Anchor point="BOTTOMRIGHT" x="-24" y="4"/>
 				</Anchors>
 			</Frame>
 			<EventFrame parentKey="ScrollBar" inherits="MinimalScrollBar" frameStrata="HIGH">
@@ -65,8 +68,8 @@ https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 					<KeyValue key="canInterpolateScroll" value="true" type="boolean"/>
 				</KeyValues>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-7" y="-8"/>
-					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-7" y="8"/>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-12" y="-10"/>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-12" y="8"/>
 				</Anchors>
 			</EventFrame>
 		</Frames>

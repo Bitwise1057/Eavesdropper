@@ -11,7 +11,7 @@ local scrollBoxPaddingV = 4;
 local paragraphLineSpacing = 2;
 local paragraphSpacingBefore = 8;
 local paragraphSpacingAfter = 8;
-local indentSize = 24;
+local indentSize = 14;
 local dividerOffsetV = 6;
 
 local styleList = {
@@ -35,6 +35,8 @@ local textColors = {
 	UnclickableLink = "LIGHTYELLOW_FONT_COLOR",
 };
 
+local ChangelogFrame;
+
 local function ConvertMarkdownToDataProvider()
 	local dataProvider = CreateDataProvider();
 	local index = 0;
@@ -48,9 +50,9 @@ local function ConvertMarkdownToDataProvider()
 	end
 
 	for line in string.gmatch(Changelogs.currentMarkdown, "[^\r\n]*") do
-		index = index + 1;
 		if line ~= "" then
-			-- Process the start of the line
+			index = index + 1;
+
 			local tag;
 			local text;
 			local rightText;
@@ -64,10 +66,9 @@ local function ConvertMarkdownToDataProvider()
 			end
 
 			if text then
-				-- Convert url [text](url)
-				text = string.gsub(text, gitRefRemovalPattern, "");
+				text = string.gsub(text, gitRefRemovalPattern, ""); -- Remove [#1](url)
 
-				local linkName, linkURL = string.match(text, urlMatchPattern);
+				local linkName, linkURL = string.match(text, urlMatchPattern); -- Match [text](url)
 				while linkName do
 					local isSupportedURL = false;
 					for _, keyword in ipairs(supportedURL) do
@@ -78,7 +79,7 @@ local function ConvertMarkdownToDataProvider()
 					end
 
 					if isSupportedURL then
-						linkURL = string.gsub(linkURL, "https://", "");
+						linkURL = string.gsub(linkURL, "https://", ""); -- Remove https:// due to the colon. We will add it back later
 						local linkHyperlink = string.format("|cn%s:|Haddon:Eavesdropper:url:%s:0|h[%s]|h|r", textColors.ClickableLink, linkURL, linkName);
 						text = string.gsub(text, urlRemovalPattern, linkHyperlink, 1);
 					else
@@ -91,8 +92,8 @@ local function ConvertMarkdownToDataProvider()
 				if tag == "h1" then
 					text = string.gsub(text, "%[([^]]+)%]", ColorizeText("%1", textColors.Emphasis)); -- Make version [0.0.0] yellow
 				elseif tag == "h2" then
-					text = string.gsub(text, "%[([^%]]+)%]", "%1");
-					local versionText, dateText = string.match(text, "(%d+%.%d+%.%d+)%s*%-%s*(%d+%-%d+%-%d+)");
+					text = string.gsub(text, "%[([^%]]+)%]", "%1"); -- Remove []
+					local versionText, dateText = string.match(text, "(%d+%.%d+%.%d+)%s*%-%s*(%d+%-%d+%-%d+)"); -- Match 0.0.0 - 2026-1-1
 					if versionText then
 						text = ColorizeText(versionText, textColors.Emphasis);
 						rightText = ColorizeText(dateText, textColors.Date);
@@ -127,7 +128,11 @@ local function CalculateFramePadding(elementData)
 	local spacingBefore = paragraphSpacingBefore;
 	local spacingAfter = paragraphSpacingAfter;
 	if elementData.tag == "h1" or elementData.tag == "h2" then
-		spacingBefore = spacingBefore + paragraphSpacingBefore; -- Extra
+		if elementData.index == 1 then
+			spacingBefore = 0;
+		else
+			spacingBefore = spacingBefore + paragraphSpacingBefore; -- Extra
+		end
 		spacingAfter = dividerOffsetV;
 	end
 	return spacingBefore, spacingAfter;
@@ -159,6 +164,8 @@ function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkEnter(link, text, r
 	GameTooltip:SetOwner(self, "ANCHOR_PRESERVE");
 	GameTooltip:ClearAllPoints();
 	GameTooltip:SetPoint("BOTTOMLEFT", region, "TOPLEFT", left + width, bottom);
+	text = string.gsub(text, "%[", "");
+	text = string.gsub(text, "%]", "");
 	GameTooltip:SetText(text, 1, 1, 1);
 	GameTooltip:AddLine(L.CLICK_TO_COPY, 1, 1, 1, false);
 	GameTooltip:Show();
@@ -185,17 +192,20 @@ end
 Eavesdropper_ChangelogFrameMixin = {};
 
 function Eavesdropper_ChangelogFrameMixin:OnLoad()
+	ChangelogFrame = self;
+
 	local contentWidth = self.ScrollBox:GetWidth() - (2 * scrollBoxPaddingH);
-	self.PlaceholderParagraph:SetWidth(contentWidth);
-	self.PlaceholderParagraph:SetSpacing(paragraphLineSpacing);
+	self.PlaceholderText:SetWidth(contentWidth);
+	self.PlaceholderText:SetSpacing(paragraphLineSpacing);
 
 	local view = CreateScrollBoxListLinearView();
 	view:SetElementExtentCalculator(function(_dataIndex, elementData)
-		SetupFont(self.PlaceholderParagraph, elementData);
-		self.PlaceholderParagraph:SetWidth(CalculateTextWidthAndIndent(contentWidth, elementData));
-		self.PlaceholderParagraph:SetText(elementData.text);
+		SetupFont(self.PlaceholderText, elementData);
+		local width = CalculateTextWidthAndIndent(contentWidth, elementData);
+		self.PlaceholderText:SetWidth(width);
+		self.PlaceholderText:SetText(elementData.text);
 		local spacingBefore, spacingAfter = CalculateFramePadding(elementData);
-		return self.PlaceholderParagraph:GetHeight() + spacingBefore + spacingAfter;
+		return self.PlaceholderText:GetHeight() + spacingBefore + spacingAfter;
 	end);
 
 	local function TextContainerInitializer(frame, elementData)
@@ -216,20 +226,21 @@ function Eavesdropper_ChangelogFrameMixin:OnLoad()
 
 		if tag == "li" then
 			frame.Bullet:Show();
-			frame.Bullet:SetColorTexture(0.8, 0.8, 0.8);
+			frame.Bullet:SetVertexColor(0.8, 0.8, 0.8);
 		elseif tag == "li2" then
 			frame.Bullet:Show();
-			frame.Bullet:SetColorTexture(0.4, 0.4, 0.4);
+			frame.Bullet:SetVertexColor(0.5, 0.5, 0.5);
 		else
 			frame.Bullet:Hide();
 		end
 
+		frame.Text:ClearAllPoints();
 		frame.Text:SetPoint("TOPLEFT", frame, "TOPLEFT", indent, -spacingBefore);
 		frame.Text:SetWidth(width);
 		frame.Text:SetText(elementData.text);
 
 		frame.RightText:ClearAllPoints();
-		frame.RightText:SetPoint("BOTTOMRIGHT", frame.Divider, "BOTTOMRIGHT", 0, dividerOffsetV + 1);
+		frame.RightText:SetPoint("BOTTOMRIGHT", frame.Divider, "TOPRIGHT", 0, dividerOffsetV);
 		frame.RightText:SetText(elementData.rightText);
 		frame.RightText:SetShown(elementData.rightText ~= nil);
 
@@ -253,6 +264,7 @@ function Eavesdropper_ChangelogFrameMixin:OnShow()
 end
 
 function Eavesdropper_ChangelogFrameMixin:LoadChangelog()
+	self.ScrollBox:GetWidth()
 	if not self.dataProvider then
 		self.dataProvider = ConvertMarkdownToDataProvider();
 	end
@@ -264,10 +276,13 @@ function Changelogs:SetMarkdown(markdown)
 end
 
 function Changelogs:CreateChangelogFrame(container)
+	if ChangelogFrame then return; end
+
 	local frame = CreateFrame("Frame", nil, container, "Eavesdropper_ChangelogFrameTemplate");
+	local padding = 10;
 	frame:ClearAllPoints();
-	frame:SetPoint("TOPLEFT", container, "TOPLEFT", 4, 0);
-	frame:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -4, 4);
+	frame:SetPoint("TOPLEFT", container, "TOPLEFT", padding, -42);
+	frame:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -3 - padding, 4 + padding);
 end
 
 ED.Changelogs = Changelogs;
