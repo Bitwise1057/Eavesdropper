@@ -677,8 +677,11 @@ local function CreateEditBox(parent, data)
 
 	local widget = CreateFrame("EditBox", nil, right, "InputBoxTemplate");
 	widget:SetAutoFocus(false);
-	widget:SetPoint("LEFT", right, "LEFT", 0, 0);
-	widget:SetPoint("RIGHT", right, "RIGHT", 0, 0);
+
+	local visualOffsetLeft = 4; -- Workaround for border textures not aligned to frame. It will still be problematic when ElvUI skin is enabled.
+	local visualOffsetRight = -1;
+	widget:SetPoint("LEFT", right, "LEFT", visualOffsetLeft, 0);
+	widget:SetPoint("RIGHT", right, "RIGHT", visualOffsetRight, 0);
 	widget:SetPoint("CENTER", right, "CENTER");
 	widget:SetHeight(Constants.SETTINGS.WIDGET_HEIGHT);
 	widget:SetFontObject("ChatFontNormal");
