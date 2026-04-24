@@ -256,6 +256,7 @@ L = {
 	-- About Tab
 	ABOUT_TITLE = "About",
 	ADDONINFO_VERSION = "|cnNORMAL_FONT_COLOR:Version:|r %s",
+	CLICK_TO_COPY = "|cnGREEN_FONT_COLOR:Click to copy link|r";
 
 	UNIT_POPUPS_EAVESDROPPER_OPTIONS_HEADER = "Eavesdropper Options",
 	UNIT_POPUPS_EAVESDROP_ON = "Eavesdrop On",

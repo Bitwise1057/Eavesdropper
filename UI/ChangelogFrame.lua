@@ -1,6 +1,8 @@
 -- Copyright The Eavesdropper Authors
 -- SPDX-License-Identifier: Apache-2.0
 
+local L = ED.Localization;
+
 ---@class EavesdropperChangelogs
 local Changelogs = {};
 
@@ -21,6 +23,11 @@ local styleList = {
 	{pattern = "^%s*(.+)", tag = "p"}, -- Body
 };
 
+local supportedURL = {
+	"Eavesdropper/wiki",
+	"dialogueui",
+};
+
 local function ConvertMarkdownToDataProvider()
 	local dataProvider = CreateDataProvider();
 	local match = string.match;
@@ -30,6 +37,10 @@ local function ConvertMarkdownToDataProvider()
 	local urlMatchPattern = "%[([^]]+)%]%(([^%)]+)%)"; -- [text](url) Preserve text only
 	local urlRemovalPattern = "%[[^]]+%]%([^%)]+%)";
 	local gitRefRemovalPattern = "%s*%(%[[^]]+%]%([^%)]+%)%)"; -- ([#1](url)) Remove entirely
+
+	local function ColorizeText(text, color)
+		return "|cn" .. color .. ":" .. text .. "|r";
+	end
 
 	for line in string.gmatch(Changelogs.currentMarkdown, "[^\r\n]*") do
 		index = index + 1;
@@ -52,10 +63,23 @@ local function ConvertMarkdownToDataProvider()
 
 				local linkName, linkURL = match(text, urlMatchPattern); -- luacheck: no unused (linkURL)
 				while linkName do
-					--print(linkName);
-					--print(linkURL);
-					text = gsub(text, urlRemovalPattern, "["..linkName.."]", 1);
-					linkName, linkURL = match(text, urlMatchPattern);
+					local isSupportedURL = false;
+					for _, keyword in ipairs(supportedURL) do
+						if string.find(linkURL, keyword) then
+							isSupportedURL = true;
+							break;
+						end
+					end
+
+					if isSupportedURL then
+						linkURL = string.gsub(linkURL, "https://", "");
+						local linkHyperlink = string.format("|cn%s:|Haddon:Eavesdropper:url:%s:0|h[%s]|h|r", "LINK_FONT_COLOR", linkURL, linkName);
+						text = string.gsub(text, urlRemovalPattern, linkHyperlink, 1);
+					else
+						text = string.gsub(text, urlRemovalPattern, ColorizeText(linkName, "LIGHTYELLOW_FONT_COLOR"), 1); -- for credits
+					end
+
+					linkName, linkURL = string.match(text, urlMatchPattern);
 				end
 
 				if tag == "h1" or tag == "h2" then
@@ -110,6 +134,39 @@ local function SetupFont(fontString, elementData)
 		fontString:SetTextColor(1, 1, 1);
 	end
 end
+
+-- ============================================================
+-- Text Container
+-- ============================================================
+
+Eavesdropper_ChangelogTextContainerMixin = {};
+
+function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkEnter(link, text, region, left, bottom, width, height)
+	GameTooltip:SetOwner(self, "ANCHOR_PRESERVE");
+	GameTooltip:ClearAllPoints();
+	GameTooltip:SetPoint("BOTTOMLEFT", region, "TOPLEFT", left + width, bottom);
+	GameTooltip:SetText(text, 1, 1, 1);
+	GameTooltip:AddLine(L.CLICK_TO_COPY, 1, 1, 1, false);
+	GameTooltip:Show();
+end
+
+function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkLeave()
+	GameTooltip:Hide();
+end
+
+function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkClick(link, text, button, region, left, bottom, width, height)
+	if button == "LeftButton" then
+		local url = string.match(link, "url:([^:]+):0");
+		if url then
+			url = "https://"..url;
+			ED.LinkDialog.CreateExternalLinkDialog(url);
+		end
+	end
+end
+
+-- ============================================================
+-- Changelog Frame Mixin
+-- ============================================================
 
 Eavesdropper_ChangelogFrameMixin = {};
 
