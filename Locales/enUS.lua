@@ -256,7 +256,7 @@ L = {
 	-- About Tab
 	ABOUT_TITLE = "About",
 	ADDONINFO_VERSION = "|cnNORMAL_FONT_COLOR:Version:|r %s",
-	CLICK_TO_COPY = "|cnGREEN_FONT_COLOR:Click to copy link.|r",
+	CLICK_TO_COPY = "|cnGREEN_FONT_COLOR:Click: Open link to copy|r",
 	AUTHOR_COLON = "Author: ",
 	VISIT_ADDON_PAGE_TOOLTIP = "Visit the addon page on %s.";
 
