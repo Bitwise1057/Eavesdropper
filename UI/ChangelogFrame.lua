@@ -93,7 +93,7 @@ local function ConvertMarkdownToDataProvider()
 					text = string.gsub(text, "%[([^]]+)%]", ColorizeText("%1", textColors.Emphasis)); -- Make version [0.0.0] yellow
 				elseif tag == "h2" then
 					text = string.gsub(text, "%[([^%]]+)%]", "%1"); -- Remove []
-					local versionText, dateText = string.match(text, "(%d+%.%d+%.%d+)%s*%-%s*(%d+%-%d+%-%d+)"); -- Match 0.0.0 - 2026-1-1
+					local versionText, dateText = string.match(text, "(%d+%.%d+%.%d+%-?%a*)%s*%-%s*(%d+%-%d+%-%d+)"); -- Match 0.0.0[-alpha|-beta] - 2026-1-1
 					if versionText then
 						text = ColorizeText(versionText, textColors.Emphasis);
 						rightText = ColorizeText(dateText, textColors.Date);
