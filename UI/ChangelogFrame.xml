@@ -5,7 +5,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 https://raw.githubusercontent.com/Meorawr/wow-ui-schema/main/UI.xsd">
 
-	<Frame name="Eavesdropper_ChangelogTextContainerTemplate" mixin="Eavesdropper_ChangelogTextContainerMixin" enableMouse="true" enableMouseClicks="true" enableMouseMotion="true" hyperlinksEnabled="true" virtual="true">
+	<Frame name="Eavesdropper_ChangelogTextContainerTemplate" mixin="Eavesdropper_ChangelogTextContainerMixin" enableMouseMotion="true" hyperlinksEnabled="true" virtual="true">
 		<Layers>
 			<Layer level="OVERLAY">
 				<FontString parentKey="Text" inherits="GameFontHighlight" justifyH="LEFT" spacing="2"/>
