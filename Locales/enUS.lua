@@ -253,6 +253,13 @@ L = {
 	ADDONINFO_BUILD_CURRENT = title .. " is optimized for your current game build.|n|n|cnGREEN_FONT_COLOR:All features should work as expected.|r",
 	ADDONINFO_BLUESKY_SHILL_HELP = "Follow me on Bluesky!",
 
+	-- About Tab
+	ABOUT_TITLE = "About",
+	ADDONINFO_VERSION = "|cnNORMAL_FONT_COLOR:Version:|r %s",
+	CLICK_TO_COPY = "|cnGREEN_FONT_COLOR:Click: Open link to copy|r",
+	AUTHOR_COLON = "Author: ",
+	VISIT_ADDON_PAGE_TOOLTIP = "Visit the addon page on %s.";
+
 	UNIT_POPUPS_EAVESDROPPER_OPTIONS_HEADER = "Eavesdropper Options",
 	UNIT_POPUPS_EAVESDROP_ON = "Eavesdrop On",
 	UNIT_POPUPS_EAVESDROP_GROUP = "Eavesdrop Group",

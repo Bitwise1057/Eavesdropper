@@ -13,50 +13,36 @@ local SettingsElements = {};
 -- Header elements
 -- ============================================================
 
----Creates a large title with a description line beneath it
-function SettingsElements.CreateTitleWithDescription(parent, titleText, descriptionText)
-	local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
-	title:SetPoint("TOPLEFT", 20, -8);
-	title:SetText(titleText or "");
-
-	local description = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
-	description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8);
-	description:SetWidth(parent:GetWidth() - 32);
-	description:SetJustifyH("LEFT");
-	description:SetText(descriptionText or "");
-
-	return description;
-end
-
----Creates a large title with no description
-function SettingsElements.CreateTitle(parent, titleText)
-	local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
-	title:SetPoint("TOPLEFT", 20, -8);
-	title:SetText(titleText or "");
-
-	return title;
-end
-
 ---Creates a medium subtitle with an optional dynamic subtitle line
 function SettingsElements.CreateSubTitle(parent, titleText, subTitleText, data)
 	local container = CreateFrame("Frame", nil, parent);
-	container:SetWidth(parent:GetWidth());
+	container:SetPoint("LEFT", parent, "LEFT");
+	container:SetPoint("RIGHT", parent, "RIGHT");
 
 	container.settingKey = data and data.settingKey or nil;
 
 	-- Title
 	local title = container:CreateFontString(nil, "OVERLAY", "GameFontNormalMed1");
+	local padding = Constants.SETTINGS.TITLE_OFFSET;
 	title:SetText(titleText or "");
-	title:SetJustifyH("CENTER");
-	title:SetPoint("TOP", container, "TOP", 0, 0);
-	title:SetWidth(container:GetWidth());
+	title:SetJustifyH(Constants.SETTINGS.TITLE_JUSTIFY_H);
+	title:SetPoint("TOPLEFT", container, "TOPLEFT", padding, 0);
 
 	-- Subtitle (optional)
 	local subTitle = container:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+	local descTextColor = Constants.SETTINGS.DESC_TEXT_COLOR;
 	subTitle:SetSpacing(4);
-	subTitle:SetJustifyH("CENTER");
-	subTitle:SetPoint("TOP", title, "BOTTOM", 0, -8); -- spacing under title
-	subTitle:SetWidth(container:GetWidth() - 8);
+	subTitle:SetJustifyH(Constants.SETTINGS.TITLE_JUSTIFY_H);
+	subTitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8); -- spacing under title
+	subTitle:SetTextColor(descTextColor, descTextColor, descTextColor);
+
+	local function UpdateTextWidth()
+		local containerWidth = parent:GetWidth() - (2 * padding);
+		title:SetWidth(containerWidth);
+		subTitle:SetWidth(containerWidth);
+	end
+
+	UpdateTextWidth();
 
 	local function GetSubtitleText()
 		if type(data) == "table" and type(data.get) == "function" then
@@ -68,8 +54,7 @@ function SettingsElements.CreateSubTitle(parent, titleText, subTitleText, data)
 	container.Refresh = function(self)
 		local text = GetSubtitleText();
 
-		title:SetWidth(container:GetWidth());
-		subTitle:SetWidth(container:GetWidth() - 8);
+		UpdateTextWidth();
 
 		if text ~= "" then
 			subTitle:SetText(text);
@@ -161,13 +146,6 @@ local function AttachMultiLineEditBoxTooltip(backdrop, scrollFrame, editBox, tit
 end
 
 -- ============================================================
--- Layout constants
--- ============================================================
-
-local OUTER_PADDING = 10;
-local LABEL_WIDTH = 145;
-
--- ============================================================
 -- Shared layout helpers
 -- ============================================================
 
@@ -176,21 +154,21 @@ local function CreateLabeledFrame(parent, data)
 	local labelText = data.label or "";
 
 	local left = CreateFrame("Frame", nil, parent);
-	left:SetWidth(LABEL_WIDTH);
-	left:SetPoint("LEFT", parent, "LEFT", OUTER_PADDING, 0);
+	left:SetWidth(Constants.SETTINGS.LABEL_WIDTH);
+	left:SetPoint("LEFT", parent, "LEFT", Constants.SETTINGS.OPTION_OFFSET_LEFT, 0);
 	left:SetPoint("TOP", parent, "TOP");
 	left:SetPoint("BOTTOM", parent, "BOTTOM");
 
 	local right = CreateFrame("Frame", nil, parent);
 	right:SetPoint("LEFT", left, "RIGHT", 0, 0);
-	right:SetPoint("RIGHT", parent, "RIGHT", -OUTER_PADDING, 0);
+	right:SetPoint("RIGHT", parent, "RIGHT", -Constants.SETTINGS.OPTION_OFFSET_RIGHT, 0);
 	right:SetPoint("TOP", parent, "TOP");
 	right:SetPoint("BOTTOM", parent, "BOTTOM");
 
 	local label;
 	if labelText ~= "" then
 		label = left:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
-		label:SetPoint("LEFT", left, "LEFT", 8, 0);
+		label:SetPoint("LEFT", left, "LEFT", 0, 0);
 		label:SetPoint("RIGHT", left, "RIGHT", -8, 0);
 		label:SetJustifyH("LEFT");
 		label:SetText(labelText);
@@ -207,7 +185,7 @@ end
 function SettingsElements.CreateDescription(parent, descriptionText)
 	local description = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
 	description:SetText(descriptionText or "");
-	description:SetPoint("LEFT", parent, "LEFT", OUTER_PADDING + 8, 0);
+	description:SetPoint("LEFT", parent, "LEFT", Constants.SETTINGS.OPTION_OFFSET_LEFT, 0);
 	description:SetHeight(Constants.SETTINGS.WIDGET_HEIGHT);
 
 	return description;
@@ -544,10 +522,29 @@ end
 
 local function CreateMultiLineEditBox(parent, data)
 	local height = data.height or (Constants.SETTINGS.WIDGET_HEIGHT * 4);
+	local labelScrollFrameDistance = 4;
+	local extraBottomPadding = 10;
 
-	local backdrop = CreateFrame("Frame", nil, parent, "BackdropTemplate");
-	backdrop:SetPoint("LEFT", parent, "LEFT", 20, 0);
-	backdrop:SetPoint("RIGHT", parent, "RIGHT", -8, 0);
+	local container = CreateFrame("Frame", nil, parent);
+	container:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0);
+	container:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, 0);
+
+	local label;
+	if data.label then
+		label = container:CreateFontString(nil, "OVERLAY", "GameFontHighlight");
+		label:SetPoint("TOPLEFT", container, "TOPLEFT", Constants.SETTINGS.OPTION_OFFSET_LEFT, 0);
+		label:SetSize(container:GetWidth(), 20);
+		label:SetJustifyH("LEFT");
+		label:SetText(data.label);
+	end
+
+	local backdrop = CreateFrame("Frame", nil, container, "BackdropTemplate");
+	if label then
+		backdrop:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -labelScrollFrameDistance);
+	else
+		backdrop:SetPoint("TOPLEFT", container, "TOPLEFT", Constants.SETTINGS.OPTION_OFFSET_LEFT, 0);
+	end
+	backdrop:SetPoint("TOPRIGHT", container, "TOPRIGHT", -Constants.SETTINGS.OPTION_OFFSET_RIGHT, 0);
 	backdrop:SetHeight(height);
 
 	backdrop:SetBackdrop({
@@ -559,34 +556,35 @@ local function CreateMultiLineEditBox(parent, data)
 	backdrop:SetBackdropColor(0, 0, 0, 0.35);
 	backdrop:SetBackdropBorderColor(0.3, 0.3, 0.3, 1);
 
+
 	local paddingLeft, paddingRight, paddingTop, paddingBottom = 10, 25, 5, 0;
 
-	local scrollFrame = CreateFrame("ScrollFrame", nil, backdrop, "ScrollFrameTemplate");
+	local scrollFrame = CreateFrame("ScrollFrame", nil, container, "ScrollFrameTemplate");
 	scrollFrame:SetPoint("TOPLEFT", backdrop, "TOPLEFT", paddingLeft, -paddingTop);
 	scrollFrame:SetPoint("BOTTOMRIGHT", backdrop, "BOTTOMRIGHT", -paddingRight, paddingBottom);
 	scrollFrame.ScrollBar:Hide();
 	scrollFrame:EnableMouseWheel(false);
 
-	local widget = CreateFrame("EditBox", nil, scrollFrame);
-	widget:SetMultiLine(true);
-	widget:SetAutoFocus(false);
-	widget:SetFontObject("ChatFontNormal");
-	widget:SetWidth(scrollFrame:GetWidth());
-	widget:SetHeight(height);
+	local editBox = CreateFrame("EditBox", nil, scrollFrame);
+	editBox:SetMultiLine(true);
+	editBox:SetAutoFocus(false);
+	editBox:SetFontObject("ChatFontNormal");
+	editBox:SetWidth(scrollFrame:GetWidth());
+	editBox:SetHeight(height);
 
-	scrollFrame:SetScrollChild(widget);
+	scrollFrame:SetScrollChild(editBox);
 
-	widget:SetPoint("TOPLEFT", scrollFrame, "TOPLEFT", 0, -5);
+	editBox:SetPoint("TOPLEFT", scrollFrame, "TOPLEFT", 0, -5);
 
-	widget.settingKey = data.settingKey;
-	widget.savedThisEdit = false;
+	editBox.settingKey = data.settingKey;
+	editBox.savedThisEdit = false;
 
 	---@return boolean
 	local function IsDisabled()
 		return type(data.disabled) == "function" and data.disabled() or false;
 	end
 
-	widget.Refresh = function(self)
+	editBox.Refresh = function(self)
 		local disabled = IsDisabled();
 		self:SetEnabled(not disabled);
 
@@ -610,7 +608,7 @@ local function CreateMultiLineEditBox(parent, data)
 			self:SetText(cleaned);
 		end
 
-		widget:SetScript("OnTextChanged", function(self)
+		editBox:SetScript("OnTextChanged", function(self)
 			self.savedThisEdit = false;
 			local max = scrollFrame:GetVerticalScrollRange();
 			if max > 0 then
@@ -621,19 +619,19 @@ local function CreateMultiLineEditBox(parent, data)
 			scrollFrame:SetVerticalScroll(max);
 		end);
 
-		widget:SetScript("OnEscapePressed", function(self)
+		editBox:SetScript("OnEscapePressed", function(self)
 			self:ClearFocus();
 		end);
 
-		widget:SetScript("OnEnterPressed", function(self)
+		editBox:SetScript("OnEnterPressed", function(self)
 			self:ClearFocus();
 		end);
 
-		widget:SetScript("OnEditFocusGained", function(self)
+		editBox:SetScript("OnEditFocusGained", function(self)
 			scrollFrame:EnableMouseWheel(true);
 		end);
 
-		widget:SetScript("OnEditFocusLost", function(self)
+		editBox:SetScript("OnEditFocusLost", function(self)
 			scrollFrame:EnableMouseWheel(false);
 			SaveValue(self);
 		end);
@@ -641,30 +639,37 @@ local function CreateMultiLineEditBox(parent, data)
 
 	backdrop:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
-			widget:SetFocus();
+			editBox:SetFocus();
 		end
 	end);
 
 	scrollFrame:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
-			widget:SetFocus();
+			editBox:SetFocus();
 		end
 	end);
 
 	scrollFrame:SetScript("OnSizeChanged", function(self)
-		widget:SetWidth(self:GetWidth());
+		editBox:SetWidth(self:GetWidth());
 	end);
 
-	widget:Refresh();
-
 	if data.tooltip then
-		AttachMultiLineEditBoxTooltip(backdrop, scrollFrame, widget, data.label, data.tooltip);
+		AttachMultiLineEditBoxTooltip(backdrop, scrollFrame, editBox, data.label, data.tooltip);
 	end
 
 	ED.ElvUI.RegisterSkinnableElement(scrollFrame.ScrollBar, "scrollbar");
 
-	local extraBottomPadding = 20;
-	return widget, scrollFrame, height + extraBottomPadding;
+	container.Refresh = function()
+		editBox:Refresh();
+	end
+
+	local labelHeight = (label and label:GetStringHeight() + labelScrollFrameDistance) or 0;
+	local widgetHeight = labelHeight + labelScrollFrameDistance + height + extraBottomPadding;
+	container:SetHeight(widgetHeight);
+
+	container:Refresh();
+
+	return container, scrollFrame, widgetHeight;
 end
 
 local function CreateEditBox(parent, data)
@@ -672,8 +677,11 @@ local function CreateEditBox(parent, data)
 
 	local widget = CreateFrame("EditBox", nil, right, "InputBoxTemplate");
 	widget:SetAutoFocus(false);
-	widget:SetPoint("LEFT", right, "LEFT", 4, 0);
-	widget:SetPoint("RIGHT", right, "RIGHT", 0, 0);
+
+	local visualOffsetLeft = 4; -- Workaround for border textures not aligned to frame. It will still be problematic when ElvUI skin is enabled.
+	local visualOffsetRight = -1;
+	widget:SetPoint("LEFT", right, "LEFT", visualOffsetLeft, 0);
+	widget:SetPoint("RIGHT", right, "RIGHT", visualOffsetRight, 0);
 	widget:SetPoint("CENTER", right, "CENTER");
 	widget:SetHeight(Constants.SETTINGS.WIDGET_HEIGHT);
 	widget:SetFontObject("ChatFontNormal");
@@ -768,87 +776,101 @@ local function CreateButton(parent, data)
 end
 
 -- ============================================================
--- Inset / composite elements
+-- Developer Info Frame
 -- ============================================================
 
----Creates a skinnable inset frame inside the parent with provided widget data.
----Positions the inset relative to a previous element, parent's top, or parent's bottom.
----@param parent table The parent frame to attach the inset frame to.
----@param insetData table List of widget data entries describing the inset contents.
----@param bottomOfParent boolean? If true, anchors the bottom of the inset to the bottom of the parent.
----@param relativeTo Frame? Optional frame to anchor the inset below.
----@param topOffset number? Optional vertical offset (default -5 if relativeTo, -20 otherwise).
----@return Frame infoInset The created inset frame containing the widgets.
-function SettingsElements.CreateInset(parent, insetData, bottomOfParent, relativeTo, topOffset)
-	local infoInset = CreateFrame("Frame", nil, parent, "InsetFrameTemplate");
+---@param parent table The parent frame to attach the frame to.
+---@return Frame infoFrame The created infoFrame.
+function SettingsElements.CreateDeveloperInfoFrame(parent)
+	local infoFrame = CreateFrame("Frame", nil, parent);
+	infoFrame:SetSize(240, 24);
 
-	if bottomOfParent then
-		infoInset:SetPoint("BOTTOM", parent, "BOTTOM", 0, 10);
-	else
-		if relativeTo then
-			topOffset = topOffset or -5;
-			infoInset:SetPoint("TOP", relativeTo, "BOTTOM", 0, topOffset);
+	local text = ED.Globals.author;
+	local characterName, server = string.match(text, "(%w+)%s*(%([%s%-%w%d)]+%))");
+	if not characterName then
+		characterName = text;
+		server = "";
+	end
+
+	local authorNameFontString = infoFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+	authorNameFontString:SetText(string.format("%s |cffff17a9%s|r", L.AUTHOR_COLON, characterName));
+	authorNameFontString:SetTextColor(0.8, 0.8, 0.8);
+	authorNameFontString:SetPoint("LEFT", infoFrame, "LEFT", 0, 0);
+
+	local authorServerFontString = infoFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall");
+	authorServerFontString:SetText(string.format("|cff808080%s|r", server));
+	authorServerFontString:SetTextColor(0.8, 0.8, 0.8);
+	authorServerFontString:SetPoint("LEFT", authorNameFontString, "RIGHT", 4, 0);
+
+	local websites = {
+		{name = "Bluesky", link = "https://bsky.app/profile/dawnsong.me", icon = "Bluesky.png", tooltip = L.ADDONINFO_BLUESKY_SHILL_HELP},
+		{name = "CurseForge", link = "https://www.curseforge.com/wow/addons/eavesdropper", icon = "CurseForge.png"},
+		{name = "Wago Addons", link = "https://addons.wago.io/addons/eavesdropper", icon = "Wago.png"},
+	};
+
+	local buttonSize = 24;
+	local buttonGap = 6;
+	local buttonIconSize = 24;
+	local buttonTexturePrefix = "Interface/AddOns/Eavesdropper/Resources/Logo-";
+
+	local function LogoButton_SetHighlighted(self, isHighlighted)
+		if isHighlighted then
+			self.Texture:SetVertexColor(1, 1, 1);
 		else
-			topOffset = topOffset or -20;
-			infoInset:SetPoint("TOP", parent, "TOP", 0, topOffset);
+			self.Texture:SetVertexColor(0.6, 0.6, 0.6);
 		end
 	end
 
-	infoInset:SetPoint("LEFT", parent, "LEFT", 10, 0);
-	infoInset:SetPoint("RIGHT", parent, "RIGHT", -10, 0);
-	infoInset:SetHeight(75);
-
-	local logo, title, author, version, build, bsky;
-	for _, data in ipairs(insetData) do
-		local entryType = data.type or "logo";
-
-		if entryType == "logo" then
-			logo = infoInset:CreateTexture(nil, "ARTWORK");
-			logo:SetTexture("Interface\\AddOns\\Eavesdropper\\Resources\\SmallLogo64");
-			logo:SetSize(52, 52);
-			logo:SetPoint("LEFT", 8, 0);
-			ED.ElvUI.RegisterSkinnableElement(logo, "icon");
-		elseif entryType == "title" then
-			title = infoInset:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
-			title:SetText(data.text or "");
-			title:SetPoint("TOPLEFT", logo, "TOPRIGHT", 10, 0);
-		elseif entryType == "version" then
-			version = infoInset:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
-			version:SetText(data.text or "");
-			version:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 5, -2);
-		elseif entryType == "build" then
-			build = CreateFrame("Button", nil, infoInset, "UIPanelDynamicResizeButtonTemplate");
-			build:SetText(data.text or "");
-			DynamicResizeButton_Resize(build);
-			build:SetPoint("BOTTOMLEFT", logo, "BOTTOMRIGHT", 8, 0);
-			ED.ElvUI.RegisterSkinnableElement(build, "button");
-
-			local tooltipText = type(data.tooltip) == "function" and data.tooltip() or (data.tooltip or "");
-			AttachTooltip(build, data.text or "", tooltipText);
-		elseif entryType == "author" then
-			author = infoInset:CreateFontString(nil, "ARTWORK", "GameFontHighlight");
-			author:SetText(data.text or "");
-			author:SetPoint("TOPRIGHT", infoInset, "TOPRIGHT", -8, 0);
-			author:SetPoint("TOP", logo, "TOP", 0, 0);
-		elseif entryType == "bsky" then
-			bsky = CreateFrame("Button", nil, infoInset, "UIPanelDynamicResizeButtonTemplate");
-			bsky:SetText(data.text or "");
-			DynamicResizeButton_Resize(bsky);
-			bsky:SetPoint("BOTTOMRIGHT", infoInset, "BOTTOMRIGHT", -8, 0);
-			bsky:SetPoint("BOTTOM", logo, "BOTTOM", 0, 0);
-			ED.ElvUI.RegisterSkinnableElement(bsky, "button");
-
-			AttachTooltip(bsky, data.text or "", data.tooltip or "");
-
-			bsky:SetScript("OnClick", function()
-				ED.LinkDialog.CreateExternalLinkDialog("https://bsky.app/profile/dawnsong.me");
-			end);
+	local function LogoButton_OnEnter(self)
+		LogoButton_SetHighlighted(self, true);
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+		GameTooltip:SetText(self.info.name, 1, 1, 1);
+		if self.info.tooltip then
+			GameTooltip:AddLine(self.info.tooltip, 1, 0.82, 0, true);
+		else
+			GameTooltip:AddLine(L.VISIT_ADDON_PAGE_TOOLTIP:format(self.info.name), 1, 0.82, 0, true);
 		end
+		GameTooltip:AddLine(L.CLICK_TO_COPY, 1, 1, 1, false);
+		GameTooltip:Show();
 	end
 
-	ED.ElvUI.RegisterSkinnableElement(infoInset, "inset");
+	local function LogoButton_OnLeave(self)
+		LogoButton_SetHighlighted(self, false);
+		GameTooltip:Hide();
+	end
 
-	return infoInset;
+	local function LogoButton_OnClick(self)
+		GameTooltip:Hide();
+		ED.LinkDialog.CreateExternalLinkDialog(self.info.link);
+	end
+
+	local function LogoButton_OnMouseDown(self)
+		self:SetAlpha(0.8);
+	end
+
+	local function LogoButton_OnMouseUp(self)
+		self:SetAlpha(1);
+	end
+
+	for i, info in ipairs(websites) do
+		local logoButton = CreateFrame("Button", nil, infoFrame);
+		logoButton:SetSize(buttonSize, buttonSize);
+		logoButton.Texture = logoButton:CreateTexture(nil, "OVERLAY");
+		logoButton.Texture:SetSize(buttonIconSize, buttonIconSize);
+		logoButton.Texture:SetPoint("CENTER", 0, 0);
+		logoButton.Texture:SetTexture(buttonTexturePrefix .. info.icon);
+		logoButton:SetPoint("RIGHT", infoFrame, "RIGHT", (-#websites + i) * (buttonSize + buttonGap), 0);
+		logoButton.info = info;
+		logoButton:SetScript("OnEnter", LogoButton_OnEnter);
+		logoButton:SetScript("OnLeave", LogoButton_OnLeave);
+		logoButton:SetScript("OnClick", LogoButton_OnClick);
+		logoButton:SetScript("OnMouseDown", LogoButton_OnMouseDown);
+		logoButton:SetScript("OnMouseUp", LogoButton_OnMouseUp);
+		logoButton:RegisterForClicks("AnyUp");
+		LogoButton_SetHighlighted(logoButton, false);
+	end
+
+	return infoFrame
 end
 
 -- ============================================================

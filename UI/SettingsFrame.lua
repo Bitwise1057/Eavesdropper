@@ -41,44 +41,41 @@ end
 -- Tab management
 -- ============================================================
 
-function Eavesdropper_SettingsMixin:AddTab()
-	local tabs = self.Tabs;
-	local tab = CreateFrame("Button", nil, self, "Eavesdropper_SettingsMenuTabTopTemplate");
+function Eavesdropper_SettingsMixin:CreateCategoryListButton(addToBottom)
+	local button = CreateFrame("Button", nil, self.CategoryList, "Eavesdropper_SettingsCategoryListButtonTemplate");
 
-	if tIndexOf(tabs, tab) == nil then
-		table.insert(tabs, tab);
+	if not self.topTabCount then
+		self.topTabCount = 0;
 	end
 
-	local tabCount = #tabs;
-	if tabCount > 1 then
-		tab:SetPoint("TOPLEFT", tabs[tabCount - 1], "TOPRIGHT", 5, 0);
+	if not self.bottomTabCount then
+		self.bottomTabCount = 0;
+	end
+
+	local tabHeight = button:GetHeight();
+	local tabPadding = 2;
+
+	if addToBottom then
+		-- Add a button to the bottom of the list, such as Changelog
+		self.bottomTabCount = self.bottomTabCount + 1;
+		local fromOffset = 12;
+		button:SetPoint("BOTTOMLEFT", 0, fromOffset + (self.bottomTabCount - 1) * (tabHeight + tabPadding) + tabPadding);
 	else
-		tab:SetPoint("TOPLEFT", 10, -20);
+		self.topTabCount = self.topTabCount + 1;
+		local fromOffset = -16;
+		button:SetPoint("TOPLEFT", 0, fromOffset - (self.topTabCount - 1) * (tabHeight + tabPadding) - tabPadding);
 	end
 
-	local tabIndex = tabCount;
+	ED.ElvUI.RegisterSkinnableElement(button);
 
-	local function OnShow(tabButton)
-		PanelTemplates_TabResize(tabButton, 15, nil, 65);
-		PanelTemplates_DeselectTab(tabButton);
-	end
-
-	local function OnClick()
-		self:SetTab(tabIndex);
-	end
-
-	tab:SetScript("OnShow", OnShow);
-	tab:SetScript("OnClick", OnClick);
-
-	ED.ElvUI.RegisterSkinnableElement(tab, "toptabbutton");
-
-	return tab;
+	return button;
 end
 
 function Eavesdropper_SettingsMixin:SetTab(index)
 	for i, panel in ipairs(self.Views) do
 		local isSelected = (i == index);
 		panel:SetShown(isSelected);
+		panel.categoryListBtton:SetSelected(isSelected);
 
 		local scroll = panel.scrollFrame;
 		if scroll then
@@ -89,8 +86,6 @@ function Eavesdropper_SettingsMixin:SetTab(index)
 		end
 	end
 
-	PanelTemplates_SetTab(self, index);
-	self.selectedTab = index;
 	lastSelectedTab = index;
 end
 
@@ -100,8 +95,8 @@ end
 
 ---Creates a non-scrollable panel for a settings tab
 function Eavesdropper_SettingsMixin:AddFrame()
-	local frame = CreateFrame("Frame", nil, self);
-	frame:SetPoint("TOP", 0, -65);
+	local frame = CreateFrame("Frame", nil, self.SettingsList);
+	frame:SetPoint("TOP", 0, -4);
 	frame:SetPoint("LEFT");
 	frame:SetPoint("RIGHT");
 	frame:SetPoint("BOTTOM");
@@ -116,15 +111,15 @@ end
 
 ---Creates a scrollable panel for a settings tab
 function Eavesdropper_SettingsMixin:AddScrollableFrame()
-	local frame = CreateFrame("Frame", nil, self);
-	frame:SetPoint("TOP", 0, -65);
+	local frame = CreateFrame("Frame", nil, self.SettingsList);
+	frame:SetPoint("TOP", 0, 0);
 	frame:SetPoint("LEFT");
 	frame:SetPoint("RIGHT");
 	frame:SetPoint("BOTTOM");
 
-	local paddingLeft, paddingRight, paddingTop, paddingBottom = 0, 25, 0, 16;
+	local paddingLeft, paddingRight, paddingTop, paddingBottom = 0, 25, 4, 4;
 
-	local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "ScrollFrameTemplate");
+	local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "Eavesdropper_SettingsScrollFrameTemplate");
 	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", paddingLeft, -paddingTop);
 	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -paddingRight, paddingBottom);
 
@@ -151,32 +146,34 @@ function Eavesdropper_SettingsMixin:AddScrollableFrame()
 	return frame, scrollChild;
 end
 
----Populates a tab panel with a list of options
-function Eavesdropper_SettingsMixin:PopulateTab(tab, options)
+---Populates a panel (frame or scrollChild) with a list of options
+function Eavesdropper_SettingsMixin:PopulatePanel(panel, options)
 	local previousContainer = nil;
+
+	tinsert(options, {type = "spacer"}); -- Additional spacer to the bottom so the last widget doesn't touch the bottom of border
+
 	for _, data in ipairs(options) do
 		local container, widget;
 		local padding = -Constants.SETTINGS.PADDING_HEIGHT;
 
 		if data.type == "subtitle" then
-			container = SettingsElements.CreateSubTitle(tab, data.label, data.subLabel, data);
+			container = SettingsElements.CreateSubTitle(panel, data.label, data.subLabel, data);
 			widget = data and container or nil;
 			padding = -Constants.SETTINGS.PADDING_HEIGHT_TITLE;
 		elseif data.type == "description" then
-			container = SettingsElements.CreateDescription(tab, data.label);
+			container = SettingsElements.CreateDescription(panel, data.label);
 			widget = nil;
+		elseif data.type == "spacer" then
+			container = CreateFrame("Frame", nil, panel);
+			container:SetSize(2, Constants.SETTINGS.PADDING_HEIGHT_TITLE);
 		else
-			container, widget = SettingsElements.CreateElement(tab, data);
-		end
-
-		if data.type == "editbox_multiline" then
-			padding = Constants.SETTINGS.PADDING_MULTILINE_EDITBOX;
+			container, widget = SettingsElements.CreateElement(panel, data);
 		end
 
 		if previousContainer then
-			container:SetPoint("TOP", previousContainer, "BOTTOM", 0, padding);
+			container:SetPoint("TOPLEFT", previousContainer, "BOTTOMLEFT", 0, padding);
 		else
-			container:SetPoint("TOP", tab, "TOP", 0, -5);
+			container:SetPoint("TOPLEFT", panel, "TOPLEFT", 0, padding);
 		end
 
 		if widget then
@@ -190,19 +187,55 @@ function Eavesdropper_SettingsMixin:PopulateTab(tab, options)
 	return previousContainer;
 end
 
+---Create a CategoryListButton (left) and a panel (right) populated with options
+function Eavesdropper_SettingsMixin:CreateCategory(categoryName, isScrollable, options, addToBottom)
+	if not self.categoryIndex then
+		self.categoryIndex = 0;
+	end
+
+	self.categoryIndex = self.categoryIndex + 1;
+
+	local categoryListBtton = self:CreateCategoryListButton(addToBottom);
+	table.insert(self.CategoryListButtons, categoryListBtton);
+	categoryListBtton:SetText(categoryName);
+
+	local frame, scrollChild;
+
+	if isScrollable then
+		frame, scrollChild = self:AddScrollableFrame();
+		frame:Hide();
+	else
+		frame = self:AddFrame();
+		frame:Hide();
+	end
+
+	frame.categoryListBtton = categoryListBtton;
+
+	-- Store the following two values because we need to re-index categories due to adding categories to the bottom
+	frame.categoryIndex = self.categoryIndex;
+	frame.addToBottom = addToBottom;
+
+	local panel = scrollChild or frame; -- This is the options' container
+
+	if options then
+		self:PopulatePanel(panel, options);
+	end
+
+	return panel, categoryListBtton;
+end
+
 -- ============================================================
 -- OnLoad
 -- ============================================================
 
 function Eavesdropper_SettingsMixin:OnLoad()
-	ButtonFrameTemplate_HidePortrait(self);
-	ButtonFrameTemplate_HideButtonBar(self);
 	tinsert(UISpecialFrames, self:GetName());
-	self.Inset:Hide();
-	self.Tabs = {};
+
+	self.CategoryListButtons = {};
 	self.Views = {};
 
-	self:SetTitle(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. SETTINGS);
+	self.NineSlice.Text:SetText(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. SETTINGS);
+	NineSliceUtil.DisableSharpening(self.NineSlice);
 
 	self.CloseButton:SetScript("OnClick", function()
 		self:Hide();
@@ -214,24 +247,30 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		self:SetPoint(pos.point, UIParent, pos.relativePoint, pos.x, pos.y);
 	end
 
-	-- Create tabs and their panels
-	local generalTab = self:AddTab();
-	generalTab:SetText(L.GENERAL_TITLE);
-	local generalPanel, generalContent = self:AddScrollableFrame(); -- luacheck: no unused (generalPanel)
+	self.Background.BackgroundColor:SetColorTexture(0.12, 0.12, 0.12, 0.95);
+	self.Background.InnerShadow:SetTexture("Interface/AddOns/Eavesdropper/Resources/SettingsPanelInnerShadow.png");
 
-	local keywordsTab = self:AddTab();
-	keywordsTab:SetText(L.KEYWORDS_TITLE);
-	local keywordsPanel, keywordsContent = self:AddScrollableFrame(); -- luacheck: no unused (keywordsPanel)
+	-- Add a divider between CategoryList and SettingsList
+	local function CreateLine(parent, relativeTo, orientation, lineShrink, offset)
+		local line = parent:CreateTexture(nil, "OVERLAY");
+		if orientation == "vertical" then
+			line:SetPoint("TOP", relativeTo, "TOPRIGHT", offset, -lineShrink);
+			line:SetPoint("BOTTOM", relativeTo, "BOTTOMRIGHT", offset, lineShrink);
+			line:SetWidth(PixelUtil.ConvertPixelsToUIForRegion(1, line));
+		else
+			line:SetPoint("LEFT", relativeTo, "TOPLEFT", lineShrink, offset);
+			line:SetPoint("RIGHT", relativeTo, "TOPRIGHT", -lineShrink, offset);
+			line:SetHeight(PixelUtil.ConvertPixelsToUIForRegion(1, line));
+		end
+		line:SetColorTexture(0.25, 0.25, 0.25);
+		line:SetTexelSnappingBias(0);
+		line:SetSnapToPixelGrid(false);
+	end
 
-	local notificationsTab = self:AddTab();
-	notificationsTab:SetText(L.NOTIFICATIONS_TITLE);
-	local notificationsPanel, notificationsContent = self:AddScrollableFrame(); -- luacheck: no unused (notificationsPanel)
-
-	local profilesTab = self:AddTab();
-	profilesTab:SetText(L.PROFILES_TITLE);
-	local profilesPanel = self:AddFrame();
-
-	PanelTemplates_SetNumTabs(self, #self.Tabs);
+	if C_AddOns.IsAddOnLoaded("ElvUI") then
+		CreateLine(self.CategoryList, self, "horizontal", 3, -24); -- Horizontal divider below the title, for ElvUI skinned window
+	end
+	CreateLine(self.CategoryList, self.CategoryList, "vertical", 6, 0); -- Vertical divider between CategoryList and SettingsList
 
 	-- --------------------------------------------------------
 	-- General options
@@ -962,10 +1001,6 @@ function Eavesdropper_SettingsMixin:OnLoad()
 			end,
 		},
 		{
-			type = "description",
-			label = L.KEYWORDS_LIST,
-		},
-		{
 			type = "editbox_multiline",
 			label = L.KEYWORDS_LIST,
 			tooltip = L.KEYWORDS_LIST_HELP,
@@ -1111,61 +1146,98 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	};
 
 	-- --------------------------------------------------------
-	-- Inset (about on Profiles)
-	-- --------------------------------------------------------
-
-	local insetWidgets = {
-		{
-			type = "logo",
-		},
-		{
-			type = "title",
-			text = ED.Globals.addon_title,
-		},
-		{
-			type = "version",
-			text = ED.Globals.addon_version,
-		},
-		{
-			type = "build",
-			text = L.ADDONINFO_BUILD:format(ED.Utils.OutputBuild(true)),
-			tooltip = function()
-				if ED.Utils.ValidateLatestBuild() then
-					return L.ADDONINFO_BUILD_CURRENT;
-				else
-					return L.ADDONINFO_BUILD_OUTDATED;
-				end
-			end,
-		},
-		{
-			type = "author",
-			text = ED.Globals.author,
-		},
-		{
-			type = "bsky",
-			text = "Bluesky",
-			tooltip = L.ADDONINFO_BLUESKY_SHILL_HELP,
-		},
-	};
-
-	-- --------------------------------------------------------
 	-- Populate & finalise
 	-- --------------------------------------------------------
 
-	self:PopulateTab(generalContent, generalOptions);
-	self:PopulateTab(keywordsContent, keywordsOptions);
-	self:PopulateTab(notificationsContent, notificationsOptions);
-	self:PopulateTab(profilesPanel, profilesOptions);
+	self:CreateCategory(L.GENERAL_TITLE, true, generalOptions);
+	self:CreateCategory(L.KEYWORDS_TITLE, true, keywordsOptions);
+	self:CreateCategory(L.NOTIFICATIONS_TITLE, true, notificationsOptions);
+	self:CreateCategory(L.PROFILES_TITLE, false, profilesOptions);
 
-	SettingsElements.CreateInset(profilesPanel, insetWidgets, true);
-
-	local totalWidth = 0;
-	for _, tab in ipairs(self.Tabs) do
-		PanelTemplates_TabResize(tab, 15, nil, 65);
-		PanelTemplates_DeselectTab(tab);
-		totalWidth = totalWidth + tab:GetWidth() + 8; -- 8px spacing between tabs
+	local version = ED.Globals.addon_version;
+	local versionTextColor = ED.Utils.ValidateLatestBuild() and "COMMON_GRAY_COLOR" or "WARNING_FONT_COLOR";
+	if version == "@project-version@" then
+		version = "Dev"; -- Show "Dev" for internal build
 	end
-	self:SetWidth(totalWidth);
+	local aboutPanel, aboutCategoryListButton = self:CreateCategory(string.format("%s  |cn%s:%s|r", L.ABOUT_TITLE, versionTextColor, version), false, nil, true);
+
+	aboutCategoryListButton:SetScript("OnEnter", function(button)
+		button:UpdateVisual();
+
+		GameTooltip:SetOwner(button, "ANCHOR_RIGHT");
+		GameTooltip:AddDoubleLine(L.ADDONINFO_VERSION:format(version), L.ADDONINFO_BUILD:format(ED.Utils.OutputBuild(true)), 1, 1, 1, 1, 1, 1);
+
+		if ED.Utils.ValidateLatestBuild() then
+			GameTooltip:AddLine(L.ADDONINFO_BUILD_CURRENT, 1, 1, 1, true);
+		else
+			GameTooltip:AddLine(L.ADDONINFO_BUILD_OUTDATED, 1, 1, 1, true);
+		end
+
+		GameTooltip:Show();
+	end);
+
+	aboutCategoryListButton:SetScript("OnLeave", function(button)
+		button:UpdateVisual();
+		GameTooltip:Hide();
+	end);
+
+	aboutPanel:SetScript("OnShow", function()
+		-- Create ChangelogFrame after clicking About
+		aboutPanel:SetScript("OnShow", nil);
+		ED.Changelogs:CreateChangelogFrame(aboutPanel);
+	end);
+
+	local infoFrame = SettingsElements.CreateDeveloperInfoFrame(aboutPanel);
+	infoFrame:SetPoint("TOPLEFT", aboutPanel, "TOPLEFT", 12, -8);
+	infoFrame:SetPoint("TOPRIGHT", aboutPanel, "TOPRIGHT", -12, -8);
+	CreateLine(infoFrame, infoFrame, "horizontal", -12, -34);
+
+	-- ReIndex Categories
+	local function SortFunc(a, b)
+		if a.addToBottom == b.addToBottom then
+			if a.addToBottom then
+				return a.categoryIndex > b.categoryIndex;
+			else
+				return a.categoryIndex < b.categoryIndex;
+			end
+		elseif a.addToBottom then
+			return false;
+		else
+			return true;
+		end
+	end
+
+	table.sort(self.Views, SortFunc);
+
+	for i, panel in ipairs(self.Views) do
+		panel.categoryIndex = i;
+		panel.categoryListBtton.tabIndex = i;
+	end
+
+	-- Adjust category list and button width so that the category label is always shown in full in one line
+	-- If the category list becomes wider, the right section, SettingsList width will not be affected. The entire frame will become wider.
+	local labelPaddingLeft = Constants.SETTINGS.CATEGORY_BUTTON_TEXT_OFFSET;
+	local labelPaddingRight = Constants.SETTINGS.CATEGORY_BUTTON_TEXT_RIGHT_PADDING;
+	local maxLabelWidth = Constants.SETTINGS.CATEGORY_BUTTON_TEXT_MIN_WIDTH;
+
+	for _, button in ipairs(self.CategoryListButtons) do
+		local labelWidth = button.Text:GetWidth();
+		if labelWidth > maxLabelWidth then
+			maxLabelWidth = labelWidth;
+		end
+	end
+
+	local categoryButtonWidth = math.ceil(labelPaddingLeft + maxLabelWidth + labelPaddingRight); -- Fit to the longest word
+	self.CategoryList:SetWidth(categoryButtonWidth);
+	for _, button in ipairs(self.CategoryListButtons) do
+		button.Text:ClearAllPoints();
+		button.Text:SetPoint("LEFT", button, "LEFT", labelPaddingLeft, 1);
+		button:SetWidth(categoryButtonWidth);
+	end
+
+	local frameWidth = categoryButtonWidth + Constants.SETTINGS.SETTINGS_LIST_WIDTH;
+	local frameHeight = Constants.SETTINGS.FRAME_HEIGHT;
+	self:SetSize(frameWidth, frameHeight);
 
 	ED.ElvUI.RegisterSkinnableElement(self, "frame");
 end
@@ -1195,14 +1267,152 @@ function Eavesdropper_SettingsMixin:OnShow()
 	ED.Frame.settingsOpened = true;
 	ED.Frame:HandleVisibility();
 	ED.ElvUI.SkinRegisteredElements();
-	-- self:RefreshWidgets() unnecessary (?)
 	local tabToShow = lastSelectedTab or 1;
 	self:SetTab(tabToShow);
+	self:RefreshWidgets()
 end
 
 function Eavesdropper_SettingsMixin:OnHide()
 	ED.Frame.settingsOpened = false;
 	ED.Frame:HandleVisibility();
+
+	if self.SetAlphaChannelMode then
+		self:SetAlphaChannelMode(nil);
+	end
+end
+
+-- ============================================================
+-- Screenshot Helper
+-- ============================================================
+
+function Eavesdropper_SettingsMixin:SetAlphaChannelMode(mode)
+	-- mode 1: All Widgets turn black + white fullscreen backdrop
+	-- mode 2: Widgets use original colors + black fullscreen backdrop
+	-- other : Disable
+
+	local showFullScreenBackdrop = mode == 1 or mode == 2;
+	local enableColorizing = mode == 1;
+	local a = mode == 1 and 0 or 1;
+
+	local function SetupFunc(object)
+		if object:IsObjectType("FontString") then
+			if enableColorizing then
+				if not object.originalColor then
+					local r, g, b = object:GetTextColor();
+					object.originalColor = {r = r, g = g, b = b};
+				end
+				object:SetTextColor(a, a, a);
+				object:SetFixedColor(true);
+			else
+				if object.originalColor then
+					local color = object.originalColor;
+					object:SetTextColor(color.r, color.g, color.b);
+					object.originalColor = nil;
+				end
+				object:SetFixedColor(false);
+			end
+		elseif object:IsObjectType("Texture") then
+			if enableColorizing then
+				if not object.originalColor then
+					local r, g, b = object:GetVertexColor();
+					object.originalColor = {r = r, g = g, b = b};
+				end
+				object:SetVertexColor(a, a, a);
+			else
+				if object.originalColor then
+					local color = object.originalColor;
+					object:SetVertexColor(color.r, color.g, color.b);
+					object.originalColor = nil;
+				end
+			end
+		end
+
+		if object.GetRegions then
+			for _, region in ipairs({object:GetRegions()}) do
+				SetupFunc(region);
+			end
+		end
+
+		if object.GetChildren then
+			for _, child in ipairs({object:GetChildren()}) do
+				SetupFunc(child);
+			end
+		end
+	end
+
+	SetupFunc(self);
+	SetupFunc(GameTooltip);
+
+	self.Background.BackgroundColor:SetVertexColor(1, 1, 1);
+
+	if enableColorizing then
+		self.NineSlice.Text:SetText(nil);
+	else
+		self.NineSlice.Text:SetText(ED.Globals.addon_settings_icon .. " " .. ED.Globals.addon_title .. " " .. SETTINGS);
+	end
+
+	if showFullScreenBackdrop then
+		if not self.fullscreenBackdrop then
+			self.fullscreenBackdrop = self:CreateTexture(nil, "BACKGROUND", nil, -8);
+			self.fullscreenBackdrop:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, 0);
+			self.fullscreenBackdrop:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", 0, 0);
+		end
+		self.fullscreenBackdrop:Show();
+		self.fullscreenBackdrop:SetVertexColor(1, 1, 1);
+		if mode == 1 then
+			self.fullscreenBackdrop:SetColorTexture(1, 1, 1);
+			self.Background.BackgroundColor:SetColorTexture(0, 0, 0, 0.95);
+		else
+			self.fullscreenBackdrop:SetColorTexture(0, 0, 0);
+			self.Background.BackgroundColor:SetColorTexture(0.12, 0.12, 0.12, 1);
+		end
+	else
+		self.Background.BackgroundColor:SetColorTexture(0.12, 0.12, 0.12, 0.95);
+		if self.fullscreenBackdrop then
+			self.fullscreenBackdrop:Hide();
+		end
+	end
+end
+
+-- ============================================================
+-- Category list button
+-- ============================================================
+
+Eavesdropper_SettingsCategoryListButtonMixin = {};
+
+function Eavesdropper_SettingsCategoryListButtonMixin:OnEnter()
+	self:UpdateVisual();
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:OnLeave()
+	self:UpdateVisual();
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:OnClick()
+	ED.SettingsFrame:SetTab(self.tabIndex);
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:SetText(text)
+	self.Text:SetText(text);
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:SetSelected(isSelected)
+	self.isSelected = isSelected;
+	self:UpdateVisual();
+end
+
+function Eavesdropper_SettingsCategoryListButtonMixin:UpdateVisual()
+	if self.isSelected or self:IsMouseMotionFocus() then
+		self.Text:SetTextColor(1, 1, 1);
+		if self.isSelected then
+			self.Texture:SetAtlas("Options_List_Active");
+		else
+			self.Texture:SetAtlas("Options_List_Hover");
+		end
+	else
+		self.Text:SetTextColor(1, 0.82, 0);
+		self.Texture:SetTexture(nil);
+	end
 end
 
 -- ============================================================

@@ -432,8 +432,15 @@ stds.wow = {
 			},
 		},
 
+		NineSliceUtil = {
+			fields = {
+				"DisableSharpening",
+			},
+		},
+
 		PixelUtil = {
 			fields = {
+				"ConvertPixelsToUIForRegion",
 				"SetPoint",
 				"SetSize",
 			},
@@ -450,6 +457,7 @@ stds.wow = {
 		ScrollUtil = {
 			fields = {
 				"AddManagedScrollBarVisibilityBehavior",
+				"AddResizableChildrenBehavior",
 				"InitScrollBoxListWithScrollBar",
 				"InitScrollBoxWithScrollBar",
 				"RegisterScrollBoxWithScrollBar",
@@ -823,6 +831,7 @@ stds.wow = {
 		"LIGHTBLUE_FONT_COLOR",
 		"LINK_FONT_COLOR",
 		"LIST_DELIMITER",
+		"LINK_FONT_COLOR",
 		"LOCALE_enGB",
 		"LOCALIZED_CLASS_NAMES_MALE",
 		"LOWER_RIGHT_VERTEX",
