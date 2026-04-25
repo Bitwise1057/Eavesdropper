@@ -175,7 +175,7 @@ function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkLeave()
 	GameTooltip:Hide();
 end
 
-function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkClick(link, text, button, region, left, bottom, width, height) -- luacheck: no unused
+function Eavesdropper_ChangelogTextContainerMixin:OnHyperlinkClick(link)
 	local url = string.match(link, "url:([^:]+):0");
 	if url then
 		url = "https://" .. url;
