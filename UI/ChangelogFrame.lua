@@ -35,8 +35,6 @@ local textColors = {
 	UnclickableLink = "LIGHTYELLOW_FONT_COLOR",
 };
 
-local ChangelogFrame;
-
 local function ConvertMarkdownToDataProvider()
 	local dataProvider = CreateDataProvider();
 	local index = 0;
@@ -190,7 +188,7 @@ end
 Eavesdropper_ChangelogFrameMixin = {};
 
 function Eavesdropper_ChangelogFrameMixin:OnLoad()
-	ChangelogFrame = self;
+	Changelogs.frame = self;
 
 	local contentWidth = self.ScrollBox:GetWidth() - (2 * scrollBoxPaddingH);
 	self.PlaceholderText:SetWidth(contentWidth);
@@ -276,7 +274,7 @@ function Changelogs:SetMarkdown(markdown)
 end
 
 function Changelogs:CreateChangelogFrame(container)
-	if ChangelogFrame then return; end
+	if Changelogs.frame then return; end
 
 	local frame = CreateFrame("Frame", nil, container, "Eavesdropper_ChangelogFrameTemplate");
 	local padding = 0;
