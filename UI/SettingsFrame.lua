@@ -1157,7 +1157,7 @@ function Eavesdropper_SettingsMixin:OnLoad()
 	local version = ED.Globals.addon_version;
 	local versionTextColor = ED.Utils.ValidateLatestBuild() and "GRAY_FONT_COLOR" or "WARNING_FONT_COLOR";
 	if not string.match(version, "%d") then
-		version = "0.0.0"; -- Show 0.0.0 instead of {@project-version@} for internal build
+		version = "Dev"; -- Show "Dev" instead of {@project-version@} for internal build
 	end
 	local aboutPanel, aboutCategoryListButton = self:CreateCategory(string.format("%s  |cn%s:%s|r", L.ABOUT_TITLE, versionTextColor, version), false, nil, true);
 
