@@ -196,6 +196,7 @@ function Eavesdropper_SettingsMixin:CreateCategory(categoryName, isScrollable, o
 	self.categoryIndex = self.categoryIndex + 1;
 
 	local categoryListBtton = self:CreateCategoryListButton(addToBottom);
+	table.insert(self.CategoryListButtons, categoryListBtton);
 	categoryListBtton:SetText(categoryName);
 
 	local frame, scrollChild;
