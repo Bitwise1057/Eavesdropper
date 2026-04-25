@@ -55,6 +55,7 @@ StaticPopupDialogs["EAVESDROPPER_LINK_DIALOG"] = {
 	text = ED.Globals.addon_title .. L.POPUP_LINK,
 	button1 = CANCEL,
 	hasEditBox = true,
+	maxLetters = 0,
 	editBoxWidth = 320,
 	OnShow = function(self)
 		local editBox = GetDialogEditBox(self);
