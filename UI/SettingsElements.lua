@@ -241,7 +241,7 @@ local function CreateCheckbox(parent, data)
 
 		local checked = self:GetChecked();
 		if type(data.get) == "function" and checked ~= data.get() then
-			data.set(checked);
+			data.set(checked, function() self:Refresh(); end);
 		end
 	end);
 
