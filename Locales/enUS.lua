@@ -127,7 +127,8 @@ L = {
 	THEMES_TITLEBAR_COLOR = "Title Bar Color",
 	THEMES_TITLEBAR_COLOR_HELP = "Set the background color and opacity for the title bar.|n|n- The title bar is typically visible when hovering over Eavesdropper.",
 	THEMES_SETTINGS_ELVUI = "ElvUI Theme",
-	THEMES_SETTINGS_ELVUI_HELP = "Force Eavesdropper's settings window to use ElvUI skinning.|n|n|cnWARNING_FONT_COLOR:Note: Toggling this will automatically trigger a UI Reload to apply the new skin.|r",
+	THEMES_SETTINGS_ELVUI_HELP = "Toggles whether Eavesdropper's settings window uses ElvUI skinning or the default look.|n|n|cnWARNING_FONT_COLOR:Note: Changing this setting will trigger a UI Reload to toggle the skin.|r",
+	THEMES_SETTINGS_ELVUI_CONFIRM = "Are you sure you want to change the ElvUI theme setting?|n|n|cnWARNING_FONT_COLOR:This will trigger a UI reload.|r",
 
 	HIDE_CLOSE_BUTTON = "Hide Close Button",
 	HIDE_CLOSE_BUTTON_HELP = "Toggles the visibility of the close button on the Eavesdropper frame.|n|n- If hidden, you can still control the window using |cnGREEN_FONT_COLOR:/ed show|r or |cnGREEN_FONT_COLOR:/ed hide|r.",

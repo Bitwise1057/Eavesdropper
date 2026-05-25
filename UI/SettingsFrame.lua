@@ -508,8 +508,10 @@ function Eavesdropper_SettingsMixin:OnLoad()
 			disabled = function() return not C_AddOns.IsAddOnLoaded("ElvUI"); end,
 			get = function() return ED.Database:GetSetting("ElvUITheme"); end,
 			set = function(val)
-				ED.Database:SetSetting("ElvUITheme", val);
-				ReloadUI();
+				ED.ConfirmDialog:Show(L.THEMES_SETTINGS_ELVUI_CONFIRM, function()
+					ED.Database:SetSetting("ElvUITheme", val);
+					ReloadUI();
+				end);
 			end,
 		},
 		{
