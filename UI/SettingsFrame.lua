@@ -508,11 +508,12 @@ function Eavesdropper_SettingsMixin:OnLoad()
 			tooltip = L.THEMES_SETTINGS_ELVUI_HELP,
 			disabled = function() return not C_AddOns.IsAddOnLoaded("ElvUI"); end,
 			get = function() return ED.Database:GetGlobalSetting("ElvUITheme"); end,
-			set = function(val, onCancel)
+			set = function(val, widget)
+				widget:SetEnabled(false);
 				ED.ConfirmDialog:Show(L.THEMES_SETTINGS_ELVUI_CONFIRM, function()
 					ED.Database:SetGlobalSetting("ElvUITheme", val);
 					ReloadUI();
-				end, onCancel);
+				end, function() widget:Refresh(); end);
 			end,
 		},
 		{
