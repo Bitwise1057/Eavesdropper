@@ -18,11 +18,17 @@ local Database = {};
 ---@field Hide boolean?
 ---@field ShowAddonCompartmentButton boolean?
 
+---Flyway patching/tracking information for database upgrades.
+---@class EavesdropperFlyway
+---@field CurrentBuild integer The last applied database patch version. Starts at 0.
+---@field Log string A text log of the last patch operation, or "" if none.
+
 ---@class EavesdropperGlobal
 ---@field DedicatedWindows boolean?
 ---@field DedicatedWindowsNewIndicator boolean?
 ---@field DedicatedWindowsUnitPopups boolean?
 ---@field DedicatedWindowsPersist boolean?
+---@field Flyway EavesdropperFlyway? Database patch versioning and migration tracking.
 ---@field GroupWindows boolean?
 ---@field GroupWindowsNewIndicator boolean?
 ---@field GroupWindowsUnitPopups boolean?
@@ -39,6 +45,10 @@ local GLOBAL_DEFAULTS = {
 	DedicatedWindowsNewIndicator = true,
 	DedicatedWindowsUnitPopups = true,
 	DedicatedWindowsPersist = true,
+	Flyway = {
+		CurrentBuild = 0,
+		Log = "",
+	},
 	GroupWindows = true,
 	GroupWindowsNewIndicator = true,
 	GroupWindowsNPCSpeechDetectionNameShown = false,
@@ -628,6 +638,7 @@ end
 ---| "DedicatedWindowsNewIndicator"
 ---| "DedicatedWindowsUnitPopups"
 ---| "DedicatedWindowsPersist"
+---| "Flyway"
 ---| "GroupWindows"
 ---| "GroupWindowsNewIndicator"
 ---| "GroupWindowsNPCSpeechDetectionNameShown"
