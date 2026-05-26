@@ -503,13 +503,14 @@ function Eavesdropper_SettingsMixin:OnLoad()
 		},
 		{
 			type = "checkbox",
+			global = true,
 			label = L.THEMES_SETTINGS_ELVUI,
 			tooltip = L.THEMES_SETTINGS_ELVUI_HELP,
 			disabled = function() return not C_AddOns.IsAddOnLoaded("ElvUI"); end,
-			get = function() return ED.Database:GetSetting("ElvUITheme"); end,
+			get = function() return ED.Database:GetGlobalSetting("ElvUITheme"); end,
 			set = function(val, onCancel)
 				ED.ConfirmDialog:Show(L.THEMES_SETTINGS_ELVUI_CONFIRM, function()
-					ED.Database:SetSetting("ElvUITheme", val);
+					ED.Database:SetGlobalSetting("ElvUITheme", val);
 					ReloadUI();
 				end, onCancel);
 			end,
