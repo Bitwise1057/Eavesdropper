@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
   - Added extra descriptions for various options and more clearly marked Global Settings to improve clarity.  
 - Updated how the addon communicates with [Yapper](https://www.curseforge.com/wow/addons/yapper-post-splitter) to use their latest public API for handling split messages ([#75](https://github.com/Raenore/Eavesdropper/pull/75)).  
 - The setting's label now greys out when disabled for better clarity ([#90](https://github.com/Raenore/Eavesdropper/pull/90)). 
+- Toggling the **ElvUI skin** for the settings window now prompts for a reload confirmation instead of instantly forcing an unannounced UI reload.
 
 ### Fixed
 - Group Windows now correctly handle multi-part messages by using split markers, preventing player names from repeating unnecessarily on every line ([#76](https://github.com/Raenore/Eavesdropper/pull/76)).  
