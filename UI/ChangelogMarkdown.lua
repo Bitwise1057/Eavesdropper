@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Updated how the addon communicates with Yapper to use their latest public API for handling split messages ([#75](https://github.com/Raenore/Eavesdropper/pull/75)).
+- The setting's label now greys out when disabled for better clarity ([#90](https://github.com/Raenore/Eavesdropper/pull/90)).
 
 ### Fixed
 - Group Windows now correctly handle multi-part messages by using split markers, preventing player names from repeating unnecessarily on every line ([#76](https://github.com/Raenore/Eavesdropper/pull/76)).
