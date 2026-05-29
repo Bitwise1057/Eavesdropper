@@ -158,10 +158,16 @@ local function CreateOpenCharacterEavesdropButton(menuDescription, contextData)
 		end
 	end
 
+	-- Resolve sender once for existing dedicated window check
+	local sender = resolveCharacterData(contextData);
+
 	local elementDescription = menuDescription:CreateButton(L.UNIT_POPUPS_EAVESDROP_ON);
 	SetTooltip(elementDescription, L.UNIT_POPUPS_EAVESDROP_ON_HELP);
 	elementDescription:SetResponder(OnClick);
 	elementDescription:SetData(contextData);
+	if ED.DedicatedFrame:FrameExists(sender) then
+		elementDescription:SetEnabled(false);
+	end
 	return elementDescription;
 end
 
