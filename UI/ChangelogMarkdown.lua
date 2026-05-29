@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 - Expanded multi-message support to include [EmoteScribe](https://www.curseforge.com/wow/addons/emotescribe) as the latest explicitly supported provider ([#78](https://github.com/Raenore/Eavesdropper/pull/78)).
   - This ensures that long-form RP emotes split across multiple messages remain cohesive within your history window.
 - **Clickable commands** were introduced in the startup message and for /ed help ([#87](https://github.com/Raenore/Eavesdropper/pull/87)).
+- Added initial **Keybindings** support, which can be configured directly in Blizzard's **Options > Keybindings** menu. Current binds include:
+  - **Toggle Eavesdropper:** Opens or closes the main history window.
+  - **Toggle Settings:** Opens or closes the Eavesdropper configuration menu.
+  - **Eavesdrop On (Dedicated):** Opens a Dedicated Window for your current target or mouseover unit, respecting your configured targeting priority.
 
 ### Changed
 - Revamped the **Settings menu** with a new **sidebar navigation** and an "About" category featuring an in-game changelog, in collaboration with [Peterodox](https://www.curseforge.com/members/peterodox/projects) ([#69](https://github.com/Raenore/Eavesdropper/pull/69) and [#86](https://github.com/Raenore/Eavesdropper/pull/86)).
